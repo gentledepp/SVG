@@ -168,8 +168,9 @@ namespace Svg.Editor.Tools
 	    public virtual bool CanSerialize => true;
 	    public virtual string SerializationId => Name;
 		public virtual IDictionary<string, object> GetPropertiesForSerialization()
-	    {
-		    return CanSerialize ? Properties : new Dictionary<string, object>();
+        {
+            Properties["isselectedtool"] = IsActive && ToolUsage == ToolUsage.Explicit;
+            return CanSerialize ? Properties : new Dictionary<string, object>();
 	    }
 
 	    public bool DeserializeProperties(IDictionary<string, object> serializedProperties)
