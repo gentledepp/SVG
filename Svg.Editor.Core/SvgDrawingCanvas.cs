@@ -445,7 +445,10 @@ namespace Svg.Editor
 				foreach (var tool in Tools)
 					await tool.Initialize(this);
 
-				ActiveTool = Tools.FirstOrDefault(t => t.ToolUsage == ToolUsage.Explicit);
+                ActiveTool = Tools.FirstOrDefault(t => t.ToolUsage == ToolUsage.Explicit
+                                                       && t.Properties.ContainsKey("isselectedtool")
+                                                       && t.Properties["isselectedtool"] is true)
+                             ?? Tools.First(t => t.ToolUsage == ToolUsage.Explicit);
 
 				_initialized = true;
 
