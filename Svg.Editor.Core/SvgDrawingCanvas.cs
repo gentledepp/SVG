@@ -308,11 +308,11 @@ namespace Svg.Editor
 		/// <param name="renderer"></param>
 		public async Task OnDraw(IRenderer renderer)
 		{
-			// make sure all tools have been initialized successfully
+            // make sure all tools have been initialized successfully
 			await EnsureInitialized();
 
-			ScreenWidth = renderer.Width;
-			ScreenHeight = renderer.Height;
+            ScreenWidth = renderer.Width;
+            ScreenHeight = renderer.Height;
 
 			SetInitialTransformation();
 
@@ -349,7 +349,7 @@ namespace Svg.Editor
 			{
 				await tool.OnDraw(renderer, this);
 			}
-		}
+        }
 
 		private void ApplyConstraintsFillUniform()
 		{
@@ -392,23 +392,26 @@ namespace Svg.Editor
 			}
 		}
 
-		private void ApplyConstraintsFitUniform()
+        private bool Loading { get; set; } = true;
+        private void ApplyConstraintsFitUniform()
 		{
 			if (Constraints == null || Constraints == RectangleF.Empty) return;
 
 			// if zoom is totally out of bounds, reset
-			if (ScreenWidth / ZoomFactor > Constraints.Width && ScreenHeight / ZoomFactor > Constraints.Height)
+			// or: when loading, zoom out
+			if ((ScreenWidth / ZoomFactor > Constraints.Width && ScreenHeight / ZoomFactor > Constraints.Height)
+				|| Loading)
 			{
 				ZoomFactor = Math.Min(ScreenWidth / Constraints.Width,
 					ScreenHeight / Constraints.Height);
-				ZoomFocus = PointF.Empty;
+                ZoomFocus = PointF.Empty;
 				Translate = PointF.Create((ScreenWidth - Constraints.Width * ZoomFactor) / 2,
-					(ScreenHeight - Constraints.Height * ZoomFactor) / 2);
+                    (ScreenHeight - Constraints.Height * ZoomFactor) / 2);
 				// this should replace "ZoomFocus = PointF.Empty;" but doesn't work when ZoomFactor < 1
 				//+ (ZoomFocus - ScreenToCanvas(0, 0)) * (ZoomFactor - 1);
+                Loading = false;
 				return;
 			}
-
 			var constraintTopLeft = PointF.Create(Constraints.Left, Constraints.Top) * ZoomFactor;
 			var constraintBottomRight = PointF.Create(Constraints.Right, Constraints.Bottom) * ZoomFactor;
 			var screenTopLeft = ScreenToCanvas(0, 0) * ZoomFactor;
@@ -896,7 +899,7 @@ namespace Svg.Editor
 			else
 			{
 				CalculateInitialTransformation = true;
-			}
+            }
 
 			// re-render
 			FireInvalidateCanvas();
@@ -923,7 +926,7 @@ namespace Svg.Editor
 			Document.ViewBox = SvgViewBox.Empty;
 
 			CalculateInitialTransformation = false;
-		}
+        }
 
 		private void OnDocumentContentModified(object sender, SvgElement e)
 		{
