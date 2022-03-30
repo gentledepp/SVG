@@ -77,9 +77,17 @@ namespace Svg
             throw new NotImplementedException();
         }
 
+        private Dictionary<(int r, int g, int b, int a), SolidBrush> _brushCache =
+            new Dictionary<(int r, int g, int b, int a), SolidBrush>();
+
         public virtual SolidBrush CreateSolidBrush(Color color)
         {
-            return new SkiaSolidBrush(color);
+            if (_brushCache.TryGetValue((color.R, color.G, color.B, color.A), out var br))
+                return br;
+            
+            var brush = new SkiaSolidBrush(color);
+            _brushCache.Add((color.R, color.G, color.B, color.A), brush);
+            return brush;
         }
 
         public virtual ColorBlend CreateColorBlend(int colourBlends)
