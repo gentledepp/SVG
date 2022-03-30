@@ -19,6 +19,7 @@
     <PackageReference Include="Svg" Version="2.4.0.2" />
     <PackageReference Include="System.Reactive" Version="4.0.0" />
     <PackageReference Include="Xam.Plugin.Media" Version="4.0.1.5" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.7.1" />
     <PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
   </ItemGroup>
   <ItemGroup>

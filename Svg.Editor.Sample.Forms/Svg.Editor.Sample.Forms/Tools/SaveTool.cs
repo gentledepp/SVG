@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Tools;
 using Svg.Interfaces;
+using Xamarin.Essentials;
 
 namespace Svg.Editor.Sample.Forms.Tools
 {
@@ -63,6 +64,22 @@ namespace Svg.Editor.Sample.Forms.Tools
                     var storagePath = fs.PathCombine(path, _fileName());
                     return fs.FileExists(storagePath);
                 }),
+                new ToolCommand(this, "Open", async (obj) =>
+                    {
+                        var fs = SvgEngine.Resolve<IFileSystem>();
+                        var path = fs.GetDefaultStoragePath();
+                        var storagePath = fs.PathCombine(path, _fileName());
+
+                        var fsr = await FilePicker.PickAsync(new PickOptions());
+
+                        if (fs.FileExists(fsr.FullPath))
+                        {
+                            ws.Document = SvgDocument.Open<SvgDocument>(fsr.FullPath);
+                        }
+                        ws.FireToolCommandsChanged();
+
+                    },
+                    (obj) => true),
                 new ToolCommand(this, "Clear", (obj) =>
                 {
                     ws.Document = new SvgDocument();
