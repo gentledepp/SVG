@@ -164,6 +164,19 @@ namespace Svg.Editor.Tools
 
         public override Task OnUserInput(UserInputEvent @event, ISvgDrawingCanvas ws)
         {
+            var b = ws.Document.Bounds;
+            if (b.Width == 0 && b.Height == 0)
+            {
+                MinScale = 0.5f;
+            }
+            else
+            {
+                var minZoomWidth = (ws.ScreenWidth / b.Width);
+                var minZoomHeight = (ws.ScreenHeight / b.Height);
+
+                MinScale = Math.Max(minZoomHeight, minZoomWidth);
+            }
+
             if (!IsActive)
                 return Task.FromResult(true);
 
