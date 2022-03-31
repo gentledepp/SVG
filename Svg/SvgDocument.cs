@@ -6,11 +6,12 @@ using System.Xml;
 using System.Linq;
 using ExCSS;
 using Svg.Css;
-using System.Threading;
 using System.Globalization;
+using QuadTrees;
 using Svg.Interfaces;
 using Svg.Interfaces.Xml;
 using Svg.Transforms;
+using Environment = System.Environment;
 
 namespace Svg
 {
@@ -19,6 +20,7 @@ namespace Svg
     /// </summary>
     public partial class SvgDocument : SvgFragment //, ITypeDescriptorContext
     {
+        private QuadTreeRectF<SvgVisualElement> _visualElements;
         public static readonly int PointsPerInch = 96;
         private SvgElementIdManager _idManager;
 
@@ -374,8 +376,24 @@ namespace Svg
             }
 
             if (svgDocument != null) FlushStyles(svgDocument);
+
+            var all = svgDocument.GetAllRecursive()
+                // skip svgdocument as this is the root node for our tree anyways
+                //.Skip(1)
+                .ToList(); 
+
+            // todo: use some threshhold to determine when this optimization is necessary
+            if (all.Count > 5000)
+            {
+                var b = svgDocument.CalculateDocumentBounds();
+                svgDocument._visualElements = new QuadTreeRectF<SvgVisualElement>(new System.Drawing.RectangleF(float.MinValue / 2, float.MinValue / 2, float.MaxValue, float.MaxValue));
+                svgDocument._visualElements.AddBulk(all.OfType<SvgVisualElement>());
+            }
+            
             return svgDocument;
         }
+
+
 
         private static void FlushStyles(SvgElement elem)
         {
@@ -412,6 +430,8 @@ namespace Svg
             return null;
         }
 
+        private static readonly Func<SvgElement, bool> NullFilter = (e) => true;
+
         /// <summary>
         /// Renders the <see cref="SvgDocument"/> to the specified <see cref="ISvgRenderer"/>.
         /// </summary>
@@ -425,7 +445,41 @@ namespace Svg
             }
 
             renderer.SetBoundable(this);
-            this.Render(renderer);
+            this.Render(renderer, NullFilter);
+        }
+
+        /// <summary>
+        /// Uses quadtree to efficiently only draw a subset of the document
+        /// </summary>
+        /// <param name="renderer"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void DrawPartial(ISvgRenderer renderer, RectangleF bounds)
+        {
+            if (renderer == null)
+            {
+                throw new ArgumentNullException("renderer");
+            }
+
+            renderer.SetBoundable(this);
+
+            // no lookup there yet => just render as usual
+            if (_visualElements is null)
+            {
+                this.Render(renderer, NullFilter);
+                return;
+            }
+
+            var hashSet = new HashSet<SvgVisualElement>();
+            _visualElements.GetObjects(new System.Drawing.RectangleF(bounds.X, bounds.Y, bounds.Width, bounds.Height),
+                elt =>
+                {
+                    //elt.RenderElement(renderer, NullFilter);
+                    hashSet.Add(elt);
+                });
+
+            this.Render(renderer, (e) => hashSet.Contains(e));
+
+            SvgEngine.Logger.Debug($"Rendered {hashSet.Count} of {_visualElements.CountNodes} elements");
         }
 
         /// <summary>
@@ -442,7 +496,7 @@ namespace Svg
 
             var renderer = SvgRenderer.FromGraphics(graphics);
             renderer.SetBoundable(this);
-            this.Render(renderer);
+            this.Render(renderer, NullFilter);
         }
 
         /// <summary>
@@ -502,7 +556,7 @@ namespace Svg
                     //EO, 2014-12-05: Requested to ensure proper zooming out (reduce size). Otherwise it clip the image.
                     this.Overflow = SvgOverflow.Auto;
 
-                    this.Render(renderer);
+                    this.Render(renderer, NullFilter);
                 }
             }
             catch

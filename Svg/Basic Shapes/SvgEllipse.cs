@@ -1,4 +1,5 @@
 
+using System;
 using Svg.Interfaces;
 
 namespace Svg
@@ -134,11 +135,11 @@ namespace Svg
         /// Renders the <see cref="SvgElement"/> and contents to the specified <see cref="Graphics"/> object.
         /// </summary>
         /// <param name="graphics">The <see cref="Graphics"/> object to render to.</param>
-        protected override void Render(ISvgRenderer renderer)
+        protected override void Render(ISvgRenderer renderer, Func<SvgElement, bool> filter)
         {
             if (this._radiusX.Value > 0.0f && this._radiusY.Value > 0.0f)
             {
-                base.Render(renderer);
+                base.Render(renderer, filter);
             }
         }
 

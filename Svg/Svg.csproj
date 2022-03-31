@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.16299;net462</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version>2.4.0.2</Version>
+    <Version>2.4.1.1</Version>
     <Authors>gentledpp,bruzkovsky</Authors>
     <Company>Opti-Q GmbH</Company>
     <PackageReleaseNotes>netstandard multiplatform</PackageReleaseNotes>
@@ -45,6 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="QuadTrees" Version="1.0.0" />
     <PackageReference Include="SkiaSharp" Version="1.68.1" />
   </ItemGroup>
 

@@ -270,7 +270,7 @@ namespace Svg
         /// </summary>
         /// <param name="renderer">The <see cref="ISvgRenderer"/> object to render to.</param>
         /// <remarks>Necessary to make sure that any internal tspan elements get rendered as well</remarks>
-        protected override void Render(ISvgRenderer renderer)
+        protected override void Render(ISvgRenderer renderer, Func<SvgElement, bool> filter)
         {
             if (Visible && Displayable && (_alternativeTextRenderer != null || Path(renderer) != null))
             {
@@ -287,9 +287,13 @@ namespace Svg
                     _alternativeTextRenderer.Render(this, renderer);
                 else
                 {
-                    RenderFill(renderer);
-                    RenderStroke(renderer);
-                    RenderChildren(renderer);
+                    //if (filter(this))
+                    {
+                        RenderFill(renderer);
+                        RenderStroke(renderer);
+                    }
+
+                    RenderChildren(renderer, filter);
                 }
 
                 // Reset the smoothing mode

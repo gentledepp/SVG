@@ -549,9 +549,9 @@ namespace Svg
         /// Renders this element to the <see cref="ISvgRenderer"/>.
         /// </summary>
         /// <param name="renderer">The <see cref="ISvgRenderer"/> that the element should use to render itself.</param>
-        public void RenderElement(ISvgRenderer renderer)
+        public void RenderElement(ISvgRenderer renderer, Func<SvgElement, bool> filter)
         {
-            Render(renderer);
+            Render(renderer, filter);
         }
 
         /// <summary>Derrived classes may decide that the element should not be written. For example, the text element shouldn't be written if it's empty.</summary>
@@ -742,10 +742,10 @@ namespace Svg
         /// Renders the <see cref="SvgElement"/> and contents to the specified <see cref="ISvgRenderer"/> object.
         /// </summary>
         /// <param name="renderer">The <see cref="ISvgRenderer"/> object to render to.</param>
-        protected virtual void Render(ISvgRenderer renderer)
+        protected virtual void Render(ISvgRenderer renderer, Func<SvgElement, bool> filter)
         {
             PushTransforms(renderer);
-            RenderChildren(renderer);
+            RenderChildren(renderer, filter);
             PopTransforms(renderer);
         }
 
@@ -753,11 +753,11 @@ namespace Svg
         /// Renders the children of this <see cref="SvgElement"/>.
         /// </summary>
         /// <param name="renderer">The <see cref="ISvgRenderer"/> to render the child <see cref="SvgElement"/>s to.</param>
-        protected virtual void RenderChildren(ISvgRenderer renderer)
+        protected virtual void RenderChildren(ISvgRenderer renderer, Func<SvgElement, bool> filter)
         {
-            foreach (SvgElement element in Children)
+            foreach (SvgElement element in Children.Where(c => filter(c)))
             {
-                element.Render(renderer);
+                element.Render(renderer, filter);
             }
         }
 
@@ -765,9 +765,9 @@ namespace Svg
         /// Renders the <see cref="SvgElement"/> and contents to the specified <see cref="ISvgRenderer"/> object.
         /// </summary>
         /// <param name="renderer">The <see cref="ISvgRenderer"/> object to render to.</param>
-        void ISvgElement.Render(ISvgRenderer renderer)
+        void ISvgElement.Render(ISvgRenderer renderer, Func<SvgElement, bool> filter)
         {
-            Render(renderer);
+            Render(renderer, filter);
         }
 
         /// <summary>
@@ -1250,12 +1250,27 @@ namespace Svg
     {
     }
 
-    internal interface ISvgElement
+    public interface ISvgElement
     {
         SvgElement Parent { get; }
         SvgElementCollection Children { get; }
         IList<ISvgNode> Nodes { get; }
 
-        void Render(ISvgRenderer renderer);
+        void Render(ISvgRenderer renderer, Func<SvgElement, bool> filter);
+    }
+
+
+    public static class ISvgElementExtensions
+    {
+        public static IEnumerable<ISvgElement> GetAllRecursive(this ISvgElement element)
+        {
+            yield return element;
+
+            foreach(var c in element.Children)
+            {
+                foreach (var subc in c.GetAllRecursive())
+                   yield return subc;
+            }
+        }
     }
 }

@@ -99,9 +99,9 @@ namespace Svg.Document_Structure
         }
 
         // Only render if the parent is set to a Use element
-        protected override void Render(ISvgRenderer renderer)
+        protected override void Render(ISvgRenderer renderer, Func<SvgElement, bool> filter)
         {
-            if (_parent is SvgUse) base.Render(renderer);
+            if (_parent is SvgUse) base.Render(renderer, filter);
         }
 
         public override SvgElement DeepCopy()

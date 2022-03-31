@@ -142,9 +142,9 @@ namespace Svg
         /// <summary>
         /// Renders the <see cref="SvgElement"/> and contents to the specified <see cref="Graphics"/> object.
         /// </summary>
-        protected override void Render(ISvgRenderer renderer)
+        protected override void Render(ISvgRenderer renderer, Func<SvgElement, bool> filter)
         {
-            if (!Visible || !Displayable)
+            if (!Visible || !Displayable || !filter(this))
                 return;
 
             if (Href != null)
@@ -247,7 +247,7 @@ namespace Svg
                         renderer.ScaleTransform(destRect.Width / srcRect.Width, destRect.Height / srcRect.Height);
                         renderer.TranslateTransform(currOffset.X + destRect.X, currOffset.Y + destRect.Y);
                         renderer.SetBoundable(new GenericBoundable(srcRect));
-                        svg.RenderElement(renderer);
+                        svg.RenderElement(renderer, filter);
                         renderer.PopBoundable();
                     }
 

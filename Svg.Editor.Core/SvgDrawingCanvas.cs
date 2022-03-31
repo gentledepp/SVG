@@ -341,8 +341,13 @@ namespace Svg.Editor
 
 			// render svg step
 			renderer.Graphics.Save();
-			Document.Draw(GetOrCreateRenderer(renderer.Graphics));
-			renderer.Graphics.Restore();
+            var r = GetOrCreateRenderer(renderer.Graphics);
+
+            var b = GetViewBox();
+			System.Diagnostics.Debug.WriteLine($"ViewBox x:{b.X} y:{b.Y} w:{b.Width} h:{b.Height}");
+            Document.DrawPartial(r, b);
+
+            renderer.Graphics.Restore();
 
 			// post render step (e.g. selection borders, etc.)
 			foreach (var tool in Tools.OrderBy(t => t.DrawOrder))
@@ -701,6 +706,13 @@ namespace Svg.Editor
 			DocumentIsDirty = false;
 		}
 
+		public RectangleF GetViewBox() 
+        {
+            var minXminY = ScreenToCanvas(0, 0);
+            var drawingClip = RectangleF.Create(minXminY, SizeF.Create(ScreenWidth / ZoomFactor, ScreenHeight / ZoomFactor));
+            return drawingClip;
+        }
+
 		/// <summary>
 		/// Stores the document with a viewbox that surrounds the current screen capture
 		/// then resets the viewbox
@@ -709,11 +721,9 @@ namespace Svg.Editor
 		public void SaveDocumentWithScreenAsViewbox(Stream stream)
 		{
 			var oldWidth = Document.Width;
-			var oldHeight = Document.Height;
-			var oldViewBox = Document.ViewBox;
-			var minXminY = ScreenToCanvas(0, 0);
-			var drawingClip = RectangleF.Create(minXminY, SizeF.Create(ScreenWidth / ZoomFactor, ScreenHeight / ZoomFactor));
-
+            var oldHeight = Document.Height;
+            var oldViewBox = Document.ViewBox;
+			var drawingClip = GetViewBox();
 			try
 			{
 				SetDocumentViewbox(drawingClip);

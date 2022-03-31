@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using QuadTrees.QTreeRectF;
 using Svg.Interfaces;
 using Svg.Transforms;
 
@@ -16,7 +17,7 @@ namespace Svg
     /// <summary>
     /// The class that all SVG elements should derive from when they are to be rendered.
     /// </summary>
-    public abstract partial class SvgVisualElement : SvgElement, ISvgBoundable, ISvgStylable, ISvgClipable
+    public abstract partial class SvgVisualElement : SvgElement, ISvgBoundable, ISvgStylable, ISvgClipable, IRectFQuadStorable
     {
         private bool _requiresSmoothRendering;
         private Region _previousClip;
@@ -106,11 +107,17 @@ namespace Svg
             }
         }
 
+        private RectangleF _boundingBox;
         public RectangleF GetBoundingBox(Matrix transform = null)
         {
-            var pts = GetTransformedPoints(transform);
-            
-            return RectangleF.FromPoints(pts);
+            if (_boundingBox == null)
+            {
+                var pts = GetTransformedPoints(transform);
+
+                _boundingBox = RectangleF.FromPoints(pts);
+            }
+
+            return _boundingBox;
         }
 
         public IEnumerable<TElement> HitTest<TElement>(RectangleF rectangle, SelectionType selectionType = SelectionType.Intersect,
@@ -277,12 +284,12 @@ namespace Svg
         /// Renders the <see cref="SvgElement"/> and contents to the specified <see cref="Graphics"/> object.
         /// </summary>
         /// <param name="renderer">The <see cref="ISvgRenderer"/> object to render to.</param>
-        protected override void Render(ISvgRenderer renderer)
+        protected override void Render(ISvgRenderer renderer, Func<SvgElement, bool> filter)
         {
-            this.Render(renderer, true);
+            this.Render(renderer, true, filter);
         }
 
-        private void Render(ISvgRenderer renderer, bool renderFilter)
+        private void Render(ISvgRenderer renderer, bool renderFilter, Func<SvgElement, bool> elementFilter)
         {
             if (this.Visible && this.Displayable && this.PushTransforms(renderer) &&
                 (!Renderable || this.Path(renderer) != null))
@@ -302,7 +309,7 @@ namespace Svg
                         this.PopTransforms(renderer);
                         try
                         {
-                            filter.ApplyFilter(this, renderer, (r) => this.Render(r, false));
+                            filter.ApplyFilter(this, renderer, (r) => this.Render(r, false, elementFilter));
                         }
                         catch (Exception ex)
                         {
@@ -325,8 +332,11 @@ namespace Svg
                             renderer.SmoothingMode = SmoothingMode.AntiAlias;
                         }
 
-                        this.RenderFill(renderer);
-                        this.RenderStroke(renderer);
+                        //if (elementFilter(this))
+                        {
+                            this.RenderFill(renderer);
+                            this.RenderStroke(renderer);
+                        }
 
                         // Reset the smoothing mode
                         if (this.RequiresSmoothRendering && renderer.SmoothingMode == SmoothingMode.AntiAlias)
@@ -336,7 +346,7 @@ namespace Svg
                     }
                     else
                     {
-                        base.RenderChildren(renderer);
+                        base.RenderChildren(renderer, elementFilter);
                     }
 
                     this.ResetClip(renderer);
@@ -557,6 +567,15 @@ namespace Svg
             newObj.Opacity = this.Opacity;
 
             return newObj;
+        }
+
+        public System.Drawing.RectangleF Rect
+        {
+            get
+            {
+                var b = GetBoundingBox();
+                return new System.Drawing.RectangleF(b.X, b.Y, b.Width, b.Height);
+            }
         }
     }
 }

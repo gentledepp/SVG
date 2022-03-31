@@ -279,11 +279,11 @@ namespace Svg
         /// <summary>
         /// Renders the <see cref="SvgElement"/> and contents to the specified <see cref="Graphics"/> object.
         /// </summary>
-        protected override void Render(ISvgRenderer renderer)
+        protected override void Render(ISvgRenderer renderer, Func<SvgElement, bool> filter)
         {
-            if (Width.Value > 0.0f && Height.Value > 0.0f)
+            if (Width.Value > 0.0f && Height.Value > 0.0f )
             {
-                base.Render(renderer);
+                base.Render(renderer, filter);
             }
         }
 

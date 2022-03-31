@@ -76,7 +76,7 @@ namespace Svg
 
         protected override bool Renderable { get { return false; } }
 
-        protected override void Render(ISvgRenderer renderer)
+        protected override void Render(ISvgRenderer renderer, Func<SvgElement, bool> filter)
         {
             if (this.Visible && this.Displayable && this.PushTransforms(renderer))
             {
@@ -87,7 +87,7 @@ namespace Svg
                 {
                     var origParent = element.Parent;
                     element._parent = this;
-                    element.RenderElement(renderer);
+                    element.RenderElement(renderer, filter);
                     element._parent = origParent;
                 }
 

@@ -173,14 +173,14 @@ namespace Svg
             base.PopTransforms(renderer);
         }
 
-        protected override void Render(ISvgRenderer renderer)
+        protected override void Render(ISvgRenderer renderer, Func<SvgElement, bool> filter)
         {
             switch (this.Overflow)
             {
                 case SvgOverflow.Auto:
                 case SvgOverflow.Visible:
                 case SvgOverflow.Scroll:
-                    base.Render(renderer);
+                    base.Render(renderer, filter);
                     break;
                 default:
                     var prevClip = renderer.GetClip();
@@ -191,7 +191,7 @@ namespace Svg
                                                   this.Y.ToDeviceValue(renderer, UnitRenderingType.Horizontal, this),
                                                   size.Width, size.Height);
                         renderer.SetClip(new Region(clip), CombineMode.Intersect);
-                        base.Render(renderer);
+                        base.Render(renderer, filter);
                     }
                     finally
                     {

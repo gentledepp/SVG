@@ -265,7 +265,7 @@ namespace Svg
 
                         foreach (SvgElement child in childElem.Children)
                         {
-                            child.RenderElement(iRenderer);
+                            child.RenderElement(iRenderer, _ => true);
                         }
                     }
 

@@ -81,9 +81,9 @@ namespace Svg.FilterEffects
         /// Renders the <see cref="SvgElement"/> and contents to the specified <see cref="ISvgRenderer"/> object.
         /// </summary>
         /// <param name="renderer">The <see cref="ISvgRenderer"/> object to render to.</param>
-        protected override void Render(ISvgRenderer renderer)
+        protected override void Render(ISvgRenderer renderer, Func<SvgElement, bool> filter)
         {
-			base.RenderChildren(renderer);
+			base.RenderChildren(renderer, filter);
         }
 
         /// <summary>

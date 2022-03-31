@@ -127,7 +127,7 @@ namespace Svg
         /// Renders the <see cref="SvgElement"/> and contents to the specified <see cref="ISvgRenderer"/> object.
         /// </summary>
         /// <param name="renderer">The <see cref="ISvgRenderer"/> object to render to.</param>
-        protected override void Render(ISvgRenderer renderer)
+        protected override void Render(ISvgRenderer rendere, Func<SvgElement, bool> filter)
         {
             // Do nothing
         }

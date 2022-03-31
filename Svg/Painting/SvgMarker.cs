@@ -203,7 +203,7 @@ namespace Svg
             using (pRenderer.UsingContextVariable(CONTEXT_STROKE, pOwner.Stroke))
             using (pRenderer.UsingContextVariable(CONTEXT_FILL, pOwner.Fill))
             {
-                Render(pRenderer);
+                Render(pRenderer, _ => true);
             }
         }
 

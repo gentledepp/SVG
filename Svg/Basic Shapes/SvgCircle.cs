@@ -1,3 +1,4 @@
+using System;
 using Svg.Interfaces;
 
 namespace Svg
@@ -123,12 +124,12 @@ namespace Svg
         /// Renders the circle to the specified <see cref="Graphics"/> object.
         /// </summary>
         /// <param name="graphics">The graphics object.</param>
-        protected override void Render(ISvgRenderer renderer)
+        protected override void Render(ISvgRenderer renderer, Func<SvgElement, bool> filter)
         {
             // Don't draw if there is no radius set
             if (this.Radius.Value > 0.0f)
             {
-                base.Render(renderer);
+                base.Render(renderer, filter);
             }
         }
 
