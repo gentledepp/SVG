@@ -77,8 +77,8 @@ namespace Svg
             throw new NotImplementedException();
         }
 
-        private Dictionary<(int r, int g, int b, int a), SolidBrush> _brushCache =
-            new Dictionary<(int r, int g, int b, int a), SolidBrush>();
+        private Dictionary<(int r, int g, int b, int a), SkiaSolidBrush> _brushCache =
+            new Dictionary<(int r, int g, int b, int a), SkiaSolidBrush>();
 
         public virtual SolidBrush CreateSolidBrush(Color color)
         {
@@ -240,5 +240,13 @@ namespace Svg
         public abstract IXmlReader CreateSvgTextReader(Stream stream, Dictionary<string, string> entities);
 
         public abstract IXmlReader CreateSvgTextReader(StringReader r, Dictionary<string, string> entities);
+
+        public void Dispose()
+        {
+            foreach (var cacheItem in _brushCache)
+            {
+                cacheItem.Value.CleanupResources();
+            }
+        }
     }
 }

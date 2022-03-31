@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -7,7 +8,7 @@ using Svg.Shared.Interfaces;
 
 namespace Svg
 {
-    public interface IFactory
+    public interface IFactory : IDisposable
     {
         GraphicsPath CreateGraphicsPath();
         GraphicsPath CreateGraphicsPath(FillMode winding);

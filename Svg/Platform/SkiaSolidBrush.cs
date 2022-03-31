@@ -1,3 +1,4 @@
+using System;
 using SkiaSharp;
 using Svg.Interfaces;
 
@@ -25,6 +26,16 @@ namespace Svg.Platform
             var paint = new SKPaint();
             paint.Color = _color;
             return paint;
+        }
+
+        public void CleanupResources()
+        {
+            Reset();
+        }
+
+        public override void Dispose()
+        {
+            // do not call base - we are caching this in our SkFactoryBase!!
         }
     }
 }
