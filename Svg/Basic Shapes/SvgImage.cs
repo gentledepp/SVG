@@ -95,8 +95,15 @@ namespace Svg
         {
             get
             {
+                // if a width/height is set explicitly, use that
+                if (!Width.IsNone && !Width.IsEmpty && !Height.IsNone && !Height.IsEmpty)
+                    return RectangleF.Create(Location.ToDeviceValue(null, this),
+                        SizeF.Create(Width.ToDeviceValue(null, UnitRenderingType.Horizontal, this),
+                            Height.ToDeviceValue(null, UnitRenderingType.Vertical, this)));
+
                 var bmp = _img as Image;
                 var svg = _img as SvgFragment;
+
                 if (bmp != null)
                 {
                     return RectangleF.Create(Location.ToDeviceValue(null, this), SizeF.Create(bmp.Width, bmp.Height));
