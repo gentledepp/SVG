@@ -70,9 +70,9 @@ namespace Svg
         }
 
         [SvgAttribute("href", SvgAttributeAttribute.XLinkNamespace)]
-        public virtual Uri Href
+        public virtual string Href
         {
-            get { return Attributes.GetAttribute<Uri>("href"); }
+            get { return Attributes.GetAttribute<string>("href"); }
             set
             {
                 Attributes["href"] = value;
@@ -247,14 +247,15 @@ namespace Svg
             }
         }
 
-        protected object GetImage(Uri uri)
+        protected object GetImage(string uriString)
         {
             try
             {
                 // handle data/uri embedded images (http://en.wikipedia.org/wiki/Data_URI_scheme)
-                if (uri.IsAbsoluteUri && uri.Scheme == "data")
+                // we deliberately do not parse the string as Uri in case it is a data: uri
+                // as embedded images can easily exceed the max allowed character count of ~65K!
+                if (uriString.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
                 {
-                    string uriString = uri.OriginalString;
                     int dataIdx = uriString.IndexOf(",") + 1;
                     if (dataIdx <= 0 || dataIdx + 1 > uriString.Length)
                         throw new Exception("Invalid data URI");
@@ -267,7 +268,8 @@ namespace Svg
                         return SvgEngine.Factory.CreateImageFromStream(stream);
                     }
                 }
-
+                // if it is not a data uri, we expect it to not exceed the max charcter count of ~65K and parse it
+                var uri = new Uri(uriString, UriKind.Absolute);
                 if (!uri.IsAbsoluteUri && OwnerDocument.BaseUri != null)
                 {
                     uri = new Uri(OwnerDocument.BaseUri, uri);

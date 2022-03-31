@@ -68,7 +68,7 @@ namespace Svg.Editor.Tools
                 if (!path.StartsWith("/")) path = path.Insert(0, "/");
                 var image = new SvgImage
                 {
-                    Href = new Uri($"file://{path}", UriKind.Absolute)
+                    Href = $"file://{path}"
                 };
 
                 // add custom icl attributes
