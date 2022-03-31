@@ -87,15 +87,9 @@ namespace Svg
         }
 
 
-        /// <summary>
-        /// Gets the bounds of the element.
-        /// </summary>
-        /// <value>The bounds.</value>
-        public override RectangleF Bounds
+        public override RectangleF GetBounds()
         {
-            get
-            {
-                // if a width/height is set explicitly, use that
+            // if a width/height is set explicitly, use that
                 if (!Width.IsNone && !Width.IsEmpty && !Height.IsNone && !Height.IsEmpty)
                     return RectangleF.Create(Location.ToDeviceValue(null, this),
                         SizeF.Create(Width.ToDeviceValue(null, UnitRenderingType.Horizontal, this),
@@ -115,6 +109,18 @@ namespace Svg
                 return RectangleF.Create(Location.ToDeviceValue(null, this),
                                         SizeF.Create(Width.ToDeviceValue(null, UnitRenderingType.Horizontal, this),
                                                   Height.ToDeviceValue(null, UnitRenderingType.Vertical, this)));
+        }
+
+        private RectangleF _bounds;
+        /// <summary>
+        /// Gets the bounds of the element.
+        /// </summary>
+        /// <value>The bounds.</value>
+        public override RectangleF Bounds
+        {
+            get
+            {
+                return _bounds ??= GetBounds();
             }
         }
 

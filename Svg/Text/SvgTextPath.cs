@@ -1,4 +1,5 @@
 ﻿using System;
+using Svg.Interfaces;
 
 namespace Svg
 {
@@ -88,9 +89,5 @@ namespace Svg
         {
             return base.DeepCopy<SvgTextPath>();
         }
-
-        
-
-
     }
 }

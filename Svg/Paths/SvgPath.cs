@@ -105,6 +105,12 @@ namespace Svg
             get { return true; }
         }
 
+        public override RectangleF GetBounds()
+        {
+            return this.Path(null).GetBounds();
+        }
+
+        private RectangleF _bounds;
         /// <summary>
         /// Gets the bounds of the element.
         /// </summary>
@@ -113,7 +119,7 @@ namespace Svg
         {
             get
             {
-                return this.Path(null).GetBounds();
+                return _bounds ??= GetBounds();
             }
         }
 

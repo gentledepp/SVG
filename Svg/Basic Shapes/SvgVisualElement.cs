@@ -44,14 +44,8 @@ namespace Svg
             }
         }
 
-        /// <summary>
-        /// Gets the bounds of the element.
-        /// </summary>
-        /// <value>The bounds.</value>
-        public virtual RectangleF Bounds
+        public virtual RectangleF GetBounds()
         {
-            get
-            {
                 if (Renderable)
                 {
                     return this.Path(null).GetBounds();
@@ -79,6 +73,19 @@ namespace Svg
 
                     return r;
                 }
+
+        }
+
+        private RectangleF _bounds;
+        /// <summary>
+        /// Gets the bounds of the element.
+        /// </summary>
+        /// <value>The bounds.</value>
+        public virtual RectangleF Bounds
+        {
+            get
+            {
+                return _bounds ??= GetBounds();
             }
         }
         

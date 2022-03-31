@@ -72,13 +72,22 @@ namespace Svg
         	}
         }
 
+        public override RectangleF GetBounds()
+        {
+            return this.Path(null).GetBounds();
+        }
+
+        private RectangleF _bounds;
         /// <summary>
         /// Gets the bounds of the circle.
         /// </summary>
         /// <value>The rectangular bounds of the circle.</value>
         public override RectangleF Bounds
         {
-            get { return this.Path(null).GetBounds();}
+            get
+            {
+                return _bounds ??= GetBounds();
+            }
         }
 
         /// <summary>

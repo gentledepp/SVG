@@ -171,6 +171,12 @@ namespace Svg
             get { return (CornerRadiusX.Value > 0 || CornerRadiusY.Value > 0); }
         }
 
+        public override RectangleF GetBounds()
+        {
+                return Path(null).GetBounds();
+        }
+
+        private RectangleF _bounds;
         /// <summary>
         /// Gets the bounds of the element.
         /// </summary>
@@ -179,7 +185,7 @@ namespace Svg
         {
             get
             {
-                return Path(null).GetBounds();
+                return _bounds ??= GetBounds();
             }
         }
 

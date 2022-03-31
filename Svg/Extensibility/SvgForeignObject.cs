@@ -22,14 +22,8 @@ namespace Svg
             return GetPaths(this, renderer);
         }
 
-        /// <summary>
-        /// Gets the bounds of the element.
-        /// </summary>
-        /// <value>The bounds.</value>
-        public override RectangleF Bounds
+        public override RectangleF GetBounds()
         {
-            get
-            {
                 var r = RectangleF.Create();
                 foreach (var c in this.Children)
                 {
@@ -53,6 +47,18 @@ namespace Svg
                 }
 
                 return r;
+        }
+
+        private RectangleF _bounds;
+        /// <summary>
+        /// Gets the bounds of the element.
+        /// </summary>
+        /// <value>The bounds.</value>
+        public override RectangleF Bounds
+        {
+            get
+            {
+                return _bounds ??= GetBounds();
             }
         }
 

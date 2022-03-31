@@ -1,5 +1,7 @@
 ﻿
 
+using Svg.Interfaces;
+
 namespace Svg
 {
     /// <summary>

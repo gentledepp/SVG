@@ -1,5 +1,7 @@
 ﻿
 
+using Svg.Interfaces;
+
 namespace Svg
 {
     [SvgElement("tspan")]

@@ -126,11 +126,17 @@ namespace Svg
             return result;
         }
 
+        public override RectangleF GetBounds()
+        {
+                return this.Path(null).GetBounds();
+        }
+
+        private RectangleF _bounds;
         public override RectangleF Bounds
         {
             get
             {
-                return this.Path(null).GetBounds();
+                return _bounds ??= GetBounds();
             }
         }
 

@@ -113,16 +113,23 @@ namespace Svg
             return null;
         }
 
+        public override RectangleF GetBounds()
+        {
+            var path = this.Path(null);
+            if (path != null)
+            {
+                return path.GetBounds();
+            }
+            return RectangleF.Create();
+        }
+
+        private RectangleF _bounds;
         public override RectangleF Bounds
         {
             get
             {
-                var path = this.Path(null);
-                if (path != null)
-                {
-                    return path.GetBounds();
-                }
-                return RectangleF.Create();
+
+                return _bounds ??= GetBounds();
             }
         }
 

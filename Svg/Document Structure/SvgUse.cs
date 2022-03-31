@@ -60,11 +60,17 @@ namespace Svg
             return (element != null) ? element.Path(renderer) : null;
         }
 
+        public override RectangleF GetBounds()
+        {
+                return RectangleF.Create();
+        }
+
+        private RectangleF _bounds;
         public override RectangleF Bounds
         {
             get
             {
-                return RectangleF.Create();
+                return _bounds ??= GetBounds();
             }
         }
 
