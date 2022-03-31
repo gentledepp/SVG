@@ -11,6 +11,7 @@ namespace Svg.Editor.Forms.UWP
     public class UwpCanvasEditorViewRenderer : UwpCanvasViewRendererBase<SvgCanvasEditorView, SkiaSharp.Views.UWP.SKXamlCanvasX>
     {
         private UwpGestureRecognizer _gestureRecognizer;
+        private IDisposable _sub;
 
         protected override void OnElementChanged(ElementChangedEventArgs<SvgCanvasEditorView> e)
         {
@@ -19,7 +20,7 @@ namespace Svg.Editor.Forms.UWP
             if (Control != null)
             {
                 _gestureRecognizer = new UwpGestureRecognizer(Control);
-                _gestureRecognizer.UserInputEvents.Subscribe(async uie => await Element.DrawingCanvas.OnEvent(uie));
+                _sub = _gestureRecognizer.UserInputEvents.Subscribe(async uie => await Element.DrawingCanvas.OnEvent(uie));
                 Element.DrawingCanvas.GestureRecognizer = _gestureRecognizer;
             }
         }
@@ -27,7 +28,7 @@ namespace Svg.Editor.Forms.UWP
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-
+            _sub.Dispose();
             _gestureRecognizer.Dispose();
         }
     }
