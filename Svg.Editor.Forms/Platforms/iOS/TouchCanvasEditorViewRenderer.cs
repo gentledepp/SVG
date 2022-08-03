@@ -1,12 +1,8 @@
-﻿using System;
+﻿using Microsoft.Maui.Controls.Platform;
 using SkiaSharp.Views.Forms;
-using Svg.Editor.Forms;
 using Svg.Editor.Views.iOS;
-using Xamarin.Forms;
-using Xamarin.Forms.Platform.iOS;
-using SKFormsView = Svg.Editor.Forms.SvgCanvasEditorView;
 
-[assembly: ExportRenderer(typeof(SKFormsView), typeof(TouchCanvasEditorViewRenderer))]
+using SKFormsView = Svg.Editor.Forms.SvgCanvasEditorView;
 
 namespace Svg.Editor.Forms
 {

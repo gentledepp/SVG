@@ -5,7 +5,6 @@ using System.Linq;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Services;
 using Svg.Editor.Tools;
-using Xamarin.Forms;
 
 namespace Svg.Editor.Forms
 {
@@ -29,51 +28,56 @@ namespace Svg.Editor.Forms
 
             var commandLists = (value as IEnumerable<IEnumerable<IToolCommand>>);
             var items = new List<ToolbarItem>();
-            foreach (var commands in commandLists.Where(l => l.Any()).OrderBy(l => l.Min(li => li.Sort)))
-            {
-                var cmds = commands.Where(c => c.CanExecute(null)).ToArray();
-                if (cmds.Length == 0)
-                    continue;
+            if (commandLists != null)
+                foreach (var commands in commandLists.Where(l => l.Any()).OrderBy(l => l.Min(li => li.Sort)))
+                {
+                    var cmds = commands.Where(c => c.CanExecute(null)).ToArray();
+                    if (cmds.Length == 0)
+                        continue;
 
-                var itemOrder = items.Count >= shownActions ? ToolbarItemOrder.Secondary : ToolbarItemOrder.Primary;
-                
-                // single command => show as toolbaritem
-                if (cmds.Length == 1)
-                {
-                    var command = cmds.Single();
-                    items.Add(new ToolbarItem
+                    var itemOrder = items.Count >= shownActions ? ToolbarItemOrder.Secondary : ToolbarItemOrder.Primary;
+
+                    // single command => show as toolbaritem
+                    if (cmds.Length == 1)
                     {
-                        Text = command.Name,
-                        AutomationId = command.Name,
-                        Icon = imageProvider.GetImage(command.IconName, iconDimension),
-                        Command = new Command(() => command.Execute(null), () => command.CanExecute(null)),
-                        Order = itemOrder
-                    });
-                }
-                // multiple commands => create action menu
-                else
-                {
-                    var cmd = cmds.First();
-                    items.Add(new ToolbarItem
-                    {
-                        Text = cmd.GroupName,
-                        AutomationId = cmd.GroupName,
-                        Icon = imageProvider.GetImage(cmd.GroupIconName, iconDimension),
-                        Command = new Command(async () =>
+                        var command = cmds.Single();
+                        items.Add(new ToolbarItem
                         {
-                            var cs = cmds;
-                            var tags = cs.Select(c => c.Name).ToArray();
+                            Text = command.Name,
+                            AutomationId = command.Name,
+                            IconImageSource = imageProvider.GetImage(command.IconName, iconDimension),
+                            Command = new Command(() => command.Execute(null), () => command.CanExecute(null)),
+                            Order = itemOrder
+                        });
+                    }
+                    // multiple commands => create action menu
+                    else
+                    {
+                        var cmd = cmds.First();
+                        items.Add(new ToolbarItem
+                        {
+                            Text = cmd.GroupName,
+                            AutomationId = cmd.GroupName,
+                            IconImageSource = imageProvider.GetImage(cmd.GroupIconName, iconDimension),
+                            Command = new Command(async () =>
+                            {
+                                var cs = cmds;
+                                var tags = cs.Select(c => c.Name).ToArray();
 
-                            var result = await Application.Current.MainPage.DisplayActionSheet(cmd.GroupName, "cancel", null, tags);
+                                if (Application.Current != null && Application.Current.MainPage !=null)
+                                {
+                                    var result =
+                                        await Application.Current.MainPage.DisplayActionSheet(cmd.GroupName, "cancel",
+                                            null, tags);
 
-                            var selectedCommand = cs.FirstOrDefault(c => c.Name == result);
-                            selectedCommand?.Execute(null);
-                        }),
-                        Order = itemOrder
-                    });
-
+                                    var selectedCommand = cs.FirstOrDefault(c => c.Name == result);
+                                    selectedCommand?.Execute(null);
+                                }
+                            }),
+                            Order = itemOrder
+                        });
+                    }
                 }
-            }
 
             return items;
         }
