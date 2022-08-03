@@ -1,5 +1,6 @@
 ﻿using System;
 using SkiaSharp.Views.Forms;
+using SkiaSharp.Views.Maui;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Services;
 

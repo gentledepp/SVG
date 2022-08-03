@@ -1,5 +1,5 @@
 ﻿using System;
-using Xamarin.Forms;
+using SkiaSharp.Views.Maui;
 
 namespace SkiaSharp.Views.Forms
 {

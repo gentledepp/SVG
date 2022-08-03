@@ -1,6 +1,6 @@
 ﻿using Svg.Editor.Interfaces;
 using Svg.Interfaces;
-using Xamarin.Forms;
+using SizeF = Svg.Interfaces.SizeF;
 
 namespace Svg.Editor.Forms
 {
@@ -8,16 +8,14 @@ namespace Svg.Editor.Forms
     {
         public SizeF GetSize()
         {
-            switch (Device.RuntimePlatform)
-            {
+            var current = DeviceInfo.Current.Platform;
 
-                case Device.iOS:
-                    return SizeF.Create(32, 32);
-                case Device.Android:
-                    return SizeF.Create(32, 32);
-                default:
-                    break;
-            }
+            if(current == DevicePlatform.iOS)
+                return SizeF.Create(32, 32);
+
+            if (current == DevicePlatform.Android)
+                return SizeF.Create(32, 32);
+
             return SizeF.Create(32, 32);
         }
     }

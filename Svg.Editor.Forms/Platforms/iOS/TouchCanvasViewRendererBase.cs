@@ -1,8 +1,7 @@
-﻿
-using System;
-using System.ComponentModel;
-using Xamarin.Forms.Platform.iOS;
-
+﻿using System.ComponentModel;
+using Microsoft.Maui.Controls.Compatibility.Platform.iOS;
+using Microsoft.Maui.Controls.Platform;
+using SkiaSharp.Views.Maui;
 using SKFormsView = SkiaSharp.Views.Forms.SKCanvasViewX;
 using SKNativeView = SkiaSharp.Views.iOS.SKCanvasView;
 

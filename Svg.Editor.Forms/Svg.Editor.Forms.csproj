@@ -1,78 +1,49 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.46">
-  <PropertyGroup>
-    <RootNamespace>Svg.Editor.Forms</RootNamespace>
-    <AssemblyName>Svg.Editor.Forms</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
-    <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.17763</TargetFrameworks>
-	  <Version>2.4.4.6</Version>
-	  <LangVersion>latest</LangVersion>
-	  <PackageReleaseNotes>
-		  #2.4.4.6
-		  - fix: TextTool, when text edit, textspan renders not with bound from last textspan
-		  - fix: TextTool, removing lines until one remains, updates
-		  #2.4.4.5
-		  - fix: TextTool, Works with textspan
-		  #2.4.4.4
-		  - fix: Arrow tips of lines are not filled (transparent)
-		  #2.4.4.2
-		  - on UWP changes zoom focus correctly while zooming with mouse wheel
-		  #2.4.4.1
-		  - major rendering performance improvements
-		  #2.4.3.16
-		  - Render text stroke
-		  #2.4.3.15
-		  - Render tspan in textrenderer
-		  #2.4.3.14
-		  - DrawAllContents with Original SvgDocument size
-		  #2.4.3.13
-		  - Texterendering renders with default size when no size available
-		  #2.4.3.10 - 11
-		  - add OnScreenSet event in SvgDrawingCanvas after Screen properties set in OnDraw method
-		  # 2.4.3.9
-		  - small fixes
-		  # 2.4.3.8
-		  - zoomtool.ShowAll
-		  # 2.4.3.7
-		  - Svg 2.4.5.7
-		  # 2.4.3.6
-		  - bumped version for Svg 2.4.3.5
-		  # 2.4.3.5
-		  - fixed UWP gesture recognizer
-		  # 2.4.3.4
-		  - fixed for plan rendering
-		  - polygon tool improvements (selection rendered on adorner layer)
-		  # 2.4.3.3
-		  - polygon tool
-		  - hit testing basic shapes without fill tests line intersection
-	  </PackageReleaseNotes>
-  </PropertyGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup Condition="$(Configuration) == 'Release'">
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <IncludeSource>True</IncludeSource>
-    <IncludeSymbols>True</IncludeSymbols>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net6.0-android;net6.0-ios;net6.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net6.0-windows10.0.19041.0</TargetFrameworks>
+		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
+		<!-- <TargetFrameworks>$(TargetFrameworks);net6.0-tizen</TargetFrameworks> -->
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
 
-  <ItemGroup>
-    <Compile Remove="Platforms\**\*.cs" />
-    <None Include="Platforms\**\*.cs" />
-  </ItemGroup>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+	</PropertyGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('uap')) ">
-    <Compile Include="Platforms\UniversalWindows\**\*.cs" />
-  </ItemGroup>
 
-  <PropertyGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
-    <AndroidUseIntermediateDesignerFile>False</AndroidUseIntermediateDesignerFile>
-  </PropertyGroup>
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
-    <Compile Include="Platforms\Android\**\*.cs" />
+	<PropertyGroup Condition="$(Configuration) == 'Release'">
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IncludeSource>True</IncludeSource>
+		<IncludeSymbols>True</IncludeSymbols>
+	</PropertyGroup>
 
-    <PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Platforms\**\*.cs" />
+		<None Include="Platforms\**\*.cs" />
+	</ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
-    <Compile Include="Platforms\iOS\**\*.cs" />
+	<ItemGroup Condition=" $(TargetFramework.Contains('-windows')) ">
+		<Compile Include="Platforms\Windows\**\*.cs" />
+	</ItemGroup>
+
+	<PropertyGroup Condition=" $(TargetFramework.StartsWith('net6.0-android')) ">
+		<AndroidUseIntermediateDesignerFile>False</AndroidUseIntermediateDesignerFile>
+	</PropertyGroup>
+	<ItemGroup Condition=" $(TargetFramework.StartsWith('net6.0-android')) ">
+		<Compile Include="Platforms\Android\**\*.cs" />
+
+		<PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" $(TargetFramework.StartsWith('net6.0-ios')) ">
+		<Compile Include="Platforms\iOS\**\*.cs" />
 
     <!-- Fix bug with System.Reflection.Emit (see: https://github.com/xamarin/Xamarin.Forms/issues/1380) -->
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0">
@@ -81,10 +52,9 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="SkiaSharp.Views.Forms" Version="1.68.1" />
     <PackageReference Include="Svg" Version="2.4.4.6" />
     <PackageReference Include="System.Reactive" Version="4.0.0" />
-    <PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
+    <PackageReference Include="SkiaSharp.Views.Maui.Controls.Compatibility" Version="2.88.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Svg.Editor.Core\Svg.Editor.Core.csproj" />

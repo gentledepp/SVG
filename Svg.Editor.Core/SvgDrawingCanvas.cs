@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SkiaSharp;
 using Svg.Editor.Events;
 using Svg.Editor.Extensions;
 using Svg.Editor.Gestures;
@@ -26,7 +27,7 @@ using IGestureRecognizer = Svg.Editor.Interfaces.IGestureRecognizer;
 namespace Svg.Editor
 {
 	public sealed class SvgDrawingCanvas : IDisposable, ICanInvalidateCanvas, INotifyPropertyChanged, ISvgDrawingCanvas
-	{
+    {
 		#region Private fields and properties
 
 		private readonly ObservableCollection<SvgVisualElement> _selectedElements;

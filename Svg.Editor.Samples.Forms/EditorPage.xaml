@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:forms="clr-namespace:Svg.Editor.Samples.Forms;assembly=Svg.Editor.Samples.Forms"
+             x:Class="Svg.Editor.Samples.Forms.EditorPage"
+             Title="Simple SVG Editor"
+             forms:BindableToolbarProperty.BindableToolbarItems="{Binding DrawingCanvas.ToolCommands, Converter={StaticResource ToolCommandsToToolbarItemsConverter}}">
+
+    <forms:SvgEditorView BindingContext="{Binding DrawingCanvas}"/>
+
+</ContentPage>
