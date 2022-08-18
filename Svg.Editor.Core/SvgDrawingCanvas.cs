@@ -686,7 +686,7 @@ namespace Svg.Editor
 			try
 			{
 				var documentSize = Document.CalculateDocumentBounds();
-				SetDocumentViewbox(documentSize);
+				Document.SetDocumentViewbox(documentSize);
 				Document.Write(stream);
 
 				FireToolCommandsChanged();
@@ -716,7 +716,7 @@ namespace Svg.Editor
 
 			try
 			{
-				SetDocumentViewbox(drawingClip);
+                Document.SetDocumentViewbox(drawingClip);
 				Document.Write(stream);
 
 				FireToolCommandsChanged();
@@ -732,36 +732,9 @@ namespace Svg.Editor
 		}
 
 		public Bitmap CaptureDocumentBitmap(int maxSize = 4096, Color backgroundColor = null)
-		{
-			var documentBounds = Document.CalculateDocumentBounds();
-
-			// determine width and height of the bitmap by the minimum of the whole document's and the constraint's size
-			var drawingWidth = (int) Math.Round(Math.Min(documentBounds.Width, Constraints?.Width ?? float.MaxValue));
-			var drawingHeight =
-				(int) Math.Round(Math.Min(documentBounds.Height, Constraints?.Height ?? float.MaxValue));
-
-			// adjust width and height of the resulting bitmap to the maxSize parameter
-			var bitmapWidth = drawingWidth;
-			var bitmapHeight = drawingHeight;
-
-			if (bitmapWidth > maxSize)
-			{
-				var factor = bitmapWidth / maxSize;
-				bitmapWidth /= factor;
-				bitmapHeight /= factor;
-			}
-
-			if (bitmapHeight > maxSize)
-			{
-				var factor = bitmapHeight / maxSize;
-				bitmapWidth /= factor;
-				bitmapHeight /= factor;
-			}
-
-			var bitmap = Bitmap.Create(bitmapWidth, bitmapHeight);
-
-			return RenderBitmap(bitmap, backgroundColor, documentBounds);
-		}
+        {
+            return Document.CaptureDocumentBitmap(Constraints, maxSize, backgroundColor);
+        }
 
 		public Bitmap CaptureScreenBitmap(Color backgroundColor = null)
 		{
@@ -774,46 +747,9 @@ namespace Svg.Editor
 			var drawingClip = RectangleF.Create(ScreenToCanvas(0, 0), SizeF.Create(drawingWidth, drawingHeight));
 			var bitmap = Bitmap.Create(drawingWidth, drawingHeight);
 
-			return RenderBitmap(bitmap, backgroundColor, drawingClip);
+			return Document.RenderBitmap(bitmap, backgroundColor, drawingClip);
 		}
-
-		private Bitmap RenderBitmap(Bitmap bitmap, Color backgroundColor, RectangleF drawingClip)
-		{
-			if (drawingClip == null || drawingClip == RectangleF.Empty) return bitmap;
-
-			// stash the old values
-			var oldWidth = Document.Width;
-			var oldHeight = Document.Height;
-			var oldViewBox = Document.ViewBox;
-
-			try
-			{
-				SetDocumentViewbox(drawingClip);
-				Document.Draw(bitmap, backgroundColor ?? SvgEngine.Factory.Colors.Black);
-
-				return bitmap;
-			}
-			finally
-			{
-				// reset to old values
-				Document.ViewBox = oldViewBox;
-				Document.Width = oldWidth;
-				Document.Height = oldHeight;
-			}
-		}
-
-		private void SetDocumentViewbox(RectangleF drawingSize)
-		{
-			var x = Math.Max(drawingSize.X, Constraints?.X ?? float.MinValue);
-			var y = Math.Max(drawingSize.Y, Constraints?.Y ?? float.MinValue);
-			var width = Math.Min(drawingSize.Width, Constraints?.Width ?? float.MaxValue);
-			var height = Math.Min(drawingSize.Height, Constraints?.Height ?? float.MaxValue);
-			Document.Width = new SvgUnit(SvgUnitType.Pixel, width);
-			Document.Height = new SvgUnit(SvgUnitType.Pixel, height);
-			Document.ViewBox = new SvgViewBox(x, y, width, height);
-			Document.AspectRatio = new SvgAspectRatio(SvgPreserveAspectRatio.xMidYMid, true);
-		}
-
+		
 		public void FireInvalidateCanvas()
 		{
 			_schedulerProvider.MainScheduer.Schedule(this, (s, st) =>

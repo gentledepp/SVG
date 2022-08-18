@@ -64,17 +64,6 @@ namespace Svg.Editor.Tools
             {
                 var children = Canvas.Document.Children;
 
-                // create image from path
-                if (!path.StartsWith("/")) path = path.Insert(0, "/");
-                var image = new SvgImage
-                {
-                    Href = new Uri($"file://{path}", UriKind.Absolute)
-                };
-
-                // add custom icl attributes
-                image.CustomAttributes.Add(BackgroundCustomAttributeKey, "");
-                image.AddConstraints(NoSnappingConstraint, NoFillConstraint, NoStrokeConstraint);
-
                 // remove already placed background
                 var formerBackground = children.FirstOrDefault(x => x.CustomAttributes.ContainsKey(BackgroundCustomAttributeKey));
                 if (formerBackground != null)
@@ -83,19 +72,15 @@ namespace Svg.Editor.Tools
                     formerBackground.Dispose();
                 }
 
+                var image = Canvas.Document.AddImageInBackground(path);
+                // add custom icl attributes
+                image.CustomAttributes.Add(BackgroundCustomAttributeKey, "");
+                image.AddConstraints(NoSnappingConstraint, NoFillConstraint, NoStrokeConstraint);
                 // add constraints to the canvas
                 var size = image.GetImageSize();
 
                 Canvas.Constraints = RectangleF.Create(0, 0, size.Width, size.Height);
-
-                // insert the background before the first visible element
-                var index = children.IndexOf(children.FirstOrDefault(x => x is SvgVisualElement));
-
-                // if there are no visual elements, we want to add it to the end of the list
-                if (index == -1) index = children.Count;
-
-                children.Insert(index, image);
-
+                
                 Canvas.FireInvalidateCanvas();
                 Canvas.FireToolCommandsChanged();
             }

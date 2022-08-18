@@ -25,6 +25,8 @@ namespace Svg
                 DtdProcessing = DtdProcessing.Ignore,
                 //WhitespaceHandling = WhitespaceHandling.Significant,
             };
+            if (stream.Length == stream.Position)
+                throw new InvalidOperationException("The provided streams position is at EOF! Cannot load svg document");
             _xml = XmlReader.Create(stream, settings);
             _entities = entities;
         }

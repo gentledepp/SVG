@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Svg.Editor.Extensions;
 using Svg.Editor.Gestures;
 using Svg.Editor.Interfaces;
 using Svg.Editor.UndoRedo;
@@ -206,6 +207,7 @@ namespace Svg.Editor.Tools
             foreach (var element in selected)
             {
                 if (element.CustomAttributes.ContainsKey(BackgroundCustomAttributeKey)) continue;
+                if (element.CustomAttributes.ContainsKey(HittestInvisibleAttributeKey)) continue;
                 ws.SelectedElements.Add(element);
             }
         }
