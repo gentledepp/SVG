@@ -44,6 +44,10 @@ namespace Svg.Editor.Tools
         /// </summary>
         public const string ImmutableTextConstraint = "text";
         /// <summary>
+        /// Add this to disable this element from ever being selected.
+        /// </summary>
+        public const string HittestInvisibleAttributeKey = "data-iclhittestinvisible";
+        /// <summary>
         /// This attribute is place on an element to determine the constraints for editing tools.
         /// Possible values would be:
         /// <list type="bullet">

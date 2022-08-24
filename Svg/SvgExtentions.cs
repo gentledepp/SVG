@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 using System.IO;
@@ -125,6 +124,21 @@ namespace Svg
                 PointF.Create(rectangle.Right, rectangle.Bottom),
                 PointF.Create(rectangle.Left, rectangle.Bottom)
             };
+        }
+        
+        /// <summary>
+        /// Recursively get all descendant elements in DFS order
+        /// </summary>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        public static IEnumerable<SvgElement> GetDescendants(this SvgElement element)
+        {
+            foreach (var child in element.Children)
+            {
+                yield return child;
+                foreach (var grandChild in child.GetDescendants())
+                    yield return grandChild;
+            }
         }
     }
 }

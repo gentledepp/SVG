@@ -657,7 +657,17 @@ namespace Svg
                     documentSize = documentSize.UnionAndCopy(bounds);
             }
 
-            return documentSize ?? RectangleF.Create();
+            documentSize ??= RectangleF.Create();
+
+            if (!Transforms.Any())
+                return documentSize;
+            
+            var m = Matrix.Create();
+            foreach(var transform in Transforms)
+                transform.ApplyTo(m);
+
+            return m.TransformRectangle(documentSize);
+
         }
 
         public override void Write(IXmlTextWriter writer)
