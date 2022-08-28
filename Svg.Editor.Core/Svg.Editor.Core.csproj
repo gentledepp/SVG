@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Assets\" />
+	  <Folder Include="Assets\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\svg\ic_arrow_downward.svg" />
@@ -40,6 +40,7 @@
     <EmbeddedResource Include="Resources\svg\ic_pin_resize.svg" />
     <EmbeddedResource Include="Resources\svg\ic_pin_tool.svg" />
     <EmbeddedResource Include="Resources\svg\ic_panorama_fish_eye.svg" />
+    <EmbeddedResource Include="Resources\svg\ic_polygon.svg" />
     <EmbeddedResource Include="Resources\svg\ic_redo.svg" />
     <EmbeddedResource Include="Resources\svg\ic_rotate_left.svg" />
     <EmbeddedResource Include="Resources\svg\ic_rotate_right.svg" />
@@ -60,5 +61,6 @@
     <PackageReference Include="SkiaSharp" Version="1.68.1" />
     <PackageReference Include="Svg" Version="2.4.0.2" />
     <PackageReference Include="System.Reactive" Version="4.0.0" />
+    <PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
   </ItemGroup>
 </Project>
