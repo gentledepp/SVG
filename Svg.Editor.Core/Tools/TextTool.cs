@@ -105,7 +105,7 @@ namespace Svg.Editor.Tools
 			if (!IsActive) return;
 
 			// if there is text below the pointer, edit it
-			var svgText = Canvas.GetElementsUnderPointer<SvgTextBase>(tap.Position, 20).FirstOrDefault();
+			var svgText = Canvas.GetElementsUnderPointer<SvgTextBase>(tap.Position, SelectionType.IntersectBoundingBoxes).FirstOrDefault();
 
 			if (svgText != null)
 			{
@@ -137,7 +137,7 @@ namespace Svg.Editor.Tools
 			if (Canvas.ActiveTool.ToolType != ToolType.Select) return;
 
 			// determine if pointer was put down on a text
-			var svgText = Canvas.GetElementsUnderPointer<SvgTextBase>(doubleTap.Position, 20).FirstOrDefault();
+			var svgText = Canvas.GetElementsUnderPointer<SvgTextBase>(doubleTap.Position, SelectionType.IntersectBoundingBoxes).FirstOrDefault();
 
 			if (svgText == null
 			    || svgText.HasConstraints(ImmutableTextConstraint)

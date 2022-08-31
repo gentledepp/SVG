@@ -19,6 +19,9 @@ using Svg.Editor.Properties;
 using Svg.Editor.Tools;
 using Svg.Editor.UndoRedo;
 using Svg.Interfaces;
+using Xamarin.Forms;
+using Color = Svg.Interfaces.Color;
+using IGestureRecognizer = Svg.Editor.Interfaces.IGestureRecognizer;
 
 namespace Svg.Editor
 {
@@ -164,6 +167,13 @@ namespace Svg.Editor
 		}
 
 		public Color BackgroundColor { get; set; }
+
+		/// <summary>
+		/// Allows to specify the default filter used to determine whether some SvgVisualElement takes part in a hit-test or not
+		/// </summary>
+		public Func<SvgVisualElement, bool> DefaultHitTestFilter { get; set; } = element =>
+                            !element.CustomAttributes.ContainsKey(ToolBase.BackgroundCustomAttributeKey) &&
+                            !element.CustomAttributes.ContainsKey(ToolBase.HittestInvisibleAttributeKey);
 
 		public IGestureRecognizer GestureRecognizer
 		{
@@ -448,10 +458,13 @@ namespace Svg.Editor
 				foreach (var tool in Tools)
 					await tool.Initialize(this);
 
-                ActiveTool = Tools.FirstOrDefault(t => t.ToolUsage == ToolUsage.Explicit
-                                                       && t.Properties.ContainsKey("isselectedtool")
-                                                       && t.Properties["isselectedtool"] is true)
-                             ?? Tools.First(t => t.ToolUsage == ToolUsage.Explicit);
+				if(ActiveTool is null)
+                {
+                    ActiveTool = Tools.FirstOrDefault(t => t.ToolUsage == ToolUsage.Explicit
+                                                          && t.Properties.ContainsKey("isselectedtool")
+                                                          && t.Properties["isselectedtool"] is true)
+                                ?? Tools.FirstOrDefault(t => t.ToolUsage == ToolUsage.Explicit);
+                }
 
 				_initialized = true;
 
@@ -476,11 +489,32 @@ namespace Svg.Editor
 		/// <returns></returns>
 		public RectangleF GetPointerRectangle(PointF p)
         {
-            var halfFingerThickness = 10; // "10 pixel fat finger"
+            // "10 pixel fat finger" - but take ZoomFactor into account, as the more you zoom, the larger your finger area on the drawing canvas!
+            var halfFingerThickness = 10 * ZoomFactor; 
             var location = PointF.Create(p.X - halfFingerThickness, p.Y - halfFingerThickness);
             var size = SizeF.Create(halfFingerThickness * 2, halfFingerThickness * 2);
             return RectangleF.Create(location, size);
 		}
+
+        /// <summary>
+        /// the selection rectangle must be in absolute screen coordinates (so not transformed by canvas.Translate or canvas.ZoomFactor)
+        /// </summary>
+        /// <param name="selectionRectangle"></param>
+        /// <param name="selectionType"></param>
+        /// <param name="maxItems"></param>
+        /// <param name="recursionLevel"></param>
+        /// <returns></returns>
+        public IList<TElement> GetElementsUnder<TElement>(
+            RectangleF selectionRectangle,
+            SelectionType selectionType,
+			HitTestResultMode resultMode = HitTestResultMode.ReturnRootElementOnly,
+            int maxItems = int.MaxValue,
+            int recursionLevel = 1)
+            where TElement : SvgVisualElement
+        {
+
+			return GetElementsUnder<TElement>(selectionRectangle,selectionType, resultMode, DefaultHitTestFilter, maxItems,recursionLevel);
+        }
 
 		/// <summary>
 		/// the selection rectangle must be in absolute screen coordinates (so not transformed by canvas.Translate or canvas.ZoomFactor)
@@ -493,36 +527,35 @@ namespace Svg.Editor
 		public IList<TElement> GetElementsUnder<TElement>(
 			RectangleF selectionRectangle,
 			SelectionType selectionType,
+            HitTestResultMode resultMode,
+            Func<SvgVisualElement, bool> filter,
 			int maxItems = int.MaxValue,
-			int recursionLevel = 1)
+			int recursionLevel = int.MaxValue)
 			where TElement : SvgVisualElement
 		{
 			if (selectionRectangle == null)
 				return new List<TElement>();
-
-			// to speed up selection, this only takes first-level children into account!
-			var children = Document?.Children.OfType<SvgVisualElement>() ?? Enumerable.Empty<SvgVisualElement>();
-
-			return
-				children.Reverse()
-					.SelectMany(
-						ch =>
-							ch.HitTest<TElement>(selectionRectangle, selectionType,
-								GetCanvasTransformationMatrix(), recursionLevel))
+			
+			return Document.HitTest<TElement>(selectionRectangle,selectionType,resultMode, GetCanvasTransformationMatrix(),recursionLevel)
+                    .Where(c => filter(c))
 					.Take(maxItems)
 					.ToList();
 		}
 
-		/// <summary>
-		/// gets all visual elements under the given pointer (a 20px rectangle surrounding the given point to simulate thick finger)
-		/// </summary>
-		/// <param name="pointer1Position"></param>
-		/// <param name="recursionLevel"></param>
-		/// <returns></returns>
-		public IList<TElement> GetElementsUnderPointer<TElement>(PointF pointer1Position, int recursionLevel = 1)
+        /// <summary>
+        /// gets all visual elements under the given pointer (a 20px rectangle surrounding the given point to simulate thick finger)
+        /// </summary>
+        /// <param name="pointer1Position"></param>
+        /// <param name="selectionType"></param>
+        /// <param name="recursionLevel"></param>
+        /// <returns></returns>
+        public IList<TElement> GetElementsUnderPointer<TElement>(PointF pointer1Position, 
+            SelectionType selectionType = SelectionType.Intersect, 
+            int recursionLevel = 1)
 			where TElement : SvgVisualElement
-		{
-			return GetElementsUnder<TElement>(GetPointerRectangle(pointer1Position), SelectionType.Intersect,
+        {
+            return GetElementsUnder<TElement>(GetPointerRectangle(pointer1Position), selectionType,
+                HitTestResultMode.ReturnAllMatchingDescendants,
 				recursionLevel: recursionLevel);
 		}
 
@@ -956,4 +989,5 @@ namespace Svg.Editor
 		FitUniform,
 		FillUniform
 	}
+
 }

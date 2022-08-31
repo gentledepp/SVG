@@ -56,7 +56,7 @@ namespace Svg
             }
         }
 
-        protected override bool Renderable { get { return false; } }
+        protected internal override bool Renderable { get { return false; } }
 
         ///// <summary>
         ///// Renders the <see cref="SvgElement"/> and contents to the specified <see cref="Graphics"/> object.

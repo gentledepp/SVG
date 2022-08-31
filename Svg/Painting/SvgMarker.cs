@@ -292,6 +292,6 @@ namespace Svg
             return true;
         }
 
-        protected override bool Renderable => false;
+        protected internal override bool Renderable => false;
     }
 }

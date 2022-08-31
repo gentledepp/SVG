@@ -1,6 +1,7 @@
 using System;
-
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Svg.Interfaces;
 
 namespace Svg
@@ -106,6 +107,27 @@ namespace Svg
             }
 
             return result;
+        }
+
+        protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
+        {
+            if (this.HasFill())
+                return true;
+
+            var units = Points.ToList();
+
+            var lineSegments = new List<(PointF from, PointF to)>();
+            for (var i = 0; i < units.Count - 3; i += 2)
+            {
+                lineSegments.Add((
+                    PointF.Create(units[i].Value, units[i + 1].Value),
+                    PointF.Create(units[i + 2].Value, units[i + 3].Value)
+                ));
+            }
+            // does not add last line which connects last point to first point as this would be a polygon
+            // see: https://www.w3schools.com/graphics/svg_polyline.asp
+
+            return lineSegments.IsIntersectingWithLine(transform, rectangle);
         }
     }
 }

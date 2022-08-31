@@ -52,7 +52,7 @@ namespace Svg
             }
         }
 
-        protected override bool Renderable { get { return false; } }
+        protected internal override bool Renderable { get { return false; } }
                 
         public override SvgElement DeepCopy()
         {

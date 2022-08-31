@@ -591,8 +591,9 @@ namespace Svg.Interfaces
 
         public override string ToString()
         {
-            return String.Format("{{X={0},Y={1},Width={2},Height={3}}}",
-                         x, y, width, height);
+            return $"<rect x=\"{x}\" y=\"{y}\" width=\"{width}\" height=\"{height}\" style=\"fill:black\" />";
+            //return String.Format("{{X={0},Y={1},Width={2},Height={3}}}",
+            //             x, y, width, height);
         }
 
         public RectangleF UnionAndCopy(RectangleF childBounds)

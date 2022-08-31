@@ -69,6 +69,11 @@ namespace Svg.Transforms
         	this.points = m;
         }
 
+        public SvgMatrix(Matrix m)
+        {
+        	this.points = new List<float>{m.ScaleX,m.SkewX,m.SkewY,m.ScaleY,m.OffsetX,m.OffsetY};
+        }
+
 
 		public override object Clone()
 		{

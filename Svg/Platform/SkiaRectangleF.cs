@@ -26,7 +26,8 @@ namespace Svg.Platform
 
         public override string ToString()
         {
-            return $"x:{X} y:{Y} width:{Width} height:{Height}";
+            return $"<rect x=\"{X}\" y=\"{Y}\" width=\"{Width}\" height=\"{Height}\" style=\"fill:black\" />";
+            //return $"x:{X} y:{Y} width:{Width} height:{Height}";
         }
     }
 }

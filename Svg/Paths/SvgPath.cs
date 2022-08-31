@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Svg.Interfaces;
 using Svg.Pathing;
 using Svg.Transforms;
@@ -157,8 +159,18 @@ namespace Svg
                 
             return result;
 		}
+        
+        protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
+        {
+            if (this.HasFill())
+                return true;
 
-		public override SvgElement DeepCopy()
+            var lineSegments = this.PathData.Select(seg => (seg.Start, seg.End)).ToList();
+
+            return lineSegments.IsIntersectingWithLine(transform, rectangle);
+        }
+
+        public override SvgElement DeepCopy()
 		{
 			return DeepCopy<SvgPath>();
 		}
