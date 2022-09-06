@@ -7,6 +7,8 @@ using Svg.Editor.Events;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Tools;
 using Svg.Interfaces;
+using Svg.Pathing;
+using Svg.Transforms;
 
 namespace Svg.Editor.Core.Test
 {
@@ -188,5 +190,313 @@ namespace Svg.Editor.Core.Test
             Assert.False(Canvas.Document.Children.Any(x => x == element2));
             Assert.AreEqual(0, Canvas.SelectedElements.Count);
         }
+
+        [Test]
+        public async Task PolygonIsSelectedInside_ShouldNotSelect()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var tool = Canvas.Tools.OfType<SelectionTool>().Single();
+            Canvas.ActiveTool = tool;
+            Canvas.ScreenWidth = 800;
+            Canvas.ScreenHeight = 500;
+
+
+            var point1 = PointF.Create(0, 400);
+            var point2 = PointF.Create(800, 600);
+            var point3 = PointF.Create(800, 0);
+            var point4 = PointF.Create(-800, 0);
+
+            var collectionPoints = new SvgPointCollection();
+            collectionPoints.AddRange(new SvgUnit[]{point1.X, point1.Y, point2.X, point2.Y, point3.X, point3.Y, point4.X, point4.Y } );
+
+            var polygon = new SvgPolygon()
+            {
+                Points = collectionPoints,
+                Stroke = new SvgColourServer(Color.Create(23, 23, 23)),
+                StrokeWidth = new SvgUnit(SvgUnitType.Pixel, 10),
+                FillOpacity = 0
+            };
+            Canvas.Document.Children.Add(polygon);
+
+            // Preassert
+            Assert.True(Canvas.Document.Children.Any(x => x == polygon));
+
+
+            // Act
+            var pt1 = PointF.Create(400, 350);
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, pt1, pt1, pt1, 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, pt1, pt1, pt1, 1));
+            ((TestScheduler)SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert
+            Assert.AreEqual(0, Canvas.SelectedElements.Count);
+        }
+
+        [Test]
+        public async Task PolygonIsSelectedOutside_ShouldNotSelect()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var tool = Canvas.Tools.OfType<SelectionTool>().Single();
+            Canvas.ActiveTool = tool;
+            Canvas.ScreenWidth = 800;
+            Canvas.ScreenHeight = 500;
+
+            var point1 = PointF.Create(100, 200);
+            var point2 = PointF.Create(200, 100);
+            var point3 = PointF.Create(400, 500);
+
+            var collectionPoints = new SvgPointCollection();
+            collectionPoints.AddRange(new SvgUnit[] { point1.X, point1.Y, point2.X, point2.Y, point3.X, point3.Y });
+
+            var polygon = new SvgPolygon()
+            {
+                Points = collectionPoints,
+                StrokeWidth = new SvgUnit(SvgUnitType.Pixel, 10),
+                FillOpacity = 0
+            };
+            Canvas.Document.Children.Add(polygon);
+
+            // Preassert
+            Assert.True(Canvas.Document.Children.Any(x => x == polygon));
+
+
+            // Act
+            var pt1 = PointF.Create(700, 400);
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, pt1, pt1, pt1, 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, pt1, pt1, pt1, 1));
+            ((TestScheduler)SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert
+            Assert.AreEqual(0, Canvas.SelectedElements.Count);
+        }
+
+        [Test]
+        public async Task PolygonIsSelectedOnBorder_ShouldSelect()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var tool = Canvas.Tools.OfType<SelectionTool>().Single();
+            Canvas.ActiveTool = tool;
+            Canvas.ScreenWidth = 800;
+            Canvas.ScreenHeight = 500;
+
+            var point1 = PointF.Create(100, 200);
+            var point2 = PointF.Create(200, 100);
+            var point3 = PointF.Create(400, 500);
+
+            var collectionPoints = new SvgPointCollection();
+            collectionPoints.AddRange(new SvgUnit[] { point1.X, point1.Y, point2.X, point2.Y, point3.X, point3.Y });
+
+            var polygon = new SvgPolygon()
+            {
+                Points = collectionPoints,
+                Stroke = new SvgColourServer(Color.Create(23, 23, 23)),
+                StrokeWidth = new SvgUnit(SvgUnitType.Pixel, 10),
+                FillOpacity = 0
+            };
+            Canvas.Document.Children.Add(polygon);
+
+            // Preassert
+            Assert.True(Canvas.Document.Children.Any(x => x == polygon));
+
+
+            // Act
+            var pt1 = PointF.Create(210, 110);
+            var pt2 = PointF.Create(400, 400);
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, pt2, pt2, pt2, 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, pt2, pt2, pt2, 1));
+
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, pt1, pt1, pt1, 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, pt1, pt1, pt1, 1));
+            ((TestScheduler)SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert
+            Assert.AreEqual(1, Canvas.SelectedElements.Count);
+        }
+
+        [Test]
+        public async Task PolygonIsSelected_WhenChildPolygonIsTappedOn_ShouldSelect()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var tool = Canvas.Tools.OfType<SelectionTool>().Single();
+            Canvas.ActiveTool = tool;
+            Canvas.ScreenWidth = 800;
+            Canvas.ScreenHeight = 500;
+
+            var point1 = PointF.Create(100, 200);
+            var point2 = PointF.Create(200, 100);
+            var point3 = PointF.Create(400, 500);
+
+            var collectionPoints = new SvgPointCollection();
+            collectionPoints.AddRange(new SvgUnit[] { point1.X, point1.Y, point2.X, point2.Y, point3.X, point3.Y });
+
+            var polygon = new SvgPolygon()
+            {
+                Points = collectionPoints,
+                StrokeWidth = new SvgUnit(SvgUnitType.Pixel, 10),
+                FillOpacity = 0
+            };
+
+            var point4 = PointF.Create(50, 100);
+            var point5 = PointF.Create(100, 500);
+            var point6 = PointF.Create(200, 250);
+
+            var collectionPoints2 = new SvgPointCollection();
+            collectionPoints.AddRange(new SvgUnit[] { point4.X, point4.Y, point5.X, point5.Y, point6.X, point6.Y });
+
+
+            polygon.Children.Add(
+                new SvgPolygon()
+                {
+                    Points = collectionPoints2,
+                    StrokeWidth = new SvgUnit(SvgUnitType.Pixel, 10),
+                    FillOpacity = 0
+                });
+
+            Canvas.Document.Children.Add(polygon);
+
+            // Preassert
+            Assert.True(Canvas.Document.Children.Any(x => x == polygon));
+
+
+            // Act
+            var pt1 = PointF.Create(55, 105);
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, pt1, pt1, pt1, 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, pt1, pt1, pt1, 1));
+            ((TestScheduler)SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert
+            Assert.AreEqual(1, Canvas.SelectedElements.Count);
+        }
+
+        [Test]
+        public async Task PolygonIsSelectedOnVertikalLine_ShouldSelect()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var tool = Canvas.Tools.OfType<SelectionTool>().Single();
+            Canvas.ActiveTool = tool;
+            Canvas.ScreenWidth = 800;
+            Canvas.ScreenHeight = 500;
+
+
+            var point1 = PointF.Create(0, 400);
+            var point2 = PointF.Create(800, 600);
+            var point3 = PointF.Create(820, 0);
+            var point4 = PointF.Create(-800, 0);
+
+            var collectionPoints = new SvgPointCollection();
+            collectionPoints.AddRange(new SvgUnit[] { point1.X, point1.Y, point2.X, point2.Y, point3.X, point3.Y, point4.X, point4.Y });
+
+            var polygon = new SvgPolygon()
+            {
+                Points = collectionPoints,
+                Stroke = new SvgColourServer(Color.Create(23, 23, 23)),
+                StrokeWidth = new SvgUnit(SvgUnitType.Pixel, 10),
+                FillOpacity = 0
+            };
+            Canvas.Document.Children.Add(polygon);
+
+            // Preassert
+            Assert.True(Canvas.Document.Children.Any(x => x == polygon));
+
+
+            // Act
+            var pt1 = PointF.Create(800, 400);
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, pt1, pt1, pt1, 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, pt1, pt1, pt1, 1));
+            ((TestScheduler)SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert
+            Assert.AreEqual(1, Canvas.SelectedElements.Count);
+        }
+
+        [Test]
+        public async Task PolygonIsSelectedOnHorizontalLine_ShouldSelect()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var tool = Canvas.Tools.OfType<SelectionTool>().Single();
+            Canvas.ActiveTool = tool;
+            Canvas.ScreenWidth = 800;
+            Canvas.ScreenHeight = 500;
+
+
+            var point1 = PointF.Create(0, 400);
+            var point2 = PointF.Create(800, 600);
+            var point3 = PointF.Create(820, 0);
+            var point4 = PointF.Create(-800, 0);
+
+            var collectionPoints = new SvgPointCollection();
+            collectionPoints.AddRange(new SvgUnit[] { point1.X, point1.Y, point2.X, point2.Y, point3.X, point3.Y, point4.X, point4.Y });
+
+            var polygon = new SvgPolygon()
+            {
+                Points = collectionPoints,
+                Stroke = new SvgColourServer(Color.Create(23, 23, 23)),
+                StrokeWidth = new SvgUnit(SvgUnitType.Pixel, 10),
+                FillOpacity = 0
+            };
+            Canvas.Document.Children.Add(polygon);
+
+            // Preassert
+            Assert.True(Canvas.Document.Children.Any(x => x == polygon));
+
+
+            // Act
+            var pt1 = PointF.Create(400, 40);
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, pt1, pt1, pt1, 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, pt1, pt1, pt1, 1));
+            ((TestScheduler)SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert
+            Assert.AreEqual(1, Canvas.SelectedElements.Count);
+        }
+
+        [Test]
+        public async Task PolygonIsSelectedOnHorizontalLine_WhenClickOutsisde_ShouldSelect()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var tool = Canvas.Tools.OfType<SelectionTool>().Single();
+            Canvas.ActiveTool = tool;
+            Canvas.ScreenWidth = 800;
+            Canvas.ScreenHeight = 500;
+
+
+            var point1 = PointF.Create(0, 400);
+            var point2 = PointF.Create(800, 600);
+            var point3 = PointF.Create(820, 0);
+            var point4 = PointF.Create(-800, 0);
+
+            var collectionPoints = new SvgPointCollection();
+            collectionPoints.AddRange(new SvgUnit[] { point1.X, point1.Y, point2.X, point2.Y, point3.X, point3.Y, point4.X, point4.Y });
+
+            var polygon = new SvgPolygon()
+            {
+                Points = collectionPoints,
+                Stroke = new SvgColourServer(Color.Create(23, 23, 23)),
+                StrokeWidth = new SvgUnit(SvgUnitType.Pixel, 10),
+                FillOpacity = 0
+            };
+            Canvas.Document.Children.Add(polygon);
+
+            // Preassert
+            Assert.True(Canvas.Document.Children.Any(x => x == polygon));
+
+
+            // Act
+            var pt1 = PointF.Create(400, -40);
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, pt1, pt1, pt1, 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, pt1, pt1, pt1, 1));
+            ((TestScheduler)SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert
+            Assert.AreEqual(1, Canvas.SelectedElements.Count);
+        }
     }
 }
+
