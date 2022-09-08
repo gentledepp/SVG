@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Svg.Editor.Extensions;
 using Svg.Editor.Gestures;
 using Svg.Editor.Interfaces;
 using Svg.Pathing;
@@ -70,8 +71,6 @@ namespace Svg.Editor.Tools
                 //Closing the polygon
                 if (IsClickingOnFirstPoint(point))
                 {
-                    var ls = new SvgLineSegment(Points.Last(), Points.First());
-                    
                     DrawPolygon();
                     Reset();
                     Canvas.ActiveTool = Canvas.Tools.First(tool => tool.Name == "Select");
@@ -135,6 +134,12 @@ namespace Svg.Editor.Tools
         private void DrawPolygon()
         {
             var points = Points.SelectMany(p => new SvgUnit[] { p.X, p.Y });
+
+            CreatePolygonOverride(points);
+        }
+
+        protected virtual void CreatePolygonOverride(IEnumerable<SvgUnit> points)
+        {
             var collectionPoints = new SvgPointCollection();
             collectionPoints.AddRange(points);
 
@@ -142,8 +147,10 @@ namespace Svg.Editor.Tools
             {
                 Points = collectionPoints,
                 StrokeWidth = new SvgUnit(SvgUnitType.Pixel, DefaultStrokeWidth),
-                FillOpacity = 0
+                Fill = SvgColourServer.None,
             };
+            // we do not want the polygon to be filled
+            polygon.AddConstraints(NoFillConstraint);
 
             Canvas.Document.Children.Add(polygon);
         }

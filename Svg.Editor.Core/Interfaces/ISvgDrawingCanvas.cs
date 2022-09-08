@@ -36,6 +36,7 @@ namespace Svg.Editor.Interfaces
 
         ITool ActiveTool { get; set; }
         Color BackgroundColor { get; set; }
+        Func<SvgVisualElement, bool> DefaultHitTestFilter { get; set; }
         IGestureRecognizer GestureRecognizer { set; }
         event EventHandler CanvasInvalidated;
         event EventHandler ToolCommandsChanged;
@@ -76,16 +77,30 @@ namespace Svg.Editor.Interfaces
         /// <param name="maxItems"></param>
         /// <param name="recursionLevel"></param>
         /// <returns></returns>
-        IList<TElement> GetElementsUnder<TElement>(RectangleF selectionRectangle, SelectionType selectionType, int maxItems = int.MaxValue, int recursionLevel = 1)
+        IList<TElement> GetElementsUnder<TElement>(RectangleF selectionRectangle, 
+            SelectionType selectionType,
+            HitTestResultMode resultMode = HitTestResultMode.ReturnRootElementOnly, 
+            int maxItems = int.MaxValue, 
+            int recursionLevel = Int32.MaxValue)
             where TElement : SvgVisualElement;
 
+        IList<TElement> GetElementsUnder<TElement>(
+            RectangleF selectionRectangle,
+            SelectionType selectionType,
+            HitTestResultMode resultMode,
+            Func<SvgVisualElement, bool> filter,
+            int maxItems = int.MaxValue,
+            int recursionLevel = Int32.MaxValue)
+            where TElement : SvgVisualElement;
         /// <summary>
         /// gets all visual elements under the given pointer (a 20px rectangle surrounding the given point to simulate thick finger)
         /// </summary>
         /// <param name="pointer1Position"></param>
         /// <param name="recursionLevel"></param>
         /// <returns></returns>
-        IList<TElement> GetElementsUnderPointer<TElement>(PointF pointer1Position, int recursionLevel = 1)
+        IList<TElement> GetElementsUnderPointer<TElement>(PointF pointer1Position,
+            SelectionType selectionType = SelectionType.Intersect,
+            int recursionLevel = Int32.MaxValue)
             where TElement : SvgVisualElement;
 
         Task AddItemInScreenCenter(SvgDocument document);

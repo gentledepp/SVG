@@ -68,7 +68,7 @@ namespace Svg
             }
         }
 
-        protected override bool Renderable { get { return false; } }
+        protected internal override bool Renderable { get { return false; } }
 
         protected override void Render(ISvgRenderer renderer)
         {

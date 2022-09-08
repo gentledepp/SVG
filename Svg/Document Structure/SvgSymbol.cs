@@ -79,7 +79,7 @@ namespace Svg.Document_Structure
             }
         }
 
-        protected override bool Renderable { get { return false; } }
+        protected internal override bool Renderable { get { return false; } }
 
         /// <summary>
         /// Applies the required transforms to <see cref="ISvgRenderer"/>.

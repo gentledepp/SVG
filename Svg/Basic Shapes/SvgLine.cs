@@ -163,6 +163,14 @@ namespace Svg
             return result;
         }
 
+        protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
+        {
+            var start = PointF.Create(this.StartX, this.StartY);
+            var end = PointF.Create(this.EndX, this.EndY);
+            
+            return (start,end).IsIntersectingWithLine(transform, rectangle);
+        }
+
         public override RectangleF Bounds
         {
             get

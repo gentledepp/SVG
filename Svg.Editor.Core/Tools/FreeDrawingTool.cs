@@ -103,7 +103,7 @@ namespace Svg.Editor.Tools
                     FillOpacity = 0
                 };
 
-                _currentPath.AddConstraints(NoSnappingConstraint);
+                _currentPath.AddConstraints(NoSnappingConstraint, NoFillConstraint);
 
                 var capturedCurrentPath = _currentPath;
                 UndoRedoService.ExecuteCommand(new UndoableActionCommand("Add new freedrawing path", o =>

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
-using Svg.Editor.Extensions;
 using Svg.Editor.Gestures;
 using Svg.Editor.Interfaces;
 using Svg.Editor.UndoRedo;
@@ -17,6 +14,7 @@ namespace Svg.Editor.Tools
     {
         #region Private fields
 
+        private RectangleF _selectionPoint;
         private RectangleF _selectionRectangle;
         private Brush _brush;
         private Pen _pen;
@@ -45,6 +43,8 @@ namespace Svg.Editor.Tools
                 Reset();
             }
         }
+
+        public bool ShowHitTestMarker { get; set; } = false;
 
         #endregion
 
@@ -98,9 +98,12 @@ namespace Svg.Editor.Tools
 
             // select elements under pointer
             var pointerRect = Canvas.GetPointerRectangle(tap.Position);
-            SelectElementsUnder(pointerRect, Canvas, SelectionType.Intersect, 1);
+            _selectionPoint = pointerRect;
+            _selectionRectangle = null;
 
-            Reset();
+            SelectElementsUnderPoint(pointerRect, Canvas, SelectionType.Intersect);
+
+
             Canvas.FireInvalidateCanvas();
         }
 
@@ -110,13 +113,15 @@ namespace Svg.Editor.Tools
 
             if (!IsActive) return;
 
+            _selectionPoint = null;
+
             System.Diagnostics.Debug.WriteLine(drag.Start);
 
             if (drag.State == DragState.Exit)
             {
                 // select elements under rectangle
                 if (_selectionRectangle != null)
-                    SelectElementsUnder(_selectionRectangle, Canvas, SelectionType.Contain);
+                    SelectElementsUnderArea(_selectionRectangle, Canvas, SelectionType.Contain);
 
                 Reset();
                 Canvas.FireInvalidateCanvas();
@@ -182,161 +187,68 @@ namespace Svg.Editor.Tools
                 renderer.Graphics.Restore();
             }
 
+            // if enabled, draw a click/tap indicator
+            if (ShowHitTestMarker && _selectionPoint != null)
+            {
+                renderer.Graphics.Save();
+                var m = renderer.Graphics.Transform.Clone();
+                m.Invert();
+                renderer.Graphics.Concat(m);
+                
+                var center = _selectionPoint.GetCenterPoint();
+                renderer.DrawCircle(center.X, center.Y, _selectionPoint.Width/2, BluePen);
+
+                renderer.Graphics.Restore();
+            }
+
             return Task.FromResult(true);
         }
 
         public override void OnDocumentChanged(SvgDocument oldDocument, SvgDocument newDocument)
         {
             _selectionRectangle = null;
+            _selectionPoint = null;
         }
 
         public override void Reset()
         {
             _selectionRectangle = null;
+            _selectionPoint = null;
         }
 
         #endregion
 
         #region Private helpers
 
-        private void SelectElementsUnder(RectangleF selectionRectangle, ISvgDrawingCanvas ws, SelectionType selectionType, int maxItems = int.MaxValue)
+        private void SelectElementsUnderArea(RectangleF selectionRectangle, ISvgDrawingCanvas ws, SelectionType selectionType, int maxItems = int.MaxValue)
         {
+            // When an area is drawn, we do not want an element that is NOT contained to be selected, just because some child element IS contained in the selection rectangle
+            // therefore we MUST specify "recursionLevel = 1"!
+            SelectElementsUnder(selectionRectangle, ws, selectionType, maxItems, 1);
+        }
+
+        private void SelectElementsUnderPoint(RectangleF selectionRectangle, ISvgDrawingCanvas ws, SelectionType selectionType, int maxItems = int.MaxValue)
+        {
+            // when selecting by tapping a point, we do want an element to be selected, if the point intersects with ANY child element of it
+            // therefore we need "recursionLevel=max"!
+            SelectElementsUnder(selectionRectangle, ws, selectionType, maxItems, int.MaxValue);
+        }
+
+        private void SelectElementsUnder(RectangleF selectionRectangle, ISvgDrawingCanvas ws, SelectionType selectionType, int maxItems = int.MaxValue, int recursionLevel = int.MaxValue)
+        {
+
             ws.SelectedElements.Clear();
 
             // the canvas has not been scaled and translated yet
             // we need to compare our rectangle to the translated boundingboxes of the svg elements
-            var selected = ws.GetElementsUnder<SvgVisualElement>(selectionRectangle, selectionType, maxItems);
-
-            var canvasPoint = ws.ScreenToCanvas(PointF.Create(selectionRectangle.X+selectionRectangle.Width/2, selectionRectangle.Y+selectionRectangle.Height/2));
-
-            if (!Canvas.Document.Children.Contains(_dumm))
-                Canvas.Document.Children.Add(_dumm);
-
-            _dumm.CenterX = canvasPoint.X;
-            _dumm.CenterY = canvasPoint.Y;
+            var selected = ws.GetElementsUnder<SvgVisualElement>(selectionRectangle, selectionType, HitTestResultMode.ReturnRootElementOnly, maxItems, recursionLevel: recursionLevel);
 
             foreach (var element in selected)
             {
-                if (element is SvgPolygon poly && selectionRectangle.Height <= 20 && selectionRectangle.Width <= 20)
-                {
-                    if (element.Stroke != null && element.Stroke.ToString() != "" && element.FillOpacity == 0)
-                        if (!ValidatePolygonSelection((SvgPolygon)element, canvasPoint, 40 / ws.ZoomFactor))
-                            break;
-                }
-
-                if (element.CustomAttributes.ContainsKey(BackgroundCustomAttributeKey)) continue;
-                if (element.CustomAttributes.ContainsKey(HittestInvisibleAttributeKey)) continue;
                 ws.SelectedElements.Add(element);
             }
         }
-
-        protected bool ValidatePolygonSelection(SvgPolygon polygon, PointF tap, double selectionFuzzines)
-        {
-            if (polygon == null)
-                return false;
-
-            
-            var m = Matrix.Create();
-            var allTransForms = polygon.Parents.Reverse().Concat(new[] { polygon }).SelectMany(elt => elt.Transforms)
-                .ToList();
-
-            foreach (var t in allTransForms)
-                t.ApplyTo(m);
-
-            var units = polygon.Points.ToList();
-
-            PointF firstPoint = PointF.Empty;
-            PointF lastPoint = PointF.Empty;
-            for (var i = 0; i < units.Count-3; i+=2)
-            {
-                PointF[] points = new[]
-                {
-                    PointF.Create(units[i].Value, units[i+1].Value),
-                    PointF.Create(units[i + 2].Value, units[i + 3].Value),
-                };
-
-                m.TransformPoints(points);
-
-                if (TapedOnBorder(points[0], points[1], tap, selectionFuzzines))
-                    return true;
-
-                if (i == 0)
-                {
-                    firstPoint = points[0];
-                }
-                lastPoint = points[1];
-            }
-
-            return TapedOnBorder(lastPoint, firstPoint, tap, selectionFuzzines);
-        }
-
-        /// <summary>
-        /// Google paste https://stackoverflow.com/a/13741803/333571
-        /// </summary>
-        /// <param name="start"></param>
-        /// <param name="end"></param>
-        /// <param name="point"></param>
-        /// <param name="selectionFuzzines"></param>
-        /// <returns></returns>
-        private bool TapedOnBorder(PointF start, PointF end, PointF point, double selectionFuzzines)
-        {
-            PointF leftPoint;
-            PointF rightPoint;
-
-            // Normalize start/end to left right to make the offset calc simpler.
-            if (start.X <= end.X)
-            {
-                leftPoint = start;
-                rightPoint = end;
-            }
-            else
-            {
-                leftPoint = end;
-                rightPoint = start;
-            }
-
-            // If point is out of bounds, no need to do further checks.                  
-            if (point.X + selectionFuzzines < leftPoint.X || rightPoint.X < point.X - selectionFuzzines)
-                return false;
-            if (point.Y + selectionFuzzines < Math.Min(leftPoint.Y, rightPoint.Y) || Math.Max(leftPoint.Y, rightPoint.Y) < point.Y - selectionFuzzines)
-                return false;
-
-            // https://de.wikipedia.org/wiki/Lineare_Funktion
-            double deltaX = rightPoint.X - leftPoint.X;
-            double deltaY = rightPoint.Y - leftPoint.Y;
-
-            // If the line is straight, the earlier boundary check is enough to determine that the point is on the line.
-            // Also prevents division by zero exceptions.
-            if (deltaX == 0 || deltaY == 0)
-                return true;
-
-            double slope = deltaY / deltaX;
-            double offset = leftPoint.Y - leftPoint.X * slope;
-            double calculatedY = point.X * slope + offset;
-
-            //adjustment of offset 
-            double c = point.Y - offset - slope * point.X;
-
-            double actualX = (point.Y - offset) / slope;
-            double outOfBounds = point.X - actualX >= 0 ? point.X - actualX : actualX - point.X;
-
-            if (outOfBounds > selectionFuzzines && c > selectionFuzzines) {
-                    return false;
-            }
-            
-            calculatedY += c;
-
-            //Check calculated Y matches the points Y coord with some easing.
-            bool lineContains = point.Y - selectionFuzzines <= calculatedY && calculatedY <= point.Y + selectionFuzzines;
-
-            return lineContains;
-        }
-
-        private SvgCircle _dumm = new SvgCircle
-        {
-            Radius = 5,
-            Fill = new SvgColourServer(Color.Create("#FF0000"))
-        };
+        
     }
 
     #endregion

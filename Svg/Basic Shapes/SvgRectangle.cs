@@ -1,5 +1,5 @@
 using System;
-
+using System.Collections.Generic;
 using Svg.Interfaces;
 
 namespace Svg
@@ -281,8 +281,26 @@ namespace Svg
             }
         }
 
+        protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
+        {
+            if (this.HasFill())
+                return true;
+            
+            var leftTop = PointF.Create(this.X, this.Y);
+            var rightTop = PointF.Create(this.X + this.Width, this.Y);
+            var rightBottom = PointF.Create(this.X + this.Width, this.Y + this.Height);
+            var leftBottom = PointF.Create(this.X, this.Y + this.Height);
 
-		public override SvgElement DeepCopy()
+            var lineSegments = new List<(PointF from, PointF to)>();
+            lineSegments.Add((leftTop.Clone(), rightTop.Clone()));
+            lineSegments.Add((rightTop.Clone(),rightBottom.Clone()));
+            lineSegments.Add((rightBottom.Clone(),leftBottom.Clone()));
+            lineSegments.Add((leftBottom.Clone(), leftTop.Clone()));
+
+            return lineSegments.IsIntersectingWithLine(transform, rectangle);
+        }
+
+        public override SvgElement DeepCopy()
 		{
 			return DeepCopy<SvgRectangle>();
 		}

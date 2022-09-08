@@ -7,12 +7,6 @@ using Svg.Transforms;
 
 namespace Svg
 {
-    public enum SelectionType
-    {
-        Intersect,
-        Contain
-    }
-
     /// <summary>
     /// The class that all SVG elements should derive from when they are to be rendered.
     /// </summary>
@@ -91,11 +85,11 @@ namespace Svg
             
             if (Renderable)
             {
-                return GetTransformedElementPoints(transform);
+                return this.GetTransformedElementPoints(transform);
             }
             else
             {
-                return GetTransformedChildPoints(transform);
+                return this.GetTransformedChildPoints(transform);
             }
         }
 
@@ -105,108 +99,30 @@ namespace Svg
             
             return RectangleF.FromPoints(pts);
         }
-
-        public IEnumerable<TElement> HitTest<TElement>(RectangleF rectangle, SelectionType selectionType = SelectionType.Intersect,
-            Matrix transform = null, int maxRecursion = int.MaxValue) where TElement : SvgVisualElement
+        
+        [Obsolete("Use the overload with selectionMode")]
+        public IEnumerable<TElement> HitTest<TElement>(RectangleF rectangle,
+            SelectionType selectionType = SelectionType.Intersect,
+            Matrix transform = null, 
+            int maxRecursion = int.MaxValue) where TElement : SvgVisualElement
         {
-            return HitTestInternal<TElement>(rectangle, selectionType, transform ?? Matrix.Create(), maxRecursion);
+            return this.HitTest<TElement>(rectangle, selectionType, HitTestResultMode.ReturnAllMatchingDescendants, transform ?? Matrix.Create(), maxRecursion);
         }
-
-        private IEnumerable<TElement> HitTestInternal<TElement>(RectangleF rectangle, SelectionType selectionType,
-            Matrix transform, int maxRecursion) where TElement : SvgVisualElement
+        
+        /// <summary>
+        /// This method gives a specific shape the chance to add additional hit testing logic.
+        /// In case the elements bounding box is found during hit-testing, this method will be called, so that the element can still refuse to be hit
+        /// This is useful, if e.g. a polygon without fill color should only be considered hit, if its border/line was hit
+        /// </summary>
+        /// <param name="rectangle"></param>
+        /// <param name="transform"></param>
+        /// <param name="maxRecursion"></param>
+        /// <returns></returns>
+        protected internal virtual bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
         {
-            if (transform == null)
-                transform = Matrix.Create();
-            else
-                transform = transform.Clone();
-
-            if (Renderable)
-            {
-                var pts = GetTransformedElementPoints(transform);
-                var box = RectangleF.FromPoints(pts);
-
-                // if this element fits the type filter, check if it fits the hittest rectangle
-                if (this is TElement)
-                {
-                    if ((selectionType == SelectionType.Intersect) && rectangle.IntersectsWith(box))
-                        yield return (TElement)this;
-                    else if ((selectionType == SelectionType.Contain) && rectangle.Contains(box))
-                        yield return (TElement)this;
-                }
-            }
-            else
-            {
-                // recurse the hittest to the inner levels
-                var recurs = maxRecursion - 1;
-                if (recurs > 0)
-                {
-                    var t2 = transform.Clone();
-                    foreach (SvgTransform transformation in this.Transforms)
-                    {
-                        transformation.ApplyTo(t2);
-                    }
-
-                    // reverse children because of z-index
-                    foreach (var hit in this.Children.Reverse().OfType<SvgVisualElement>()
-                            .SelectMany(child => child.HitTestInternal<TElement>(rectangle, selectionType, t2, recurs)))
-                    {
-                        yield return hit;
-                    }
-                }
-
-                // if this element fits the type filter, check if it fits the hittest rectangle
-                if (this is TElement)
-                {
-                    var points = GetTransformedChildPoints(transform);
-                    var box = RectangleF.FromPoints(points);
-
-                    if ((selectionType == SelectionType.Intersect) && rectangle.IntersectsWith(box))
-                        yield return (TElement) this;
-                    else if ((selectionType == SelectionType.Contain) && rectangle.Contains(box))
-                        yield return (TElement) this;
-                }
-            }
+            return true;
         }
-
-        private PointF[] GetTransformedElementPoints(Matrix transform)
-        {
-            var b = Bounds;
-            var p1 = PointF.Create(b.Left, b.Top);
-            var p2 = PointF.Create(b.Right, b.Top);
-            var p3 = PointF.Create(b.Right, b.Bottom);
-            var p4 = PointF.Create(b.Left, b.Bottom);
-
-            var pts = new[] {p1, p2, p3, p4};
-
-            foreach (SvgTransform transformation in this.Transforms)
-            {
-                transformation.ApplyTo(transform);
-            }
-
-            transform.TransformPoints(pts);
-            return pts.Select(p => p.Clone()).ToArray();
-        }
-
-        private PointF[] GetTransformedChildPoints(Matrix transform)
-        {
-            var pts = new List<PointF>();
-
-            foreach (SvgTransform transformation in this.Transforms)
-            {
-                transformation.ApplyTo(transform);
-            }
-
-            foreach (var c in this.Children)
-            {
-                if (c is SvgVisualElement)
-                {
-                    var childBounds = ((SvgVisualElement) c).GetTransformedPoints(transform);
-                    pts.AddRange(childBounds);
-                }
-            }
-            return pts.Select(p => p.Clone()).ToArray();
-        }
-
+        
         /// <summary>
         /// Gets the associated <see cref="SvgClipPath"/> if one has been specified.
         /// </summary>
@@ -264,7 +180,7 @@ namespace Svg
             this._requiresSmoothRendering = false;
         }
 
-        protected virtual bool Renderable { get { return true; } }
+        protected internal virtual bool Renderable { get { return true; } }
 
         /// <summary>
         /// Renders the <see cref="SvgElement"/> and contents to the specified <see cref="Graphics"/> object.
@@ -353,7 +269,7 @@ namespace Svg
                 fill = (SvgPaintServer)fillTemp;
             }
 
-            if (fill != null)
+            if (this.HasFill())
             {
                 /*using (*/
                 //var brush = GetFillBrush(renderer);/*)*/
@@ -383,7 +299,7 @@ namespace Svg
                 stroke = (SvgPaintServer)strokeTemp;
             }
 
-            if (stroke != null && stroke != SvgColourServer.None)
+            if (this.HasStroke())
             {
                 float strokeWidth = this.StrokeWidth.ToDeviceValue(renderer, UnitRenderingType.Other, this);
                 //using (var brush = GetStrokeBrush(renderer))

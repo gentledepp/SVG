@@ -90,6 +90,7 @@ namespace Svg.Editor.Core.Test
                 Y = new SvgUnit(SvgUnitType.Pixel, 200),
                 Width = new SvgUnit(SvgUnitType.Pixel, 30),
                 Height = new SvgUnit(SvgUnitType.Pixel, 20),
+                Fill = new SvgColourServer(Color.Create(255, 0, 0))
             };
             Canvas.Document.Children.Add(element1);
             var b1 = element1.GetBoundingBox(Canvas.GetCanvasTransformationMatrix());
@@ -131,6 +132,7 @@ namespace Svg.Editor.Core.Test
                 Y = new SvgUnit(SvgUnitType.Pixel, 200),
                 Width = new SvgUnit(SvgUnitType.Pixel, 30),
                 Height = new SvgUnit(SvgUnitType.Pixel, 20),
+                Fill = new SvgColourServer(Color.Create(255, 0, 0))
             };
             Canvas.Document.Children.Add(element1);
             var b1 = element1.GetBoundingBox(Canvas.GetCanvasTransformationMatrix());
@@ -170,6 +172,7 @@ namespace Svg.Editor.Core.Test
                 Y = new SvgUnit(SvgUnitType.Pixel, 200),
                 Width = new SvgUnit(SvgUnitType.Pixel, 30),
                 Height = new SvgUnit(SvgUnitType.Pixel, 20),
+                Fill = new SvgColourServer(Color.Create(255, 0, 0))
             };
             Canvas.Document.Children.Add(element1);
             var d = LoadDocument("nested_transformed_text.svg");
@@ -428,7 +431,7 @@ namespace Svg.Editor.Core.Test
             var point1 = PointF.Create(0, 400);
             var point2 = PointF.Create(800, 600);
             var point3 = PointF.Create(820, 0);
-            var point4 = PointF.Create(-800, 0);
+            var point4 = PointF.Create(50, 0);
 
             var collectionPoints = new SvgPointCollection();
             collectionPoints.AddRange(new SvgUnit[] { point1.X, point1.Y, point2.X, point2.Y, point3.X, point3.Y, point4.X, point4.Y });
@@ -447,7 +450,7 @@ namespace Svg.Editor.Core.Test
 
 
             // Act
-            var pt1 = PointF.Create(400, 40);
+            var pt1 = PointF.Create(400, 0);
             await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, pt1, pt1, pt1, 1));
             await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, pt1, pt1, pt1, 1));
             ((TestScheduler)SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
@@ -489,7 +492,7 @@ namespace Svg.Editor.Core.Test
 
 
             // Act
-            var pt1 = PointF.Create(400, -40);
+            var pt1 = PointF.Create(400, -5);
             await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, pt1, pt1, pt1, 1));
             await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, pt1, pt1, pt1, 1));
             ((TestScheduler)SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);

@@ -4,9 +4,12 @@
     <AssemblyName>Svg.Editor</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>2.4.2</Version>
+    <Version>2.4.3.3</Version>
     <PackageReleaseNotes>
-    </PackageReleaseNotes>
+	    # 2.4.3.3
+	    - polygon tool
+	    - hit testing basic shapes without fill tests line intersection
+	</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(Configuration) == 'Release'">
@@ -16,7 +19,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <Folder Include="Assets\" />
+    <Compile Remove="Assets\**" />
+    <EmbeddedResource Remove="Assets\**" />
+    <None Remove="Assets\**" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\svg\ic_arrow_downward.svg" />
@@ -59,7 +64,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="SkiaSharp" Version="1.68.1" />
-    <PackageReference Include="Svg" Version="2.4.3.1" />
+    <PackageReference Include="Svg" Version="2.4.3.3" />
     <PackageReference Include="System.Reactive" Version="4.0.0" />
     <PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
   </ItemGroup>

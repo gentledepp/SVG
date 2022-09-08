@@ -46,7 +46,7 @@ namespace Svg.Editor.Tools
             if (drag.State == DragState.Enter)
             {
                 if (Canvas.SelectedElements.Any() &&
-                    Canvas.GetElementsUnderPointer<SvgVisualElement>(drag.Start)
+                    Canvas.GetElementsUnderPointer<SvgVisualElement>(drag.Start, SelectionType.IntersectBoundingBoxes)
                         .Any(eup => Canvas.SelectedElements.Contains(eup)))
                 {
                     // move tool is only active, if SelectionTool is the "ActiveTool"
