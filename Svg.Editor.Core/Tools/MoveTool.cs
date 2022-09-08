@@ -32,13 +32,6 @@ namespace Svg.Editor.Tools
 
         public override int InputOrder => 200; // must be before pantool as it decides whether or not it is active based on selection
 
-        public override async Task Initialize(ISvgDrawingCanvas ws)
-        {
-            await base.Initialize(ws);
-
-            IsActive = false;
-        }
-
         protected override async Task OnDrag(DragGesture drag)
         {
             await base.OnDrag(drag);

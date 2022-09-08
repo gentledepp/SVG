@@ -37,10 +37,15 @@ namespace Svg.Platform
             if (txt.Stroke != null)
             {
                 var brush = txt.Stroke.GetBrush(txt, renderer, 1f);
+                ((SkiaBrushBase)brush).Paint.Typeface = SKTypeface.FromFamilyName(txt.FontFamily, txt.FontWeight.ToSkFontStyleWeight(), SKFontStyleWidth.Normal, txt.FontStyle.ToSkFontStyleSlant());
                 using (var pen = (SkiaPen)SvgEngine.Factory.CreatePen(brush, txt.StrokeWidth.Value))
                 {
                     pen.TextSize = txt.FontSize.Value;
                     pen.TextAlign = FromAnchor(txt.TextAnchor);
+
+                    byte strokeOpacity = (byte)(pen.Paint.Color.Alpha * txt.StrokeOpacity);
+                    pen.Paint.Color = new SKColor(pen.Paint.Color.Red, pen.Paint.Color.Green, pen.Paint.Color.Blue,
+                        strokeOpacity);
 
                     var x = txt.X.Any() ? txt.X.FirstOrDefault().Value : 0f;
                     var y = txt.Y.Any() ? txt.Y.FirstOrDefault().Value : 0f;
@@ -57,10 +62,18 @@ namespace Svg.Platform
             if (txt.Fill != null)
             {
                 var brush = txt.Fill.GetBrush(txt, renderer, 1f);
+                
+                var paint = ((SkiaBrushBase)brush).Paint;
+                paint.Typeface = SKTypeface.FromFamilyName(txt.FontFamily, txt.FontWeight.ToSkFontStyleWeight(), SKFontStyleWidth.Normal, txt.FontStyle.ToSkFontStyleSlant());
+
                 using (var pen = (SkiaPen)SvgEngine.Factory.CreatePen(brush, 0f))
                 {
                     pen.TextSize = txt.FontSize.Value;
                     pen.TextAlign = FromAnchor(txt.TextAnchor);
+
+                    byte fillOpacity = (byte)(pen.Paint.Color.Alpha * txt.FillOpacity);
+                    pen.Paint.Color = new SKColor(pen.Paint.Color.Red, pen.Paint.Color.Green, pen.Paint.Color.Blue,
+                        fillOpacity);
 
                     var x = txt.X.Any() ? txt.X.FirstOrDefault().Value : 0f;
                     var y = txt.Y.Any() ? txt.Y.FirstOrDefault().Value : 0f;
@@ -200,6 +213,34 @@ namespace Svg.Platform
                 default:
                     return SKTextAlign.Left;
             }
+        }
+    }
+
+    internal static class FontWeightExtensions
+    {
+        internal static SKFontStyleWeight ToSkFontStyleWeight(this SvgFontWeight style)
+        {
+            return style switch
+            {
+                SvgFontWeight.Normal => SKFontStyleWeight.Normal,
+                SvgFontWeight.Lighter => SKFontStyleWeight.Light,
+                SvgFontWeight.Bold => SKFontStyleWeight.Bold,
+                SvgFontWeight.Bolder => SKFontStyleWeight.ExtraBold,
+                SvgFontWeight.W600 => SKFontStyleWeight.Bold,
+                SvgFontWeight.W800 => SKFontStyleWeight.ExtraBold,
+                SvgFontWeight.W900 => SKFontStyleWeight.ExtraBold,
+                _ => SKFontStyleWeight.Normal
+            };
+        }
+        internal static SKFontStyleSlant ToSkFontStyleSlant(this SvgFontStyle style)
+        {
+            return style switch
+            {
+                SvgFontStyle.Normal => SKFontStyleSlant.Upright,
+                SvgFontStyle.Italic => SKFontStyleSlant.Italic,
+                SvgFontStyle.Oblique => SKFontStyleSlant.Oblique,
+                _ => SKFontStyleSlant.Upright
+            };
         }
     }
 }

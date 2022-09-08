@@ -24,6 +24,7 @@ namespace Svg.Platform
 
             var paint = new SKPaint();
             paint.Color = _color;
+            paint.IsAntialias = true;
             return paint;
         }
     }

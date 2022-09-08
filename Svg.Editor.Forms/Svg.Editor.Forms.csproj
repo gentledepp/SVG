@@ -4,11 +4,14 @@
     <AssemblyName>Svg.Editor.Forms</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.17763</TargetFrameworks>
-    <Version>2.4.3.3</Version>
+    <Version>2.4.3.4</Version>
     <PackageReleaseNotes>
-	    # 2.4.3.3
-	    - polygon tool
-	    - hit testing basic shapes without fill tests line intersection
+	    # 2.4.3.4
+	    - fixed for plan rendering
+	    - polygon tool improvements (selection rendered on adorner layer)
+		# 2.4.3.3
+		- polygon tool
+		- hit testing basic shapes without fill tests line intersection
 	</PackageReleaseNotes>
   </PropertyGroup>
 
@@ -47,7 +50,7 @@
   
   <ItemGroup>
     <PackageReference Include="SkiaSharp.Views.Forms" Version="1.68.1" />
-    <PackageReference Include="Svg" Version="2.4.3.3" />
+    <PackageReference Include="Svg" Version="2.4.3.4" />
     <PackageReference Include="System.Reactive" Version="4.0.0" />
     <PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
   </ItemGroup>

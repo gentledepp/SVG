@@ -91,6 +91,8 @@ namespace Svg.Platform
             _shader = SKShader.CreateRadialGradient(new SKPoint(Center.X, Center.Y), Radius, colors, positions, tileMode);
 
             paint.Shader = _shader;
+            paint.IsAntialias = true;
+
             return paint;
         }
 

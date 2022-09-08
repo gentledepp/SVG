@@ -66,7 +66,7 @@ namespace Svg.Editor.Tools
         public string Name { get; protected set; }
         public ToolUsage ToolUsage { get; protected set; }
         public ToolType ToolType { get; protected set; }
-        public virtual bool IsActive { get; set; } = true;
+        public virtual bool IsActive { get; set; } = false;
         public IEnumerable<IToolCommand> Commands { get; protected set; } = Enumerable.Empty<IToolCommand>();
         /// <summary>
         /// Properties for the tool which can be configured in the designer. Key should be lower-case for consistency.
