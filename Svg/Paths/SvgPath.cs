@@ -166,8 +166,9 @@ namespace Svg
                 return true;
 
             var lineSegments = this.PathData.Select(seg => (seg.Start, seg.End)).ToList();
+            lineSegments.RemoveAt(0);
 
-            return lineSegments.IsIntersectingWithLine(transform, rectangle);
+            return lineSegments.IsIntersectingWithLinePaths(transform, rectangle);
         }
 
         public override SvgElement DeepCopy()
