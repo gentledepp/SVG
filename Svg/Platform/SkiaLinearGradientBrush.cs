@@ -95,6 +95,7 @@ namespace Svg.Platform
             _shader = SKShader.CreateLinearGradient(new SKPoint(Start.X, Start.Y), new SKPoint(End.X, End.Y), colors, positions, tileMode);
             
             paint.Shader = _shader;
+            paint.IsAntialias = true;
             return paint;
         }
 

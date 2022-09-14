@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Svg.Editor.Extensions;
 using Svg.Editor.Gestures;
 using Svg.Editor.Interfaces;
-using Svg.Pathing;
+using Svg.Interfaces;
 using PointF = Svg.Interfaces.PointF;
 
 namespace Svg.Editor.Tools
@@ -20,9 +20,13 @@ namespace Svg.Editor.Tools
             ToolType = ToolType.Create;
         }
 
-        private const string PolygonTempAttributeKey = "data-polytemp";
-
         private bool _isActive;
+        private Brush _brush;
+        private Pen _pen;
+        private Brush _circleBrush;
+        private Brush PolyLineBrush => _brush ?? (_brush = SvgEngine.Factory.CreateSolidBrush(SvgEngine.Factory.CreateColorFromArgb(125, 80, 210, 210)));
+        private Pen PolyLinePen => _pen ?? (_pen = SvgEngine.Factory.CreatePen(PolyLineBrush, 5));
+        private Brush PolyCircleBrush => _circleBrush ?? (_circleBrush = SvgEngine.Factory.CreateSolidBrush(SvgEngine.Factory.CreateColorFromArgb(255, 80, 210, 210)));
 
         public override bool IsActive
         {
@@ -34,14 +38,7 @@ namespace Svg.Editor.Tools
                     Reset();
             }
         }
-
-        public override async Task Initialize(ISvgDrawingCanvas ws)
-        {
-            await base.Initialize(ws);
-
-            IsActive = false;
-        }
-
+        
         public const string DefaultStrokeWidthKey = "defaultstrokewidth";
 
         public int DefaultStrokeWidth
@@ -55,7 +52,9 @@ namespace Svg.Editor.Tools
             }
             set => Properties[DefaultStrokeWidthKey] = value;
         }
+        
         public IList<PointF> Points { get; } = new List<PointF>();
+
         protected override async Task OnTap(TapGesture tap)
         {
             await base.OnTap(tap);
@@ -65,28 +64,50 @@ namespace Svg.Editor.Tools
             if (!IsActive) return;
 
             Canvas.SelectedElements.Clear();
-
-            if (Points.Count > 0)
+            
+            //Closing the polygon
+            if (Points.Count > 0 && IsClickingOnFirstPoint(point))
             {
-                //Closing the polygon
-                if (IsClickingOnFirstPoint(point))
+                if (!IsValidPolgyon(Points))
+                {
+                    Reset();
+                }
+                else
                 {
                     DrawPolygon();
                     Reset();
                     Canvas.ActiveTool = Canvas.Tools.First(tool => tool.Name == "Select");
                 }
-                else
-                {
-                    DrawVector(Points.Last(), point);
-                }
             }
             else
             {
-                DrawPoint(point);
                 Points.Add(point);
             }
 
             Canvas.FireInvalidateCanvas();
+        }
+
+        public override Task OnDraw(IRenderer renderer, ISvgDrawingCanvas ws)
+        {
+            // we draw the selection rectangle
+            if (Points.Count != 0)
+            {
+                renderer.Graphics.Save();
+                PolyLinePen.StrokeWidth = 5 / Canvas.ZoomFactor;
+
+                for (int i = 0; i < Points.Count-1; i++)
+                {
+                    var f = Points[i];
+                    var t = Points[i + 1];
+                    renderer.DrawLine(f.X, f.Y, t.X, t.Y, PolyLinePen);
+                }
+
+                var firstPoint = Points[0];
+                var radius = 5f/Canvas.ZoomFactor;
+                renderer.FillCircle(firstPoint.X-(radius/2), firstPoint.Y-(radius/2), radius, PolyCircleBrush);
+            }
+
+            return Task.CompletedTask;
         }
 
         private bool IsClickingOnFirstPoint(PointF tapPoint)
@@ -99,55 +120,30 @@ namespace Svg.Editor.Tools
                    point.Y <= tapPoint.Y + 10 / Canvas.ZoomFactor;
         }
 
-        private void DrawPoint(PointF point)
-        {
-            var circle = new SvgCircle()
-            {
-                CenterX = point.X,
-                CenterY = point.Y,
-                Radius = 5,
-                FillOpacity = 0.75f,
-                StrokeOpacity = 0.75f
-            };
-            circle.CustomAttributes[PolygonTempAttributeKey] = "";
-
-            Canvas.Document.Children.Add(circle);
-        }
-
-        private void DrawVector(PointF start, PointF end)
-        {
-            Points.Add(end);
-
-            var line = new SvgLine()
-            {
-                StartX = start.X,
-                EndX = end.X,
-                StartY = start.Y,
-                EndY = end.Y,
-                StrokeOpacity = 0.5f
-            };
-            line.CustomAttributes[PolygonTempAttributeKey] = "";
-
-            Canvas.Document.Children.Add(line);
-        }
-
         private void DrawPolygon()
         {
-            var points = Points.SelectMany(p => new SvgUnit[] { p.X, p.Y });
-
-            CreatePolygonOverride(points);
+            CreatePolygonOverride(Points);
         }
 
-        protected virtual void CreatePolygonOverride(IEnumerable<SvgUnit> points)
+        protected virtual bool IsValidPolgyon(IList<PointF> points)
+        {
+            if (points.Count < 3)
+                return false;
+
+            return true;
+        }
+
+        protected virtual void CreatePolygonOverride(IEnumerable<PointF> points)
         {
             var collectionPoints = new SvgPointCollection();
-            collectionPoints.AddRange(points);
+            collectionPoints.AddRange(points.SelectMany(p => new SvgUnit[] { p.X, p.Y }));
 
             var polygon = new SvgPolygon()
             {
                 Points = collectionPoints,
                 StrokeWidth = new SvgUnit(SvgUnitType.Pixel, DefaultStrokeWidth),
                 Fill = SvgColourServer.None,
+                Stroke = new SvgColourServer(Color.Create(0,0,0))
             };
             // we do not want the polygon to be filled
             polygon.AddConstraints(NoFillConstraint);
@@ -157,13 +153,14 @@ namespace Svg.Editor.Tools
 
         public override void Reset()
         {
-            var toDelete = Canvas.Document.Children.Where(c => c.CustomAttributes.ContainsKey(PolygonTempAttributeKey))
-                .ToList();
-
-            toDelete.ForEach(item => Canvas.Document.Children.Remove(item));
-
             Points.Clear();
+        }
 
+        public override void Dispose()
+        {
+            PolyCircleBrush.Dispose();
+            PolyLineBrush.Dispose();
+            base.Dispose();
         }
     }
 }

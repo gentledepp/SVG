@@ -70,6 +70,7 @@
     <Compile Include="IFIleLoader.cs" />
     <Compile Include="LineToolTests.cs" />
     <Compile Include="Mocks\MockTextInputService.cs" />
+    <Compile Include="PanToolTests.cs" />
     <Compile Include="MoveToolTests.cs" />
     <Compile Include="PerformanceTests.cs" />
     <Compile Include="RotationToolTests.cs" />

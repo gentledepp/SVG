@@ -77,9 +77,7 @@ namespace Svg.Editor.Tools
 		public override async Task Initialize(ISvgDrawingCanvas ws)
 		{
 			await base.Initialize(ws);
-
-			IsActive = false;
-
+			
 			Canvas.DefaultEditors.Add(async element =>
 			{
 				var svgText = element as SvgTextBase ?? element.Descendants().OfType<SvgTextBase>().FirstOrDefault();

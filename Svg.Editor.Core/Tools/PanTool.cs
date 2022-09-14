@@ -14,6 +14,12 @@ namespace Svg.Editor.Tools
             ToolType = ToolType.View;
         }
 
+        public override Task Initialize(ISvgDrawingCanvas ws)
+        {
+            IsActive = true;
+            return base.Initialize(ws);
+        }
+
         public override Task OnUserInput(UserInputEvent @event, ISvgDrawingCanvas ws)
         {
             if (!IsActive)

@@ -1,18 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
-using Newtonsoft.Json;
-using Svg.Editor.Extensions;
 using Svg.Editor.Gestures;
 using Svg.Editor.Interfaces;
 using Svg.Editor.UndoRedo;
-using Svg.Editor.Utils;
 using Svg.Interfaces;
-using Svg.Platform;
 using Svg.Transforms;
 
 namespace Svg.Editor.Tools
@@ -94,9 +87,7 @@ namespace Svg.Editor.Tools
         public override async Task Initialize(ISvgDrawingCanvas ws)
         {
             await base.Initialize(ws);
-
-            IsActive = false;
-
+            
             _textInputService = SvgEngine.TryResolve<ITextInputService>();
             _pinInputService = SvgEngine.TryResolve<IPinInputService>();
             _text = "";
