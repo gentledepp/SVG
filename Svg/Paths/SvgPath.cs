@@ -165,11 +165,11 @@ namespace Svg
             if (this.HasFill())
                 return true;
 
-            var lineSegments = this.PathData.Select(seg => (seg.Start, seg.End)).ToList();
-            lineSegments.RemoveAt(0);
-
-            return lineSegments.IsIntersectingWithLinePaths(transform, rectangle);
+            var lineSegments = PathData.GetLines();
+            
+            return lineSegments.IsIntersectingWithLine(transform, rectangle);
         }
+
 
         public override SvgElement DeepCopy()
 		{

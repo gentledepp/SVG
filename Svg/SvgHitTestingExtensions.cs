@@ -242,33 +242,6 @@ namespace Svg
          
             return false;
         }
-        public static bool IsIntersectingWithLinePaths(this IList<(PointF from, PointF to)> lines, Matrix transform, RectangleF hitTestArea)
-        {
-            if (lines == null) throw new ArgumentNullException(nameof(lines));
-            if (transform == null) throw new ArgumentNullException(nameof(transform));
-            if (hitTestArea == null) throw new ArgumentNullException(nameof(hitTestArea));
-
-            PointF tap = hitTestArea.GetCenterPoint();
-            double selectionWidthHeight = hitTestArea.Width / 2;
-
-            int i = 0;
-            foreach (var lineSegment in lines)
-            {
-                if (i == 0)
-                {
-                    transform.TransformPoints(new[] { lineSegment.from, lineSegment.to });
-                    i++;
-                }
-                else
-                {
-                    transform.TransformPoints(new[] { lineSegment.to });
-                }
-                if (IsLineHit(lineSegment.from, lineSegment.to, tap, selectionWidthHeight))
-                    return true;
-            }
-
-            return false;
-        }
 
         /// <summary>
         /// Google paste https://stackoverflow.com/a/13741803/333571
