@@ -63,7 +63,7 @@
     <Compile Include="..\Svg.Editor.Tests.Win\FileLoader.cs">
       <Link>FileLoader.cs</Link>
     </Compile>
-    <Compile Include="GetSvgPathAsLinesTests.cs" />
+    <Compile Include="SvgPathSegmentListExtensionTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveDocumentTests.cs" />
     <Compile Include="SvgHitTests.cs" />

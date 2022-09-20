@@ -8,7 +8,7 @@ using Svg.Pathing;
 namespace Svg.Tests.Win
 {
     [TestFixture]
-    public class GetSvgPathAsLinesTests
+    public class SvgPathSegmentListExtensionTest
     {
         [SetUp]
         public void SetUp()
@@ -26,7 +26,7 @@ namespace Svg.Tests.Win
                 new SvgLineSegment(PointF.Create(50, 250), PointF.Create(50, 50)),
                 new SvgLineSegment(PointF.Create(50, 50), PointF.Create(250, 50)),
                 new SvgClosePathSegment(),
-                new SvgMoveToSegment(PointF.Create(8, 650))
+                new SvgMoveToSegment(PointF.Create(80, 650))
             };
             
             var expected = new []
