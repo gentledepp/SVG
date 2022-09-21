@@ -4,11 +4,13 @@
     <AssemblyName>Svg.Editor.Forms</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.17763</TargetFrameworks>
-    <Version>2.4.3.4</Version>
+    <Version>2.4.3.5</Version>
     <PackageReleaseNotes>
-	    # 2.4.3.4
-	    - fixed for plan rendering
-	    - polygon tool improvements (selection rendered on adorner layer)
+        # 2.4.3.5
+        - fixed UWP gesture recognizer
+		# 2.4.3.4
+		- fixed for plan rendering
+		- polygon tool improvements (selection rendered on adorner layer)
 		# 2.4.3.3
 		- polygon tool
 		- hit testing basic shapes without fill tests line intersection

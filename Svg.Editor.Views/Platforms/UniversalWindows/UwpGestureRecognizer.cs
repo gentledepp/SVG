@@ -7,6 +7,7 @@ using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using SkiaSharp.Views.UWP;
 using Svg.Editor.Events;
 using Svg.Editor.Gestures;
 using Svg.Editor.Interfaces;
@@ -95,8 +96,14 @@ namespace Svg.Editor.Views.UWP
 
         private void ElementRightTapped(object sender, RightTappedRoutedEventArgs args)
         {
+            var dpi = 1.0;
+            if (_element is SKXamlCanvas c)
+            {
+                dpi = c.Dpi;
+            }
             var position = args.GetPosition(_element);
-            _gesturesSubject.OnNext(new LongPressGesture(PointF.Create((float) position.X, (float) position.Y)));
+            _gesturesSubject.OnNext(
+                new LongPressGesture(PointF.Create((float)(position.X * dpi), (float)(position.Y * dpi))));
         }
 
         private void ElementOnPointerWheelChanged(object sender, PointerRoutedEventArgs args)
@@ -109,14 +116,26 @@ namespace Svg.Editor.Views.UWP
 
         private void ElementOnDoubleTapped(object sender, DoubleTappedRoutedEventArgs args)
         {
+            var dpi = 1.0;
+            if (_element is SKXamlCanvas c)
+            {
+                dpi = c.Dpi;
+            }
             var position = args.GetPosition(_element);
-            _gesturesSubject.OnNext(new DoubleTapGesture(PointF.Create((float) position.X, (float) position.Y)));
+            _gesturesSubject.OnNext(
+                new DoubleTapGesture(PointF.Create((float)(position.X * dpi), (float)(position.Y * dpi))));
         }
 
         private void ElementOnTapped(object sender, TappedRoutedEventArgs args)
         {
+            var dpi = 1.0;
+            if (_element is SKXamlCanvas c)
+            {
+                dpi = c.Dpi;
+            }
             var position = args.GetPosition(_element);
-            _gesturesSubject.OnNext(new TapGesture(PointF.Create((float) position.X, (float) position.Y)));
+            _gesturesSubject.OnNext(
+                new TapGesture(PointF.Create((float)(position.X * dpi), (float)(position.Y * dpi))));
         }
 
         public void InitializeTransforms()
@@ -207,7 +226,14 @@ namespace Svg.Editor.Views.UWP
         // that a manipulation is in progress
         private void OnManipulationStarted(object sender, ManipulationStartedEventArgs e)
         {
-            _gesturesSubject.OnNext(DragGesture.Enter(PointF.Create((float) e.Position.X, (float) e.Position.Y)));
+            var dpi = 1.0;
+            if (_element is SKXamlCanvas c)
+            {
+                dpi = c.Dpi;
+            }
+
+            _gesturesSubject.OnNext(
+                DragGesture.Enter(PointF.Create((float)(e.Position.X * dpi), (float)(e.Position.Y * dpi))));
         }
 
         // Process the change resulting from a manipulation
