@@ -3,10 +3,13 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.18362;net462</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version>2.4.3.4</Version>
+    <Version>2.4.3.5</Version>
     <Authors>gentledpp,bruzkovsky</Authors>
     <Company>Opti-Q GmbH</Company>
     <PackageReleaseNotes>
+		# 2.4.3.5
+		- changed "Href" property of SvgImage from Uri to string, as System.Uri throws in case a url is too long
+
 		# 2.4.3.4
 		- antialiasing on by default
 

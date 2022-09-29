@@ -17,7 +17,7 @@ public static class SvgDocumentExtensions
             if (!path.StartsWith("/")) path = path.Insert(0, "/");
             var image = new SvgImage
             {
-                Href = new Uri($"file://{path}", UriKind.Absolute)
+                Href = $"file://{path}"
             };
             var size = image.GetImageSize();
             image.X = new SvgUnit(0);
@@ -50,7 +50,7 @@ public static class SvgDocumentExtensions
             if (!path.StartsWith("/")) path = path.Insert(0, "/");
             var image = new SvgImage
             {
-                Href = new Uri($"file://{path}", UriKind.Absolute)
+                Href = $"file://{path}"
             };
             var size = image.GetImageSize();
             image.X = new SvgUnit(0);

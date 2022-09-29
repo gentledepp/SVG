@@ -40,6 +40,7 @@ namespace Svg.Editor.Core.Test
             var colorTool = Canvas.Tools.OfType<ColorTool>().Single();
             
             var text = new SvgText("hello");
+            text.Stroke = new SvgColourServer(Color.Create("#8e8e8e"));
             colorTool.SelectedColorIndex = 2;
             var color = colorTool.SelectableColors[2];
 
@@ -62,6 +63,7 @@ namespace Svg.Editor.Core.Test
             await Canvas.EnsureInitialized();
             var colorTool = Canvas.Tools.OfType<ColorTool>().Single();
             var rectangle = new SvgRectangle();
+            rectangle.Stroke = new SvgColourServer(Color.Create("#8e8e8e"));
 
             // Act
             await Canvas.AddItemInScreenCenter(rectangle);
@@ -69,6 +71,36 @@ namespace Svg.Editor.Core.Test
             // Assert
             var color = colorTool.SelectableColors[0];
             Assert.AreEqual(color, ((SvgColourServer) rectangle.Stroke).Colour.ToString());
+        }
+        
+        [Test]
+        public async Task WhenUserCreatesRectangle_ThatHasNoStrokeSet_StrokeIsNotSetByColorTool()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var colorTool = Canvas.Tools.OfType<ColorTool>().Single();
+            var rectangle = new SvgRectangle();
+
+            // Act
+            await Canvas.AddItemInScreenCenter(rectangle);
+
+            // Assert
+            Assert.IsNull(rectangle.Stroke);
+        }
+
+        [Test]
+        public async Task WhenUserCreatesRectangle_ThatHasNoFillSet_StrokeIsNotSetByColorTool()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var colorTool = Canvas.Tools.OfType<ColorTool>().Single();
+            var rectangle = new SvgRectangle();
+
+            // Act
+            await Canvas.AddItemInScreenCenter(rectangle);
+
+            // Assert
+            Assert.AreSame(SvgColourServer.NotSet, rectangle.Fill);
         }
 
         [Test]
@@ -79,6 +111,7 @@ namespace Svg.Editor.Core.Test
             await Canvas.EnsureInitialized();
             var colorTool = Canvas.Tools.OfType<ColorTool>().Single();
             var text = new SvgText("hello");
+            text.Stroke = new SvgColourServer(Color.Create("#8e8e8e"));
 
             // Act
 
@@ -99,6 +132,7 @@ namespace Svg.Editor.Core.Test
             await Canvas.EnsureInitialized();
             var colorTool = Canvas.Tools.OfType<ColorTool>().Single();
             var rectangle = new SvgRectangle();
+            rectangle.Stroke = new SvgColourServer(Color.Create("#8e8e8e"));
 
             // Act
 
@@ -120,6 +154,7 @@ namespace Svg.Editor.Core.Test
             var color = Color.Create(Canvas.Tools.OfType<ColorTool>().Single().SelectableColors[1]);
             _colorMock.F = () => 1;
             var text = new SvgText("hello");
+            text.Stroke = new SvgColourServer(Color.Create("#8e8e8e"));
             await Canvas.AddItemInScreenCenter(text);
             var changeColorCommand = Canvas.ToolCommands.Single(x => x.FirstOrDefault()?.Name == "Change color").First();
 
@@ -143,6 +178,7 @@ namespace Svg.Editor.Core.Test
             var color = Color.Create(Canvas.Tools.OfType<ColorTool>().Single().SelectableColors[1]);
             _colorMock.F = () => 1;
             var rectangle = new SvgRectangle();
+            rectangle.Stroke = new SvgColourServer(Color.Create("#8e8e8e"));
             await Canvas.AddItemInScreenCenter(rectangle);
             var changeColorCommand = Canvas.ToolCommands.Single(x => x.FirstOrDefault()?.Name == "Change color").First();
 
@@ -187,6 +223,7 @@ namespace Svg.Editor.Core.Test
             await Canvas.EnsureInitialized();
             _colorMock.F = () => 1;
             var parent = new SvgGroup();
+            parent.Stroke = new SvgColourServer(Color.Create("#8e8e8e"));
             var child = new SvgRectangle { X = 10, Y = 10, Width = 60, Height = 40, Stroke = SvgColourServer.NotSet };
             parent.Children.Add(child);
             await Canvas.AddItemInScreenCenter(parent);
@@ -210,6 +247,7 @@ namespace Svg.Editor.Core.Test
             await Canvas.EnsureInitialized();
             _colorMock.F = () => 1;
             var parent = new SvgGroup();
+            parent.Stroke = new SvgColourServer(Color.Create("#8e8e8e"));
             var child = new SvgRectangle { X = 10, Y = 10, Width = 60, Height = 40, Stroke = SvgColourServer.Inherit };
             parent.Children.Add(child);
             await Canvas.AddItemInScreenCenter(parent);
