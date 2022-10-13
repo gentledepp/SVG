@@ -10,9 +10,9 @@ public static class SvgImageExtensions
     public static SizeF GetImageSize(this SvgImage image)
     {
         // handle data/uri embedded images (http://en.wikipedia.org/wiki/Data_URI_scheme)
-        if (image.Href.IsAbsoluteUri && image.Href.Scheme == "data")
+        if (image.IsBase64Image)
         {
-            string uriString = image.Href.OriginalString;
+            string uriString = image.Href;
             int dataIdx = uriString.IndexOf(",") + 1;
             if (dataIdx <= 0 || dataIdx + 1 > uriString.Length)
                 throw new Exception("Invalid data URI");
@@ -27,21 +27,22 @@ public static class SvgImageExtensions
             }
         }
 
-        if (!image.Href.IsAbsoluteUri && image.OwnerDocument.BaseUri != null)
+        var href = new Uri(image.Href);
+        if (!href.IsAbsoluteUri && image.OwnerDocument.BaseUri != null)
         {
-            image.Href = new Uri(image.OwnerDocument.BaseUri, image.Href);
+            image.Href = new Uri(image.OwnerDocument.BaseUri, image.Href).OriginalString;
         }
 
         //// should work with http: and file: protocol urls
         //var httpRequest = WebRequest.Create(uri);
         //using (WebResponse webResponse = httpRequest.GetResponse())
-        using (var stream = SvgEngine.Resolve<IWebRequest>().GetResponse(image.Href))
+        using (var stream = SvgEngine.Resolve<IWebRequest>().GetResponse(href))
         {
             stream.Position = 0;
-            if (image.Href.LocalPath.ToLowerInvariant().EndsWith(".svg"))
+            if (href.LocalPath.ToLowerInvariant().EndsWith(".svg"))
             {
                 var doc = SvgDocument.Open<SvgDocument>(stream);
-                doc.BaseUri = image.Href;
+                doc.BaseUri = href;
                 return doc.GetDimensions();
             }
             else

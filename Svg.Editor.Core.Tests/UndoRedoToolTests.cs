@@ -70,6 +70,7 @@ namespace Svg.Editor.Core.Test
             await Canvas.EnsureInitialized();
             var colorTool = Canvas.Tools.OfType<ColorTool>().Single();
             var text = new SvgText("hello");
+            text.Stroke = new SvgColourServer(Color.Create("#8e8e8e"));
             colorTool.SelectedColorIndex = 1;
             var color = Color.Create(colorTool.SelectableColors[1]);
             var oldStroke = text.Stroke?.ToString();
@@ -98,6 +99,7 @@ namespace Svg.Editor.Core.Test
             await Canvas.EnsureInitialized();
             var colorTool = Canvas.Tools.OfType<ColorTool>().Single();
             var rectangle = new SvgRectangle();
+            rectangle.Stroke = new SvgColourServer(Color.Create("#8e8e8e"));
             var oldStroke = rectangle.Stroke?.ToString();
             await Canvas.AddItemInScreenCenter(rectangle);
 
@@ -121,6 +123,7 @@ namespace Svg.Editor.Core.Test
             var color = Color.Create(Canvas.Tools.OfType<ColorTool>().Single().SelectableColors[1]);
             _colorMock.F = () => 1;
             var text = new SvgText("hello");
+            text.Stroke = new SvgColourServer(Color.Create("#8e8e8e"));
             await Canvas.AddItemInScreenCenter(text);
             var oldStroke = text.Stroke?.ToString();
             var oldFill = text.Fill?.ToString();
@@ -149,6 +152,7 @@ namespace Svg.Editor.Core.Test
             var color = Color.Create(Canvas.Tools.OfType<ColorTool>().Single().SelectableColors[1]);
             _colorMock.F = () => 1;
             var rectangle = new SvgRectangle();
+            rectangle.Stroke = new SvgColourServer(Color.Create("#8e8e8e"));
             await Canvas.AddItemInScreenCenter(rectangle);
             var oldStroke = rectangle.Stroke?.ToString();
             var changeColorCommand = Canvas.ToolCommands.Single(x => x.FirstOrDefault()?.Name == "Change color").First();

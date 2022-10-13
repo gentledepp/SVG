@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using Svg.Interfaces;
 
 namespace Svg
@@ -11,6 +12,7 @@ namespace Svg
     public class SvgImage : SvgVisualElement
     {
         private object _img;
+        private static readonly Regex _base64detector = new Regex(@"^data:[a-zA-Z/-]+;base64,");
 
         /// <summary>
 		/// Initializes a new instance of the <see cref="SvgImage"/> class.
@@ -70,9 +72,9 @@ namespace Svg
         }
 
         [SvgAttribute("href", SvgAttributeAttribute.XLinkNamespace)]
-        public virtual Uri Href
+        public virtual string Href
         {
-            get { return Attributes.GetAttribute<Uri>("href"); }
+            get { return Attributes.GetAttribute<string>("href"); }
             set
             {
                 Attributes["href"] = value;
@@ -247,27 +249,33 @@ namespace Svg
             }
         }
 
-        protected object GetImage(Uri uri)
+        public bool IsBase64Image => !string.IsNullOrEmpty(Href) && _base64detector.IsMatch(Href);
+
+        protected object GetImage(string url)
         {
+            if (string.IsNullOrEmpty(url))
+                return null;
+
             try
             {
                 // handle data/uri embedded images (http://en.wikipedia.org/wiki/Data_URI_scheme)
-                if (uri.IsAbsoluteUri && uri.Scheme == "data")
+                // base 65 images start with "data:image/jpeg;base64,"
+                if (IsBase64Image)
                 {
-                    string uriString = uri.OriginalString;
-                    int dataIdx = uriString.IndexOf(",") + 1;
-                    if (dataIdx <= 0 || dataIdx + 1 > uriString.Length)
+                    int dataIdx = url.IndexOf(",") + 1;
+                    if (dataIdx <= 0 || dataIdx + 1 > url.Length)
                         throw new Exception("Invalid data URI");
 
                     // we're assuming base64, as ascii encoding would be *highly* unsusual for images
                     // also assuming it's png or jpeg mimetype
-                    byte[] imageBytes = Convert.FromBase64String(uriString.Substring(dataIdx));
+                    byte[] imageBytes = Convert.FromBase64String(url.Substring(dataIdx));
                     using (var stream = new MemoryStream(imageBytes))
                     {
                         return SvgEngine.Factory.CreateImageFromStream(stream);
                     }
                 }
 
+                var uri = new Uri(url);
                 if (!uri.IsAbsoluteUri && OwnerDocument.BaseUri != null)
                 {
                     uri = new Uri(OwnerDocument.BaseUri, uri);
