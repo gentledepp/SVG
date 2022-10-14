@@ -28,7 +28,7 @@ namespace Svg
 
         public string GetFullPath(string path)
         {
-            return path;
+            return Path.GetFullPath(path);
         }
 
         public virtual string GetDefaultStoragePath()
