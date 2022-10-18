@@ -4,9 +4,11 @@
     <AssemblyName>Svg.Editor</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>2.4.3.6</Version>
+    <Version>2.4.3.7</Version>
     <PackageReleaseNotes>
-	    # 2.4.3.6
+        # 2.4.3.7
+        - Svg 2.4.5.7
+        # 2.4.3.6
 	    - bumped version for Svg 2.4.3.5
 		# 2.4.3.5
 		- fixed UWP gesture recognizer
@@ -71,7 +73,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="SkiaSharp" Version="1.68.1" />
-    <PackageReference Include="Svg" Version="2.4.3.5" />
+    <PackageReference Include="Svg" Version="2.4.3.7" />
     <PackageReference Include="System.Reactive" Version="4.0.0" />
     <PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
   </ItemGroup>
