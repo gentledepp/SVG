@@ -116,27 +116,7 @@ namespace Svg.Editor.Tools
 
             Commands = new[]
             {
-                new ToolCommand(this, "Show all", x =>
-                {
-                    var worldBounds = Canvas.Document.CalculateDocumentBounds();
-                    if (worldBounds.IsEmpty)
-                    {
-                        Canvas.ZoomFactor = 1;
-                        Canvas.ZoomFocus = PointF.Create(0, 0);
-                        Canvas.Translate = PointF.Create(0, 0);
-                        Canvas.FireInvalidateCanvas();
-                        return;
-                    }
-                    Canvas.ZoomFactor = Math.Min(Canvas.ScreenWidth / worldBounds.Width,
-                        Canvas.ScreenHeight / worldBounds.Height);
-                    Canvas.ZoomFocus = PointF.Create(0, 0);
-                    var offsetX = -worldBounds.Left * Canvas.ZoomFactor;
-                    var marginX = (Canvas.ScreenWidth - worldBounds.Width * Canvas.ZoomFactor) / 2;
-                    var offsetY = -worldBounds.Top*Canvas.ZoomFactor;
-                    var marginY = (Canvas.ScreenHeight - worldBounds.Height * Canvas.ZoomFactor) / 2;
-                    Canvas.Translate = PointF.Create(offsetX + marginX, offsetY + marginY);
-                    Canvas.FireInvalidateCanvas();
-                }, iconName:"ic_aspect_ratio.svg", sortFunc:x => 1450),
+                new ToolCommand(this, "Show all", x => { ShowAll(); }, iconName:"ic_aspect_ratio.svg", sortFunc:x => 1450),
                 new ToolCommand(this, "Zoom in +", x =>
                 {
                     var f = Canvas.ZoomFactor + 0.25f;
@@ -160,6 +140,29 @@ namespace Svg.Editor.Tools
                     Canvas.FireInvalidateCanvas();
                 }, o => ZoomX2CommandEnabled, iconName:"ic_zoom_200.svg", sortFunc:x => 1650)
             };
+        }
+
+        public void ShowAll()
+        {
+            var worldBounds = Canvas.Document.CalculateDocumentBounds();
+            if (worldBounds.IsEmpty)
+            {
+                Canvas.ZoomFactor = 1;
+                Canvas.ZoomFocus = PointF.Create(0, 0);
+                Canvas.Translate = PointF.Create(0, 0);
+                Canvas.FireInvalidateCanvas();
+                return;
+            }
+
+            Canvas.ZoomFactor = Math.Min(Canvas.ScreenWidth / worldBounds.Width,
+                Canvas.ScreenHeight / worldBounds.Height);
+            Canvas.ZoomFocus = PointF.Create(0, 0);
+            var offsetX = -worldBounds.Left * Canvas.ZoomFactor;
+            var marginX = (Canvas.ScreenWidth - worldBounds.Width * Canvas.ZoomFactor) / 2;
+            var offsetY = -worldBounds.Top * Canvas.ZoomFactor;
+            var marginY = (Canvas.ScreenHeight - worldBounds.Height * Canvas.ZoomFactor) / 2;
+            Canvas.Translate = PointF.Create(offsetX + marginX, offsetY + marginY);
+            Canvas.FireInvalidateCanvas();
         }
 
         public override Task OnUserInput(UserInputEvent @event, ISvgDrawingCanvas ws)

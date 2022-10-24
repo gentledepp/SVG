@@ -102,9 +102,9 @@ namespace Svg.Editor
 
 		public List<Func<SvgVisualElement, Task>> DefaultEditors { get; } = new List<Func<SvgVisualElement, Task>>();
 
-		public PointF Translate { get; set; }
+        public PointF Translate { get; set; } = PointF.Create(0, 0);
 
-		public float ZoomFactor { get; set; }
+        public float ZoomFactor { get; set; } = 1f;
 
 		public PointF ZoomFocus
 		{
@@ -859,42 +859,88 @@ namespace Svg.Editor
 			// selection is not valid anymore
 			SelectedElements.Clear();
 
-			// check if the document has a viewBox and set translate and zoom accordingly
-			if (newDocument == null || newDocument.ViewBox.Equals(SvgViewBox.Empty))
-			{
-				Translate = PointF.Create(0f, 0f);
-				ZoomFactor = 1f;
-			}
-			else
-			{
-				CalculateInitialTransformation = true;
-            }
+			// reset canvas properties
+            Translate = PointF.Create(0, 0);
+            ZoomFocus = PointF.Create(0, 0);
+            ZoomFactor = 1f;
 
-			// re-render
-			FireInvalidateCanvas();
+            // check if the document has a viewBox and set translate and zoom accordingly
+            CalculateInitialTransformation = true;
+
+            // re-render
+            FireInvalidateCanvas();
 		}
 
 		private bool CalculateInitialTransformation { get; set; }
+
+		public bool ZoomOutOnInitialRenderpass { get; set; }
 
 		private void SetInitialTransformation()
 		{
 			if (!CalculateInitialTransformation) return;
 
-			float scaleX;
-			float scaleY;
-			float minX;
-			float minY;
-			Document.ViewBox.CalculateTransform(Document.AspectRatio, ScreenWidth, ScreenHeight,
-				out scaleX, out scaleY, out minX, out minY);
 
-			ZoomFactor = Math.Min(1 / scaleX, 1 / scaleY);
-			ZoomFocus = PointF.Empty;
-			Translate = PointF.Create(-Document.ViewBox.MinX * ZoomFactor, -Document.ViewBox.MinY * ZoomFactor);
+            // check if canvas is pristine.
+            // If not, we want to keep the transform and zoom
+            var canvasIsPristine = ZoomFactor == 1f
+                                   && ZoomFocus.X == 0 && ZoomFocus.Y == 0
+                                   && Translate.X == 0 && Translate.Y == 0;
 
-			// we need to reset the viewBox for correct rendering afterwards
-			Document.ViewBox = SvgViewBox.Empty;
+            if (!canvasIsPristine)
+            {
+                // we need to reset the viewBox for correct rendering afterwards
+                if (Document != null)
+                    Document.ViewBox = SvgViewBox.Empty;
+                CalculateInitialTransformation = false;
+                return;
+            }
 
-			CalculateInitialTransformation = false;
+            if (ZoomOutOnInitialRenderpass && Document != null)
+            {
+                var worldBounds = Document.CalculateDocumentBounds();
+                if (worldBounds.IsEmpty)
+                {
+                    ZoomFactor = 1;
+                    ZoomFocus = PointF.Create(0, 0);
+                    Translate = PointF.Create(0, 0);
+                }
+                else
+                {
+                    ZoomFactor = Math.Min(ScreenWidth / worldBounds.Width,
+                        ScreenHeight / worldBounds.Height);
+                    ZoomFocus = PointF.Create(0, 0);
+                    var offsetX = -worldBounds.Left * ZoomFactor;
+                    var marginX = (ScreenWidth - worldBounds.Width * ZoomFactor) / 2;
+                    var offsetY = -worldBounds.Top * ZoomFactor;
+                    var marginY = (ScreenHeight - worldBounds.Height * ZoomFactor) / 2;
+                    Translate = PointF.Create(offsetX + marginX, offsetY + marginY);
+                }
+            }
+            else if (Document is null || Document.ViewBox.Equals(SvgViewBox.Empty))
+            {
+                Translate = PointF.Create(0f, 0f);
+                ZoomFactor = 1f;
+            }
+            else if(Document != null)
+            {
+
+                float scaleX;
+                float scaleY;
+                float minX;
+                float minY;
+                Document.ViewBox.CalculateTransform(Document.AspectRatio, ScreenWidth, ScreenHeight,
+                    out scaleX, out scaleY, out minX, out minY);
+
+                ZoomFactor = Math.Min(1 / scaleX, 1 / scaleY);
+                ZoomFocus = PointF.Empty;
+                Translate = PointF.Create(-Document.ViewBox.MinX * ZoomFactor, -Document.ViewBox.MinY * ZoomFactor);
+
+            }
+
+            // we need to reset the viewBox for correct rendering afterwards
+            if(Document != null)
+                Document.ViewBox = SvgViewBox.Empty;
+            CalculateInitialTransformation = false;
         }
 
 		private void OnDocumentContentModified(object sender, SvgElement e)
