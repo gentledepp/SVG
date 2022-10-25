@@ -3,13 +3,16 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.18362;net462</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version>2.4.3.7</Version>
+    <Version>2.4.3.9</Version>
     <Authors>gentledpp,bruzkovsky</Authors>
     <Company>Opti-Q GmbH</Company>
     <PackageReleaseNotes>
+		# 2.4.3.9
+		- fix WebRequestSvc to handle path correctly (for real this time)
+
 		# 2.4.3.7
 		- bumped version for 2.4.3.6
-		
+
 		# 2.4.3.6
 		- fix WebRequestSvc to handle path correctly
 

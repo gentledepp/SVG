@@ -14,7 +14,6 @@ public static class SvgDocumentExtensions
             var children = doc.Children;
 
             // create image from path
-            if (!path.StartsWith("/")) path = path.Insert(0, "/");
             var image = new SvgImage
             {
                 Href = $"file://{path}"
@@ -101,10 +100,11 @@ public static class SvgDocumentExtensions
 
         var bitmap = Bitmap.Create(bitmapWidth, bitmapHeight);
 
-        return document.RenderBitmap(bitmap, backgroundColor, documentBounds);
+        return document.RenderBitmap(bitmap, backgroundColor, documentBounds, constraints);
     }
 
-    public static Bitmap RenderBitmap(this SvgDocument document, Bitmap bitmap, Color backgroundColor, RectangleF drawingClip)
+    public static Bitmap RenderBitmap(this SvgDocument document, Bitmap bitmap, Color backgroundColor,
+        RectangleF drawingClip, RectangleF constraints = null)
     {
         if (drawingClip == null || drawingClip == RectangleF.Empty) return bitmap;
 
@@ -115,7 +115,7 @@ public static class SvgDocumentExtensions
 
         try
         {
-            document.SetDocumentViewbox(drawingClip);
+            document.SetDocumentViewbox(drawingClip, constraints);
             document.Draw(bitmap, backgroundColor ?? SvgEngine.Factory.Colors.Black);
 
             return bitmap;
