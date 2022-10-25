@@ -719,7 +719,7 @@ namespace Svg.Editor
 			try
 			{
 				var documentSize = Document.CalculateDocumentBounds();
-				Document.SetDocumentViewbox(documentSize);
+                Document.SetDocumentViewbox(documentSize, Constraints);
 				Document.Write(stream);
 
 				FireToolCommandsChanged();
@@ -749,7 +749,7 @@ namespace Svg.Editor
 
 			try
 			{
-                Document.SetDocumentViewbox(drawingClip);
+                Document.SetDocumentViewbox(drawingClip, Constraints);
 				Document.Write(stream);
 
 				FireToolCommandsChanged();
@@ -768,8 +768,7 @@ namespace Svg.Editor
         {
             return Document.CaptureDocumentBitmap(Constraints, maxSize, backgroundColor);
         }
-
-		public Bitmap CaptureScreenBitmap(Color backgroundColor = null)
+        public Bitmap CaptureScreenBitmap(Color backgroundColor = null)
 		{
 			if (ScreenWidth == 0 || ScreenHeight == 0)
 				throw new InvalidOperationException(
@@ -780,7 +779,7 @@ namespace Svg.Editor
 			var drawingClip = RectangleF.Create(ScreenToCanvas(0, 0), SizeF.Create(drawingWidth, drawingHeight));
 			var bitmap = Bitmap.Create(drawingWidth, drawingHeight);
 
-			return Document.RenderBitmap(bitmap, backgroundColor, drawingClip);
+			return Document.RenderBitmap(bitmap, backgroundColor, drawingClip, Constraints);
 		}
 		
 		public void FireInvalidateCanvas()

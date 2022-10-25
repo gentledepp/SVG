@@ -336,6 +336,8 @@ namespace Svg.Editor.Tools
                     h = 112;
                     break;
             }
+            group.Fill = SvgColourServer.ContextFill;
+            group.Stroke = SvgColourServer.ContextStroke;
             group.CustomAttributes.Add(PinFillAttributeKey, "Holey");
 
             group.Transforms.Add(new SvgTranslate(position.X, position.Y));
