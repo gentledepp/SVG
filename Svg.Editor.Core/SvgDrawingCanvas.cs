@@ -312,17 +312,23 @@ namespace Svg.Editor
 			}
 		}
 
-		/// <summary>
-		/// Called by platform specific implementation to allow tools to draw something onto the canvas
-		/// </summary>
-		/// <param name="renderer"></param>
-		public async Task OnDraw(IRenderer renderer)
+        public Action<IRenderer> OnDrawAction;
+
+
+        /// <summary>
+        /// Called by platform specific implementation to allow tools to draw something onto the canvas
+        /// </summary>
+        /// <param name="renderer"></param>
+        public async Task OnDraw(IRenderer renderer)
 		{
             // make sure all tools have been initialized successfully
 			await EnsureInitialized();
 
             ScreenWidth = renderer.Width;
             ScreenHeight = renderer.Height;
+
+            OnDrawAction += OnInitialDraw;
+            OnDrawAction.Invoke(renderer);
 
 			SetInitialTransformation();
 
@@ -361,7 +367,13 @@ namespace Svg.Editor
 			}
         }
 
-		private void ApplyConstraintsFillUniform()
+        private void OnInitialDraw(IRenderer obj)
+        {
+            OnDrawAction -= OnInitialDraw;
+        }
+
+
+        private void ApplyConstraintsFillUniform()
 		{
 			if (Constraints == null || Constraints == RectangleF.Empty) return;
 
