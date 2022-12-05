@@ -312,9 +312,15 @@ namespace Svg.Editor
 			}
 		}
 
-        public Action<IRenderer> OnDrawAction;
 
+        public delegate void ScreenSetEventHandler(object source, EventArgs args);
 
+        public event ScreenSetEventHandler ScreenSet ;
+
+        private void OnScreenSet(IRenderer renderer)
+        {
+            ScreenSet?.Invoke(this, EventArgs.Empty);
+        }
         /// <summary>
         /// Called by platform specific implementation to allow tools to draw something onto the canvas
         /// </summary>
@@ -327,8 +333,7 @@ namespace Svg.Editor
             ScreenWidth = renderer.Width;
             ScreenHeight = renderer.Height;
 
-            OnDrawAction += OnInitialDraw;
-            OnDrawAction.Invoke(renderer);
+			OnScreenSet(renderer);
 
 			SetInitialTransformation();
 
@@ -367,10 +372,6 @@ namespace Svg.Editor
 			}
         }
 
-        private void OnInitialDraw(IRenderer obj)
-        {
-            OnDrawAction -= OnInitialDraw;
-        }
 
 
         private void ApplyConstraintsFillUniform()
