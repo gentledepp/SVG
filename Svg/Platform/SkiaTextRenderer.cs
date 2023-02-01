@@ -40,7 +40,7 @@ namespace Svg.Platform
                 ((SkiaBrushBase)brush).Paint.Typeface = SKTypeface.FromFamilyName(txt.FontFamily, txt.FontWeight.ToSkFontStyleWeight(), SKFontStyleWidth.Normal, txt.FontStyle.ToSkFontStyleSlant());
                 using (var pen = (SkiaPen)SvgEngine.Factory.CreatePen(brush, txt.StrokeWidth.Value))
                 {
-                    pen.TextSize = txt.FontSize.Value;
+                    pen.TextSize = txt.FontSize.Value != 0 ? txt.FontSize.Value : pen.TextSize;
                     pen.TextAlign = FromAnchor(txt.TextAnchor);
 
                     byte strokeOpacity = (byte)(pen.Paint.Color.Alpha * txt.StrokeOpacity);
@@ -68,7 +68,7 @@ namespace Svg.Platform
 
                 using (var pen = (SkiaPen)SvgEngine.Factory.CreatePen(brush, 0f))
                 {
-                    pen.TextSize = txt.FontSize.Value;
+                    pen.TextSize = txt.FontSize.Value != 0 ? txt.FontSize.Value : pen.TextSize;
                     pen.TextAlign = FromAnchor(txt.TextAnchor);
 
                     byte fillOpacity = (byte)(pen.Paint.Color.Alpha * txt.FillOpacity);
