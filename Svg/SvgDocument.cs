@@ -6,11 +6,11 @@ using System.Xml;
 using System.Linq;
 using ExCSS;
 using Svg.Css;
-using System.Threading;
 using System.Globalization;
 using Svg.Interfaces;
 using Svg.Interfaces.Xml;
 using Svg.Transforms;
+using RectangleF = Svg.Interfaces.RectangleF;
 
 namespace Svg
 {
@@ -517,6 +517,22 @@ namespace Svg
             return DrawAllContents((int) bounds.Width, (int) bounds.Height, backgroundColor, padding);
         }
 
+        public Bitmap DrawDocument(Color backgroundColor = null, SizeF padding = null, int maxWidthHeight = 0)
+        {
+            if(Width.Type != SvgUnitType.Percentage && Height.Type != SvgUnitType.Percentage)
+            {
+                var rect = RectangleF.Create();
+                rect.Width = Width; 
+                rect.Height = Height;
+
+                var bitmap = GetScaledBitMap(rect, maxWidthHeight);
+                DrawDocument(bitmap, backgroundColor, padding, maxWidthHeight);
+                return bitmap;
+            }
+            var bounds = CalculateDocumentBounds();
+            return DrawAllContents((int)bounds.Width, (int)bounds.Height, backgroundColor, padding);
+        }
+
         public Bitmap DrawAllContents(int maxWidth, int maxHeight, Color backgroundColor = null, SizeF padding = null)
         {
             Bitmap bitmap = null;
@@ -558,29 +574,8 @@ namespace Svg
             {
 
                 var bounds = CalculateDocumentBounds();
-                var width = bounds.Width;
-                var height = bounds.Height;
-
-                var isPanorama = bounds.Width >= bounds.Height;
-                if (isPanorama)
-                {
-                    if (bounds.Width > maxWidthHeight)
-                    {
-                        var factor = maxWidthHeight / bounds.Width;
-                        height = height * factor;
-                        width = maxWidthHeight;
-                    }
-                }
-                else
-                {
-                    if (bounds.Height > maxWidthHeight)
-                    {
-                        var factor = maxWidthHeight / bounds.Height;
-                        width = width * factor;
-                        height = maxWidthHeight;
-                    }
-                }
-                bitmap = Bitmap.Create((int) width, (int) height);
+                bitmap = GetScaledBitMap(bounds, maxWidthHeight);
+                
                 DrawAllContents(bitmap, backgroundColor, padding);
                 return bitmap;
             }
@@ -589,6 +584,37 @@ namespace Svg
                 bitmap?.Dispose();
                 throw;
             }
+        }
+
+        private Bitmap GetScaledBitMap(RectangleF bounds, int maxWidthHeight)
+        {
+            if (maxWidthHeight == 0)
+            {
+                return Bitmap.Create((int)bounds.Width, (int)bounds.Height);
+            }
+            var width = bounds.Width;
+            var height = bounds.Height;
+
+            var isLandscape = bounds.Width >= bounds.Height;
+            if (isLandscape)
+            {
+                if (bounds.Width > maxWidthHeight)
+                {
+                    var factor = maxWidthHeight / bounds.Width;
+                    height = height * factor;
+                    width = maxWidthHeight;
+                }
+            }
+            else
+            {
+                if (bounds.Height > maxWidthHeight)
+                {
+                    var factor = maxWidthHeight / bounds.Height;
+                    width = width * factor;
+                    height = maxWidthHeight;
+                }
+            }
+            return Bitmap.Create((int)width, (int)height);
         }
 
         /// <summary>
@@ -619,18 +645,7 @@ namespace Svg
             {
                 var bounds = CalculateDocumentBounds();
 
-                if (padding != null)
-                    bounds = bounds.InflateAndCopy(padding.Width, padding.Height);
-
-                X = new SvgUnit(SvgUnitType.Pixel, 0);
-                Y = new SvgUnit(SvgUnitType.Pixel, 0);
-                Width = new SvgUnit(SvgUnitType.Pixel, bounds.Width);
-                Height = new SvgUnit(SvgUnitType.Pixel, bounds.Height);
-
-
-                AspectRatio = new SvgAspectRatio(SvgPreserveAspectRatio.xMinYMin);
-                ViewBox = new SvgViewBox(bounds.X, bounds.Y, bounds.Width, bounds.Height);
-                Draw(bitmap, backgroundColor);
+                DrawAllContentsInBoundary(bitmap, bounds, backgroundColor, padding);
             }
             finally
             {
@@ -641,6 +656,50 @@ namespace Svg
                 X = oldX;
                 Y = oldY;
             }
+        }
+        public void DrawDocument(Bitmap bitmap, Color backgroundColor, SizeF padding, int maxWidthHeight)
+        {
+            // draw document
+            var oldX = X;
+            var oldY = Y;
+            var oldWidth = Width;
+            var oldHeight = Height;
+            var oldViewBox = ViewBox;
+            var oldAspectRatio = AspectRatio;
+            try
+            {
+                var bounds = RectangleF.Create();
+                bounds.Width = Width;
+                bounds.Height = Height;
+                bounds.X = X; 
+                bounds.Y = Y;
+
+                DrawAllContentsInBoundary(bitmap, bounds, backgroundColor, padding);
+            }
+            finally
+            {
+                ViewBox = oldViewBox;
+                AspectRatio = oldAspectRatio;
+                Height = oldHeight;
+                Width = oldWidth;
+                X = oldX;
+                Y = oldY;
+            }
+        }
+
+        private void DrawAllContentsInBoundary(Bitmap bitmap, RectangleF bounds, Color backgroundColor, SizeF padding)
+        {
+            if (padding != null)
+                bounds = bounds.InflateAndCopy(padding.Width, padding.Height);
+
+            X = new SvgUnit(SvgUnitType.Pixel, 0);
+            Y = new SvgUnit(SvgUnitType.Pixel, 0);
+            Width = new SvgUnit(SvgUnitType.Pixel, bounds.Width);
+            Height = new SvgUnit(SvgUnitType.Pixel, bounds.Height);
+
+            AspectRatio = new SvgAspectRatio(SvgPreserveAspectRatio.xMinYMin);
+            ViewBox = new SvgViewBox(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+            Draw(bitmap, backgroundColor);
         }
 
         public RectangleF CalculateDocumentBounds()
