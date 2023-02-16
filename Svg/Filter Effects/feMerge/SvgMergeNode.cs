@@ -9,10 +9,12 @@ namespace Svg.FilterEffects
 	[SvgElement("feMergeNode")]
     public class SvgMergeNode : SvgElement
     {
+        private SvgAttributeCollection.Attribute<string> _in;
+
         [SvgAttribute("in")]
         public string Input
         {
-            get { return this.Attributes.GetAttribute<string>("in"); }
+            get { return (_in ??= this.Attributes.GetAttribute<string>("in")).GetValue(); }
             set { this.Attributes["in"] = value; }
         }
 

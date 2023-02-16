@@ -14,6 +14,12 @@ namespace Svg
         protected SvgUnitCollection _dx = new SvgUnitCollection();
         private string _rotate;
         private List<float> _rotations = new List<float>();
+        private SvgAttributeCollection.InheritedAttribute<object> _textAnchor;
+        private SvgAttributeCollection.InheritedAttribute<object> _baselineShift;
+        private SvgAttributeCollection.InheritedAttribute<object> _textLength;
+        private SvgAttributeCollection.InheritedAttribute<object> _lengthAdjust;
+        private SvgAttributeCollection.InheritedAttribute<object> _letterSpacing;
+        private SvgAttributeCollection.InheritedAttribute<object> _wordSpacing;
 
         private static IAlternativeSvgTextRenderer _alternativeTextRenderer = null;
 
@@ -28,7 +34,27 @@ namespace Svg
         public virtual string Text
         {
             get { return Content; }
-            set { Content = value; IsPathDirty = true; }
+            set 
+            { 
+                Content = value;
+                ActualText = value;
+                IsPathDirty = true;
+            }
+        }
+
+        protected internal override void InitializeContent()
+        {
+            ActualText = Nodes.FirstOrDefault()?.Content;
+        }
+
+        /// <summary>
+        /// For whatever reason, all tspan elements within a text element are joined together to set the Text property
+        /// However, when rendering, we actually need the first line (only!)
+        /// </summary>
+        public string ActualText
+        {
+            get => _actualText;
+            set => _actualText = value?.Trim('\t','\n');// whitespaces are trimmed before and after
         }
 
         /// <summary>
@@ -38,7 +64,7 @@ namespace Svg
         [SvgAttribute("text-anchor", true)]
         public virtual SvgTextAnchor TextAnchor
         {
-            get { return (Attributes["text-anchor"] == null) ? SvgTextAnchor.Inherit : (SvgTextAnchor) Attributes["text-anchor"]; }
+            get { return (_textAnchor ??= this.Attributes.GetInheritedAttribute<object>("text-anchor")).GetValue() is { } val ? (SvgTextAnchor)val: SvgTextAnchor.Inherit; }
             set { Attributes["text-anchor"] = value; IsPathDirty = true; }
         }
 
@@ -48,7 +74,7 @@ namespace Svg
         [SvgAttribute("baseline-shift", true)]
         public virtual string BaselineShift
         {
-            get { return Attributes["baseline-shift"] as string; }
+            get { return (_baselineShift ??= this.Attributes.GetInheritedAttribute<object>("baseline-shift")).GetValue() as string; }
             set { Attributes["baseline-shift"] = value; IsPathDirty = true; }
         }
 
@@ -171,7 +197,7 @@ namespace Svg
         [SvgAttribute("textLength", true)]
         public virtual SvgUnit TextLength
         {
-            get { return (Attributes["textLength"] == null ? SvgUnit.None : (SvgUnit) Attributes["textLength"]); }
+            get { return (_textLength ??= this.Attributes.GetInheritedAttribute<object>("textLength")).GetValue() is {} val ? (SvgUnit)val: SvgUnit.None; }
             set { Attributes["textLength"] = value; IsPathDirty = true; }
         }
 
@@ -182,7 +208,7 @@ namespace Svg
         [SvgAttribute("lengthAdjust", true)]
         public virtual SvgTextLengthAdjust LengthAdjust
         {
-            get { return (Attributes["lengthAdjust"] == null) ? SvgTextLengthAdjust.Spacing : (SvgTextLengthAdjust) Attributes["lengthAdjust"]; }
+            get { return (_lengthAdjust ??= this.Attributes.GetInheritedAttribute<object>("lengthAdjust")).GetValue() is { } val ? (SvgTextLengthAdjust)val: SvgTextLengthAdjust.Spacing; }
             set { Attributes["lengthAdjust"] = value; IsPathDirty = true; }
         }
 
@@ -192,7 +218,7 @@ namespace Svg
         [SvgAttribute("letter-spacing", true)]
         public virtual SvgUnit LetterSpacing
         {
-            get { return (Attributes["letter-spacing"] == null ? SvgUnit.None : (SvgUnit) Attributes["letter-spacing"]); }
+            get { return (_letterSpacing ??= this.Attributes.GetInheritedAttribute<object>("letter-spacing")).GetValue() is { } val ? (SvgUnit)val: SvgUnit.None; }
             set { Attributes["letter-spacing"] = value; IsPathDirty = true; }
         }
 
@@ -202,7 +228,7 @@ namespace Svg
         [SvgAttribute("word-spacing", true)]
         public virtual SvgUnit WordSpacing
         {
-            get { return (Attributes["word-spacing"] == null ? SvgUnit.None : (SvgUnit) Attributes["word-spacing"]); }
+            get { return (_wordSpacing ??= this.Attributes.GetInheritedAttribute<object>("word-spacing")).GetValue() is { } val ? (SvgUnit)val: SvgUnit.None; }
             set { Attributes["word-spacing"] = value; IsPathDirty = true; }
         }
 
@@ -215,7 +241,7 @@ namespace Svg
         /// <value>The fill.</value>
         public override SvgPaintServer Fill
         {
-            get { return (Attributes["fill"] == null) ? new SvgColourServer(SvgEngine.Factory.Colors.Black) : (SvgPaintServer) Attributes["fill"]; }
+            get { return (_fill ??= this.Attributes.GetInheritedAttribute<object>("fill")).GetValue() is {} val ? (SvgPaintServer)val: new SvgColourServer(SvgEngine.Factory.Colors.Black); }
             set { Attributes["fill"] = value; }
         }
 
@@ -239,30 +265,23 @@ namespace Svg
             get { return true; }
         }
 
-        /// <summary>
-        /// Gets the bounds of the element.
-        /// </summary>
-        /// <value>The bounds.</value>
-        public override RectangleF Bounds
+        public override RectangleF GetBounds()
         {
-            get
+            RectangleF b;
+            if (_alternativeTextRenderer != null)
             {
-                RectangleF b;
-                if (_alternativeTextRenderer != null)
-                {
-                    b = _alternativeTextRenderer.GetBounds(this, SvgRenderer.FromNull());
-                }
-                else
-                {
-                    var path = Path(null);
-                    foreach (var elem in Children.OfType<SvgVisualElement>())
-                    {
-                        path.AddPath(elem.Path(null), false);
-                    }
-                    b = path.GetBounds();
-                }
-                return b;
+                b = _alternativeTextRenderer.GetBounds(this, SvgRenderer.FromNull());
             }
+            else
+            {
+                var path = Path(null);
+                foreach (var elem in Children.OfType<SvgVisualElement>())
+                {
+                    path.AddPath(elem.Path(null), false);
+                }
+                b = path.GetBounds();
+            }
+            return b;
         }
 
         /// <summary>
@@ -272,6 +291,8 @@ namespace Svg
         /// <remarks>Necessary to make sure that any internal tspan elements get rendered as well</remarks>
         protected override void Render(ISvgRenderer renderer)
         {
+            var cache = GetOrCreateRenderCacheEntry<RenderCacheEntry>(renderer);
+
             if (Visible && Displayable && (_alternativeTextRenderer != null || Path(renderer) != null))
             {
                 PushTransforms(renderer);
@@ -284,11 +305,14 @@ namespace Svg
                 }
 
                 if (_alternativeTextRenderer != null)
+                {
                     _alternativeTextRenderer.Render(this, renderer);
+                    RenderChildren(renderer);
+                }
                 else
                 {
-                    RenderFill(renderer);
-                    RenderStroke(renderer);
+                    RenderFill(renderer, cache);
+                    RenderStroke(renderer, cache);
                     RenderChildren(renderer);
                 }
 
@@ -317,6 +341,7 @@ namespace Svg
         }
 
         private GraphicsPath _path;
+        private string _actualText;
 
         /// <summary>
         /// Gets the <see cref="GraphicsPath"/> for this element.
@@ -660,7 +685,7 @@ namespace Svg
                         rotations = GetValues(value.Length, e => e._rotations);
 
                         // Calculate Y-offset due to baseline shift.  Don't inherit the value so that it is not accumulated multiple times.               
-                        var baselineShiftText = Element.Attributes.GetAttribute<string>("baseline-shift");
+                        var baselineShiftText = Element.BaselineShift;
 
                         switch (baselineShiftText)
                         {

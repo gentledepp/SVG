@@ -300,6 +300,7 @@ namespace Svg
 
                             if (element.Nodes.OfType<SvgContentNode>().Any())
                             {
+                                element.InitializeContent();
                                 element.Content = (from e in element.Nodes select e.Content).Aggregate((p, c) => p + c);
                             }
                             else
@@ -797,17 +798,31 @@ namespace Svg
             this.X += new SvgUnit(SvgUnitType.Pixel, x);
             this.Y += new SvgUnit(SvgUnitType.Pixel, y);
         }
+        
+        public override SvgElement DeepCopy()
+        {
+            return DeepCopy<SvgDocument>();
+        }
+
+        public override SvgElement DeepCopy<T>()
+        {
+            var newObj = base.DeepCopy<T>() as SvgDocument;
+            newObj.BaseUri = BaseUri;
+            newObj.Ppi = Ppi;
+            newObj.ExternalCSSHref = ExternalCSSHref;
+            return newObj;
+        }
 
         protected override void OnSubTreeChanged(SvgElement svgElement)
         {
             ContentModified?.Invoke(this, svgElement);
         }
 
-        public override void Dispose()
+        public override void DisposeOverride()
         {
             foreach (var c in Descendants())
                 c.Dispose();
-            base.Dispose();
+            base.DisposeOverride();
         }
     }
 }

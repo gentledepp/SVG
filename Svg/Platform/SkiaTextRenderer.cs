@@ -1,11 +1,15 @@
-using System.Linq;
 using SkiaSharp;
 using Svg.Interfaces;
+using System.Linq;
+using static Svg.SvgVisualElement;
 
 namespace Svg.Platform
 {
     public class SkiaTextRenderer : IAlternativeSvgTextRenderer
     {
+        // these constants were interpreted by using InkScape
+        private const string SvgDefaultFontFamily = "Segoe UI";
+
         public void Render(SvgTextBase txt, ISvgRenderer renderer)
         {
             if (!txt.Visible || !txt.Displayable)
@@ -13,106 +17,147 @@ namespace Svg.Platform
 
             bool textIsEmpty = string.IsNullOrEmpty(txt.Text);
             bool hasNoChildren = !txt.Children.OfType<SvgTextBase>().Any();
-
+            
             if (textIsEmpty && hasNoChildren)
                 return;
 
+            var cache = txt.GetOrCreateRenderCacheEntry<RenderCacheEntry>(renderer);
 
             if (!textIsEmpty)
             {
-                RenderFill(txt, renderer);
-                RenderStroke(txt, renderer);
-            }
-
-            if (!hasNoChildren)
-            {
-                // render children (text spans and the like)
-                foreach (var child in txt.Children.OfType<SvgTextBase>())
-                    Render(child, renderer);
-            }
-        }
-
-        private void RenderStroke(SvgTextBase txt, ISvgRenderer renderer)
-        {
-            if (txt.Stroke != null)
-            {
-                var brush = txt.Stroke.GetBrush(txt, renderer, 1f);
-                ((SkiaBrushBase)brush).Paint.Typeface = SKTypeface.FromFamilyName(txt.FontFamily, txt.FontWeight.ToSkFontStyleWeight(), SKFontStyleWidth.Normal, txt.FontStyle.ToSkFontStyleSlant());
-                using (var pen = (SkiaPen)SvgEngine.Factory.CreatePen(brush, txt.StrokeWidth.Value))
-                {
-                    pen.TextSize = txt.FontSize.Value != 0 ? txt.FontSize.Value : pen.TextSize;
-                    pen.TextAlign = FromAnchor(txt.TextAnchor);
-
-                    byte strokeOpacity = (byte)(pen.Paint.Color.Alpha * txt.StrokeOpacity);
-                    pen.Paint.Color = new SKColor(pen.Paint.Color.Red, pen.Paint.Color.Green, pen.Paint.Color.Blue,
-                        strokeOpacity);
-
-                    pen.Paint.IsStroke = true;
-                    DrawWithPen(txt, renderer, pen);
-                }
+                RenderFill(txt, renderer, cache);
+                RenderStroke(txt, renderer, cache);
             }
         }
         
-        private void RenderFill(SvgTextBase txt, ISvgRenderer renderer)
+        private void RenderStroke(SvgTextBase txt, ISvgRenderer renderer, RenderCacheEntry cacheEntry)
+        {
+            if (txt.Stroke != null)
+            {
+                cacheEntry.StrokeBrush ??= CreateStrokeBrush(txt, renderer);
+                cacheEntry.StrokePen ??= CreateStrokePen(txt, cacheEntry.StrokeBrush, renderer);
+                var pen = (SkiaPen)cacheEntry.StrokePen;
+
+                var (x, y) = GetPosition(txt, renderer);
+
+
+                DrawLines(txt, renderer, x, y, pen);
+            }
+        }
+        
+        private void RenderFill(SvgTextBase txt, ISvgRenderer renderer, RenderCacheEntry cacheEntry)
         {
             if (txt.Fill != null)
             {
-                var brush = txt.Fill.GetBrush(txt, renderer, 1f);
+                cacheEntry.FillBrush ??= CreateFillBrush(txt, renderer);
+                cacheEntry.FillPen ??= CreateFillPen(txt, cacheEntry.FillBrush, renderer);
+                var pen = (SkiaPen)cacheEntry.FillPen;
 
-                var paint = ((SkiaBrushBase)brush).Paint;
-                paint.Typeface = SKTypeface.FromFamilyName(txt.FontFamily, txt.FontWeight.ToSkFontStyleWeight(), SKFontStyleWidth.Normal, txt.FontStyle.ToSkFontStyleSlant());
+                var (x, y) = GetPosition(txt, renderer);
 
-                using (var pen = (SkiaPen)SvgEngine.Factory.CreatePen(brush, 0f))
-                {
-                    pen.TextSize = txt.FontSize.Value != 0 ? txt.FontSize.Value : pen.TextSize;
-                    pen.TextAlign = FromAnchor(txt.TextAnchor);
 
-                    byte fillOpacity = (byte)(pen.Paint.Color.Alpha * txt.FillOpacity);
-                    pen.Paint.Color = new SKColor(pen.Paint.Color.Red, pen.Paint.Color.Green, pen.Paint.Color.Blue,
-                        fillOpacity);
-
-                    pen.Paint.IsStroke = false;
-                    DrawWithPen(txt, renderer, pen);
-                }
+                DrawLines(txt, renderer, x, y, pen);
             }
         }
 
-        private void DrawWithPen(SvgTextBase txt, ISvgRenderer renderer, SkiaPen pen)
+        private (float x, float y) GetPosition(SvgTextBase txt, ISvgRenderer renderer)
         {
-            if (txt.Parent is SvgTextBase parent && txt is SvgTextSpan)
-            {
-                var x = parent.X.FirstOrDefault().Value + txt.Dx.FirstOrDefault().Value;
-                var y = parent.Y.FirstOrDefault().Value + txt.Dy.FirstOrDefault().Value;
+            float x = 0f;
+            float y = 0f;
 
-                foreach (var svgElement in parent.Children)
+            if (txt.Parent is SvgText parent && (txt is SvgTextSpan || txt is SvgTextRef))
+            {
+                // x and y start out at the end of the previous text
+                var prevIndex = parent.Children.IndexOf(txt) - 1;
+                if (prevIndex >= 0)
                 {
-                    var child = (SvgTextSpan)svgElement;
-                    if (txt.Equals(child))
-                    {
-                        break;
-                    }
-
-                    x += child.Bounds.Width + child.Dx.FirstOrDefault().Value;
+                    var predecessor = (SvgTextBase)txt.Parent.Children[prevIndex];
+                    var b = predecessor.Bounds;
+                    x = b.X + b.Width;
+                    y = b.Y + b.Height;
                 }
-                DrawLines(txt, renderer, x, y, pen);
+                else
+                {
+                    if (parent.X.Count > 0)
+                        x = parent.X[0].Value;
+                    if (parent.Y.Count > 0)
+                        y = parent.Y[0].Value;
+                }
             }
-            else
-            {
-                var x = txt.X.Any() ? txt.X.FirstOrDefault().Value : 0f;
-                var y = txt.Y.Any() ? txt.Y.FirstOrDefault().Value : 0f;
-                DrawLines(txt, renderer, x, y, pen);
-            }
+
+            if (txt.X.Count > 0)
+                x = txt.X[0].Value;
+
+            // note: Dx could contain multiple values, which would stand for each character!
+            // see: https://wiki.selfhtml.org/wiki/SVG/Attribute/dx
+            if (txt.Dx.Count > 0)
+                x += txt.Dx[0].Value;
+
+
+            if (txt.Y.Count > 0)
+                y = txt.Y[0].Value;
+
+            // note: Dx could contain multiple values, which would stand for each character!
+            // see: https://wiki.selfhtml.org/wiki/SVG/Attribute/dx
+            if (txt.Dy.Count > 0)
+                y += txt.Dy[0].Value;
+            
+            return (x, y);
+        }
+        
+        private Brush CreateStrokeBrush(SvgTextBase txt, ISvgRenderer renderer)
+        {
+            var brush = txt.Stroke.GetBrush(txt, renderer, 1f);
+            var paint = ((SkiaBrushBase)brush).Paint;
+            paint.Typeface = SKTypeface.FromFamilyName(txt.FontFamily ?? SvgDefaultFontFamily, txt.FontWeight.ToSkFontStyleWeight(), SKFontStyleWidth.Normal, txt.FontStyle.ToSkFontStyleSlant());
+            return brush;
+        }
+        
+        private Pen CreateStrokePen(SvgTextBase txt, Brush brush, ISvgRenderer renderer)
+        {
+            var pen = (SkiaPen)SvgEngine.Factory.CreatePen(brush, txt.StrokeWidth.Value);
+            
+            pen.TextSize = txt.FontSize.Value != 0 ? txt.FontSize.Value : pen.TextSize;
+            pen.TextAlign = FromAnchor(txt.TextAnchor);
+
+            byte strokeOpacity = (byte)(pen.Paint.Color.Alpha * txt.StrokeOpacity);
+            pen.Paint.Color = new SKColor(pen.Paint.Color.Red, pen.Paint.Color.Green, pen.Paint.Color.Blue,
+                strokeOpacity);
+            pen.Paint.IsStroke = true;
+
+            return pen;
+        }
+
+        private Brush CreateFillBrush(SvgTextBase txt, ISvgRenderer renderer)
+        {
+            var brush = txt.Fill.GetBrush(txt, renderer, 1f);
+            var paint = ((SkiaBrushBase)brush).Paint;
+            paint.Typeface = SKTypeface.FromFamilyName(txt.FontFamily ?? SvgDefaultFontFamily, txt.FontWeight.ToSkFontStyleWeight(), SKFontStyleWidth.Normal, txt.FontStyle.ToSkFontStyleSlant());
+
+            
+            return brush;
+        }
+        
+        private Pen CreateFillPen(SvgTextBase txt, Brush brush, ISvgRenderer renderer)
+        {
+
+            var pen = (SkiaPen)SvgEngine.Factory.CreatePen(brush, 0f);
+            
+            pen.TextSize = txt.FontSize.Value != 0 ? txt.FontSize.Value : pen.TextSize;
+            pen.TextAlign = FromAnchor(txt.TextAnchor);
+
+            byte fillOpacity = (byte)(pen.Paint.Color.Alpha * txt.FillOpacity);
+            pen.Paint.Color = new SKColor(pen.Paint.Color.Red, pen.Paint.Color.Green, pen.Paint.Color.Blue,
+                fillOpacity);
+
+            pen.Paint.IsStroke = false;
+
+            return pen;
         }
 
         private static void DrawLines(SvgTextBase txt, ISvgRenderer renderer, float x, float y, SkiaPen pen)
         {
-            var lines = txt.Text.Split('\n');
-            var b = txt.Bounds;
-            var lineHeight = txt.Bounds.Height/lines.Length;
-            for (int lineNumber = 0; lineNumber < lines.Length; lineNumber++)
-            {
-                renderer.DrawText(lines[lineNumber], x, y + (lineHeight * lineNumber), pen);
-            }
+            renderer.DrawText(txt.ActualText, x, y, pen);
         }
 
         public RectangleF GetBounds(SvgTextBase txt, ISvgRenderer renderer)
@@ -121,102 +166,69 @@ namespace Svg.Platform
                 return RectangleF.Create(0f, 0f, 0f, 0f);
 
             bool textIsEmpty = string.IsNullOrEmpty(txt.Text);
-            bool hasNoChildren = !txt.Children.OfType<SvgTextBase>().Any();
+            bool hasChildren = txt.Children.OfType<SvgTextBase>().Any();
 
-            if (textIsEmpty && hasNoChildren)
+            if (textIsEmpty && !hasChildren)
                 return RectangleF.Create(0f, 0f, 0f, 0f);
+
+            RectangleF result;
 
             if (!textIsEmpty)
             {
-                var brush = txt.Fill.GetBrush(txt, renderer, 1f);
-                using (var pen = (SkiaPen) SvgEngine.Factory.CreatePen(brush, txt.StrokeWidth.Value))
+                var cacheEntry = txt.GetOrCreateRenderCacheEntry<RenderCacheEntry>(renderer);
+                cacheEntry.FillBrush ??= CreateFillBrush(txt, renderer);
+                cacheEntry.FillPen ??= CreateFillPen(txt, cacheEntry.FillBrush, renderer);
+                var pen = (SkiaPen)cacheEntry.FillPen;
+
+                var (x, y) = GetPosition(txt, renderer);
+                var line = txt.ActualText;
+                
+                var (width,height) = pen.Paint.MeasureTextWithWhiteSpace(line);
+                
+
+                SvgTextBase t = txt;
+                var anchor = t.TextAnchor;
+                while (t != null && anchor == SvgTextAnchor.Inherit)
                 {
-                    pen.TextSize = txt.FontSize.Value;
-                    pen.TextAlign = FromAnchor(txt.TextAnchor);
-
-                    var x = txt.X.Any() ? txt.X.FirstOrDefault().Value : 0f;
-                    var y = txt.Y.Any() ? txt.Y.FirstOrDefault().Value : 0f;
-
-                    float width = 0f;
-                    float height = 0f;
-
-                    bool isFirstLineRect = true;
-                    SKRect firstLineRect = default(SKRect);
-                    var lines = txt.Text.Split('\n');
-                    var lineCount = lines.Length;
-
-                    // as android does not know the sense of "lines", we need to split the text and measure ourselves
-                    // see: http://stackoverflow.com/questions/6756975/draw-multi-line-text-to-canvas
-                    foreach (var line in lines)
-                    {
-                        SKRect rect = new SKRect();
-                        pen.Paint.MeasureText(line, ref rect);
-
-                        if (isFirstLineRect)
-                        {
-                            firstLineRect = rect;
-                            isFirstLineRect = false;
-                        }
-
-                        var w = rect.Right - rect.Left;
-                        if (width < w)
-                            width = w;
-
-                        var h = rect.Bottom - rect.Top;
-                        if (height < h)
-                            height = h;
-                    }
-
-                    var x1 = x + firstLineRect.Left;
-                    var y1 = y + firstLineRect.Top;
-
-                    SvgTextBase t = txt;
-                    var anchor = t.TextAnchor;
-                    while (t != null && anchor == SvgTextAnchor.Inherit)
-                    {
-                        t = t.Parent as SvgTextBase;
-                        if (t == null)
-                            anchor = SvgTextAnchor.Start;
-                        else
-                            anchor = t.TextAnchor;
-                    }
-
-                    // textanchor affects boundingbox:
-                    // if "Middle" (aka Align.Center) then x is the center of the rectangle
-                    if (anchor == SvgTextAnchor.Middle)
-                    {
-                        x1 -= width/2;
-                    }
-                    // if "End" (aka Align.Right) then x is at the very right end of the text
-                    else if (anchor == SvgTextAnchor.End)
-                    {
-                        x1 -= width;
-                    }
-
-
-                    return RectangleF.Create(x1, y1, width,
-                        height*lineCount);
+                    t = t.Parent as SvgTextBase;
+                    if (t == null)
+                        anchor = SvgTextAnchor.Start;
+                    else
+                        anchor = t.TextAnchor;
                 }
-            }
-            else if(!hasNoChildren)
-            {
-                RectangleF r = null;
 
+                // textanchor affects boundingbox:
+                // if "Middle" (aka Align.Center) then x is the center of the rectangle
+                if (anchor == SvgTextAnchor.Middle)
+                    x -= width / 2;
+                // if "End" (aka Align.Right) then x is at the very right end of the text
+                else if (anchor == SvgTextAnchor.End)
+                    x -= width;
+
+                // IMPORTANT: In skiasharp y of the text marks the lower left point where the text starts, so we must subtract the height
+                y -= height;
+
+                result = RectangleF.Create(x, y, width, height);
+            }
+            else
+                result = RectangleF.Create(0f, 0f, 0f, 0f);
+            
+            
+            if(hasChildren)
+            {
                 foreach (var child in txt.Children.OfType<SvgTextBase>())
                 {
                     var bounds = GetBounds(child, renderer);
-                    if (r == null)
-                        r = bounds;
+                    if (result == null)
+                        result = bounds;
                     else
                     {
-                        r = r.UnionAndCopy(bounds);
+                        result = result.UnionAndCopy(bounds);
                     }
                 }
-
-                return r;
             }
 
-            return RectangleF.Create(0f, 0f, 0f, 0f);
+            return result;
         }
         
         private SKTextAlign FromAnchor(SvgTextAnchor textAnchor)
@@ -233,33 +245,32 @@ namespace Svg.Platform
                     return SKTextAlign.Left;
             }
         }
+
     }
 
-    internal static class FontWeightExtensions
+    public static class SKPaintExtensions
     {
-        internal static SKFontStyleWeight ToSkFontStyleWeight(this SvgFontWeight style)
+        /// <summary>
+        /// Skia ignores spaces when measuring text
+        /// So we need to solve it manually.
+        /// See here: https://github.com/mono/SkiaSharp/issues/605
+        /// </summary>
+        /// <param name="paint"></param>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static (float width, float height) MeasureTextWithWhiteSpace(this SKPaint paint, string text)
         {
-            return style switch
-            {
-                SvgFontWeight.Normal => SKFontStyleWeight.Normal,
-                SvgFontWeight.Lighter => SKFontStyleWeight.Light,
-                SvgFontWeight.Bold => SKFontStyleWeight.Bold,
-                SvgFontWeight.Bolder => SKFontStyleWeight.ExtraBold,
-                SvgFontWeight.W600 => SKFontStyleWeight.Bold,
-                SvgFontWeight.W800 => SKFontStyleWeight.ExtraBold,
-                SvgFontWeight.W900 => SKFontStyleWeight.ExtraBold,
-                _ => SKFontStyleWeight.Normal
-            };
-        }
-        internal static SKFontStyleSlant ToSkFontStyleSlant(this SvgFontStyle style)
-        {
-            return style switch
-            {
-                SvgFontStyle.Normal => SKFontStyleSlant.Upright,
-                SvgFontStyle.Italic => SKFontStyleSlant.Italic,
-                SvgFontStyle.Oblique => SKFontStyleSlant.Oblique,
-                _ => SKFontStyleSlant.Upright
-            };
+            SKRect rect = new SKRect();
+            
+            var wrapper = ".";
+            var wrapperWidth = paint.MeasureText(wrapper);
+            var textWidth = paint.MeasureText(wrapper + text + wrapper, ref rect);
+            textWidth = textWidth - (wrapperWidth + wrapperWidth);
+
+            var width = textWidth;
+            var height = rect.Bottom - rect.Top;
+            
+            return (width, height);
         }
     }
 }

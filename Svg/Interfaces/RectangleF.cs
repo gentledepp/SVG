@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -591,9 +592,11 @@ namespace Svg.Interfaces
 
         public override string ToString()
         {
-            return $"<rect x=\"{x}\" y=\"{y}\" width=\"{width}\" height=\"{height}\" style=\"fill:black\" />";
-            //return String.Format("{{X={0},Y={1},Width={2},Height={3}}}",
-            //             x, y, width, height);
+            var nfi = new NumberFormatInfo
+            {
+                NumberDecimalSeparator = "."
+            };
+            return $"<rect x=\"{x.ToString(nfi)}\" y=\"{y.ToString(nfi)}\" width=\"{width.ToString(nfi)}\" height=\"{height.ToString(nfi)}\" style=\"fill:black\" />";
         }
 
         public RectangleF UnionAndCopy(RectangleF childBounds)

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg height="90" width="200">
+	<svg height="90" width="200">
+		<text x="10" y="20" font-family="Segoe UI" 
+		      font-size="14" style="fill:red;">Several lines:
+			<tspan x="10" y="45">First line.</tspan>
+			<tspan dx="10" dy="5">Second line.</tspan>
+			<tspan dx="-110" dy="15">Third line.</tspan>
+		</text>
+	</svg>
+</svg>

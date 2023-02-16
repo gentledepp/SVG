@@ -53,9 +53,9 @@ namespace Svg
         private Dictionary<string, IDictionary<int, string>> _styles = new Dictionary<string, IDictionary<int, string>>();
 
         private ISvgElementFactory _elementFactory;
-        public ISvgElementFactory SvgElementFactory => _elementFactory ?? (_elementFactory = SvgEngine.Resolve<ISvgElementFactory>());
+        public ISvgElementFactory SvgElementFactory => _elementFactory ??= SvgEngine.Resolve<ISvgElementFactory>();
         private ISvgTypeDescriptor _typeDescriptor;
-        public ISvgTypeDescriptor TypeDescriptor => _typeDescriptor ?? (_typeDescriptor = SvgEngine.Resolve<ISvgTypeDescriptor>());
+        public ISvgTypeDescriptor TypeDescriptor => _typeDescriptor ??= SvgEngine.Resolve<ISvgTypeDescriptor>();
 
 
         public void AddStyle(string name, string value, int specificity)
@@ -132,7 +132,7 @@ namespace Svg
         [SvgAttribute("color", true)]
         public virtual SvgPaintServer Color
         {
-            get { return (Attributes["color"] == null) ? SvgColourServer.NotSet : (SvgPaintServer) Attributes["color"]; }
+            get { return (_color ??= this.Attributes.GetInheritedAttribute<object>("color")).GetValue() is {} val ? (SvgPaintServer)val: SvgColourServer.NotSet; }
             set { Attributes["color"] = value; }
         }
 
@@ -386,7 +386,7 @@ namespace Svg
         [SvgAttribute("transform")]
         public SvgTransformCollection Transforms
         {
-            get { return (Attributes.GetAttribute<SvgTransformCollection>("transform")); }
+            get { return (_transform ??= Attributes.GetAttribute<SvgTransformCollection>("transform")).GetValue(); }
             set
             {
                 var old = Transforms;
@@ -404,7 +404,7 @@ namespace Svg
         [SvgAttribute("id")]
         public string ID
         {
-            get { return Attributes.GetAttribute<string>("id"); }
+            get { return (_id ??= Attributes.GetAttribute<string>("id")).GetValue(); }
             set
             {
                 SetAndForceUniqueID(value, false);
@@ -418,7 +418,7 @@ namespace Svg
         [SvgAttribute("space", SvgAttributeAttribute.XmlNamespace)]
         public virtual XmlSpaceHandling SpaceHandling
         {
-            get { return (Attributes["space"] == null) ? XmlSpaceHandling.@default : (XmlSpaceHandling) Attributes["space"]; }
+            get { return (_space ??= this.Attributes.GetInheritedAttribute<object>("space")).GetValue() is {} val ? (XmlSpaceHandling)val: XmlSpaceHandling.@default; }
             set { Attributes["space"] = value; }
         }
 
@@ -592,10 +592,9 @@ namespace Svg
             //properties
             foreach (var attr in _svgPropertyAttributes)
             {
-                if ((!attr.Attribute.InAttributeDictionary || _attributes.ContainsKey(attr.Attribute.Name)))
+                object propertyValue = null;
+                if (_attributes.TryGetValue(attr.Attribute.Name, out propertyValue))
                 {
-                    object propertyValue = _attributes.GetAttribute<object>(attr.Attribute.Name);
-
                     if (propertyValue == null)
                         continue;
 
@@ -672,6 +671,10 @@ namespace Svg
         }
 
         public bool AutoPublishEvents = true;
+        private SvgAttributeCollection.InheritedAttribute<object> _color;
+        private SvgAttributeCollection.InheritedAttribute<object> _space;
+        private SvgAttributeCollection.Attribute<SvgTransformCollection> _transform;
+        private SvgAttributeCollection.Attribute<string> _id;
 
         private bool TryResolveParentAttributeValue(string attributeKey, out object parentAttributeValue)
         {
@@ -683,10 +686,9 @@ namespace Svg
             var resolved = false;
             while (currentParent != null)
             {
-                if (currentParent.Attributes.ContainsKey(attributeKey))
+                if (currentParent.Attributes.TryGetValue(attributeKey, out parentAttributeValue))
                 {
                     resolved = true;
-                    parentAttributeValue = currentParent.Attributes[attributeKey];
                     if (parentAttributeValue != null)
                         break;
                 }
@@ -867,10 +869,7 @@ namespace Svg
                 newObj.Transforms = Transforms.Clone() as SvgTransformCollection;
             }
 
-            foreach (var child in Children)
-            {
-                newObj.Children.Add(child.DeepCopy());
-            }
+            DeepCopyChildren(newObj);
 
             foreach (var attr in _svgEventAttributes)
             {
@@ -909,6 +908,14 @@ namespace Svg
             return newObj;
         }
 
+        protected virtual void DeepCopyChildren<T>(T newObj) where T : SvgElement, new()
+        {
+            foreach (var child in Children)
+            {
+                newObj.Children.Add(child.DeepCopy());
+            }
+        }
+
         /// <summary>
         /// Fired when an Atrribute of this Element has changed
         /// </summary>
@@ -919,8 +926,37 @@ namespace Svg
             var handler = AttributeChanged;
             handler?.Invoke(this, args);
 
+            OnAttributeChangedOverride(args);
+
+            // do NOT call RaiseParentAttributeChanged directly, otherwise we end up in an infinite loop
+            // notify all sub-elements that a parent attribute has changed
+            foreach (var child in this.Children)
+                child.RaiseParentAttributeChanged(this, args);
+
             OnSubTreeChanged(this);
         }
+
+        protected virtual void OnAttributeChangedOverride(AttributeEventArgs args)
+        { }
+
+        public event EventHandler<AttributeEventArgs> ParentAttributeChanged;
+        
+        protected void RaiseParentAttributeChanged(SvgElement sender, AttributeEventArgs args)
+        {
+            // notify attribute collections
+            var handler = ParentAttributeChanged;
+            handler?.Invoke(this, args);
+
+            OnParentAttributeChangedOverride(sender, args);
+
+            // recurse
+            // notify all sub-elements that a parent attribute has changed
+            foreach (var child in this.Children)
+                child.RaiseParentAttributeChanged(sender, args);
+        }
+
+        protected virtual void OnParentAttributeChangedOverride(SvgElement sender, AttributeEventArgs args)
+        { }
 
         /// <summary>
         /// Fired when an Atrribute of this Element has changed
@@ -1106,9 +1142,12 @@ namespace Svg
 
         #endregion graphical EVENTS
 
-        public virtual void Dispose()
+        public void Dispose()
         {
+            DisposeOverride();
         }
+        
+        public virtual void DisposeOverride(){}
 
         public override string ToString()
         {
@@ -1117,6 +1156,10 @@ namespace Svg
                 return base.ToString();
             }
             return $"{ElementName} '{ID}'";
+        }
+
+        protected internal virtual void InitializeContent()
+        {
         }
     }
 

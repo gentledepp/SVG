@@ -14,6 +14,11 @@ namespace Svg
     public class SvgPath : SvgVisualElement
     {
         private GraphicsPath _path;
+        private SvgAttributeCollection.Attribute<SvgPathSegmentList> _d;
+        private SvgAttributeCollection.Attribute<float> _pathLength;
+        private SvgAttributeCollection.Attribute<Uri> _markerEnd;
+        private SvgAttributeCollection.Attribute<Uri> _markerMid;
+        private SvgAttributeCollection.Attribute<Uri> _markerStart;
 
         /// <summary>
         /// Gets or sets a <see cref="SvgPathSegmentList"/> of path data.
@@ -21,7 +26,7 @@ namespace Svg
         [SvgAttribute("d", true)]
         public SvgPathSegmentList PathData
         {
-        	get { return this.Attributes.GetAttribute<SvgPathSegmentList>("d"); }
+        	get { return (_d ??= this.Attributes.GetAttribute<SvgPathSegmentList>("d")).GetValue(); }
             set
             {
             	this.Attributes["d"] = value;
@@ -36,7 +41,7 @@ namespace Svg
         [SvgAttribute("pathLength", true)]
         public float PathLength
         {
-            get { return this.Attributes.GetAttribute<float>("pathLength"); }
+            get { return (_pathLength ??= this.Attributes.GetAttribute<float>("pathLength")).GetValue(); }
             set { this.Attributes["pathLength"] = value; }
         }
 
@@ -47,7 +52,7 @@ namespace Svg
         [SvgAttribute("marker-end", true)]
 		public Uri MarkerEnd
         {
-			get { return this.Attributes.GetAttribute<Uri>("marker-end"); }
+			get { return (_markerEnd ??= this.Attributes.GetAttribute<Uri>("marker-end")).GetValue(); }
 			set { this.Attributes["marker-end"] = value; }
 		}
 
@@ -58,7 +63,7 @@ namespace Svg
         [SvgAttribute("marker-mid", true)]
 		public Uri MarkerMid
 		{
-			get { return this.Attributes.GetAttribute<Uri>("marker-mid"); }
+			get { return (_markerMid ??= this.Attributes.GetAttribute<Uri>("marker-mid")).GetValue(); }
 			set { this.Attributes["marker-mid"] = value; }
 		}
 
@@ -69,7 +74,7 @@ namespace Svg
         [SvgAttribute("marker-start", true)]
 		public Uri MarkerStart
 		{
-			get { return this.Attributes.GetAttribute<Uri>("marker-start"); }
+			get { return (_markerStart ??= this.Attributes.GetAttribute<Uri>("marker-start")).GetValue(); }
 			set { this.Attributes["marker-start"] = value; }
 		}
 
@@ -81,6 +86,7 @@ namespace Svg
         {
             if (this._path == null || this.IsPathDirty)
             {
+                _path?.Dispose();
                 _path = SvgEngine.Factory.CreateGraphicsPath();
 
                 foreach (SvgPathSegment segment in this.PathData)
@@ -96,7 +102,7 @@ namespace Svg
         internal void OnPathUpdated(SvgPathSegmentList oldValue)
         {
             this.IsPathDirty = true;
-            OnAttributeChanged(new AttributeEventArgs("d", this.Attributes.GetAttribute<SvgPathSegmentList>("d"), oldValue));
+            OnAttributeChanged(new AttributeEventArgs("d", PathData, oldValue));
         }
 
         /// <summary>
@@ -107,16 +113,9 @@ namespace Svg
             get { return true; }
         }
 
-        /// <summary>
-        /// Gets the bounds of the element.
-        /// </summary>
-        /// <value>The bounds.</value>
-        public override RectangleF Bounds
+        public override RectangleF GetBounds()
         {
-            get
-            {
-                return this.Path(null).GetBounds();
-            }
+            return this.Path(null).GetBounds();
         }
 
         /// <summary>
@@ -133,9 +132,9 @@ namespace Svg
 		/// Renders the stroke of the <see cref="SvgVisualElement"/> to the specified <see cref="ISvgRenderer"/>
 		/// </summary>
 		/// <param name="renderer">The <see cref="ISvgRenderer"/> object to render to.</param>
-		protected internal override bool RenderStroke(ISvgRenderer renderer)
+		protected override bool RenderStroke(ISvgRenderer renderer, RenderCacheEntry cacheEntry)
 		{
-            var result = base.RenderStroke(renderer);
+            var result = base.RenderStroke(renderer, cacheEntry);
             var path = this.Path(renderer);
 
             if (this.MarkerStart != null)

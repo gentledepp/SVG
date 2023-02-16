@@ -76,7 +76,7 @@ namespace Svg
         {
             throw new NotImplementedException();
         }
-
+        
         public virtual SolidBrush CreateSolidBrush(Color color)
         {
             return new SkiaSolidBrush(color);
@@ -232,5 +232,10 @@ namespace Svg
         public abstract IXmlReader CreateSvgTextReader(Stream stream, Dictionary<string, string> entities);
 
         public abstract IXmlReader CreateSvgTextReader(StringReader r, Dictionary<string, string> entities);
+
+        public void Dispose()
+        {
+           
+        }
     }
 }

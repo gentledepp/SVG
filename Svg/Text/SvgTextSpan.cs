@@ -1,5 +1,7 @@
 ﻿
 
+using Svg.Interfaces;
+
 namespace Svg
 {
     [SvgElement("tspan")]
@@ -22,6 +24,9 @@ namespace Svg
             return newObj;
         }
 
-
+        protected override void RenderChildren(ISvgRenderer renderer)
+        {
+            // a tspan has no children
+        }
     }
 }

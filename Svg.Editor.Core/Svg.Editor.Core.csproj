@@ -35,11 +35,11 @@
 	</PackageReleaseNotes>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(Configuration) == 'Release'">
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <IncludeSource>True</IncludeSource>
-    <IncludeSymbols>True</IncludeSymbols>
-  </PropertyGroup>
+	<PropertyGroup Condition="$(Configuration) == 'Release'">
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IncludeSource>True</IncludeSource>
+		<IncludeSymbols>True</IncludeSymbols>
+	</PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Assets\**" />

@@ -21,6 +21,7 @@ namespace Svg.Platform
 
             _brush.Paint.StrokeWidth = strokeWidth;
             _brush.Paint.IsStroke = true;
+            _brush.Paint.TextSize = 14;
 
             DashesChanged += OnDashesChanged;
         }

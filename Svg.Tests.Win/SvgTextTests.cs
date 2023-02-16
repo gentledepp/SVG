@@ -1,11 +1,8 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
-using Svg.Converters;
 using Svg.Editor.Tests;
 using Svg.Interfaces;
+using System.Linq;
 
 namespace Svg.Tests.Win
 {
@@ -76,5 +73,131 @@ namespace Svg.Tests.Win
                 .Be(0); 
         }
 
+        [Test]
+        public void CanRenderComplexDocumentWithCustomFont()
+        {
+            var pngPath = "59e4e3cb-0b9e-4a93-9d10-26d3ebea0369.png";
+            var svgPath = "59e4e3cb-0b9e-4a93-9d10-26d3ebea0369.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height, Color.Create(255, 255, 255));
+                
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99, svgPath);
+        }
+
+        [Test]
+        public void CanRenderTSpan_X()
+        {
+            var pngPath = "tspan_x.png";
+            var svgPath = "tspan_x.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(93.3f, svgPath);
+        }
+
+        [Test]
+        public void CanRenderTSpan_DX()
+        {
+            var pngPath = "tspan_dx.png";
+            var svgPath = "tspan_dx.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(92.6f, svgPath);
+        }
+        
+
+        [Test]
+        public void CanRenderTSpan_DX_of_DX()
+        {
+            var pngPath = "tspan_dx_2.png";
+            var svgPath = "tspan_dx_2.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(91.1f, svgPath);
+        }
+        
+        [Test]
+        public void CanRenderTSpan_DX_WithTransforms()
+        {
+            var pngPath = "tspan_dx_transform.png";
+            var svgPath = "tspan_dx_transform.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(91.14f, svgPath);
+        }
+        
+        [Test]
+        public void CanRenderTSpan_TakesXYFromParent_IgnoresWhiteSpaces()
+        {
+            var pngPath = "tspan_dx_withparentx.png";
+            var svgPath = "tspan_dx_withparentx.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(94.688f, svgPath);
+        }
+        
+        [Test]
+        public void CanRenderTSpan_WithWhiteSpaces()
+        {
+            var pngPath = "tspan_whitespace.png";
+            var svgPath = "tspan_whitespace.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(74.8936f, svgPath);
+        }
     }
 }

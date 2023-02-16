@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg height="90" width="200">
+	<text x="20.0" y="45.5"
+	      font-family="Segoe UI" 
+	      font-size="14" 
+	      style="fill:red;">
+		<tspan>Some text </tspan>
+		<tspan dx="9.5603">/ </tspan>
+		<tspan dx="0.013">With spaces</tspan>
+	</text>
+</svg>

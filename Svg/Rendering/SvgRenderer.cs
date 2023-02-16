@@ -6,12 +6,17 @@ namespace Svg
 {
     /// <summary>
     /// Convenience wrapper around a graphics object
+    ///
+    /// The renderer can be re-used when rendering the same document multiple times.
+    /// For performance reasons, graphics objects (brush, pen, fontfamily) are cached per svg-object in the renderer.
+    /// This is because the SvgDocument can be loaded and shared by multiple threads in read-only fashion.
     /// </summary>
     public sealed class SvgRenderer : IDisposable, IGraphicsProvider, ISvgRenderer
     {
         private Graphics _innerGraphics;
         private Stack<ISvgBoundable> _boundables = new Stack<ISvgBoundable>();
         private readonly IDictionary<string, object> _context = new Dictionary<string, object>();
+        private readonly IDictionary<object, IDisposable> _drawingCache = new Dictionary<object, IDisposable>();
 
         public void SetBoundable(ISvgBoundable boundable)
         {
@@ -83,6 +88,7 @@ namespace Svg
         }
 
         public IDictionary<string, object> Context => _context;
+        public IDictionary<object, IDisposable> DrawingCache => _drawingCache;
         public IDisposable UsingContextVariable(string key, object variable)
         {
             return new TemporaryContextVariable(key, variable, _context);
@@ -110,11 +116,25 @@ namespace Svg
         public void Dispose()
         {
             this._innerGraphics.Dispose();
-        }
 
+            foreach(var d in _drawingCache.Values)
+                d.Dispose();
+            _drawingCache.Clear();
+        }
+        
         Graphics IGraphicsProvider.GetGraphics()
         {
             return _innerGraphics;
+        }
+
+        public ISvgRenderer UseGraphics(Graphics graphics)
+        {
+            // ensure we do not dispose the existing graphics
+            if(_innerGraphics!=graphics)
+                _innerGraphics?.Dispose();
+
+            _innerGraphics = graphics;
+            return this;
         }
 
         /// <summary>

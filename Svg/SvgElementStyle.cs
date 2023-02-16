@@ -8,7 +8,27 @@ namespace Svg
     public partial class SvgElement
     {
         private bool _dirty;
-        
+        private SvgAttributeCollection.InheritedAttribute<SvgPaintServer> _stroke;
+        private SvgAttributeCollection.InheritedAttribute<SvgUnitCollection> _strokeDashArray;
+        protected SvgAttributeCollection.InheritedAttribute<object> _fill;
+        private SvgAttributeCollection.InheritedAttribute<object> _fillRule;
+        private SvgAttributeCollection.InheritedAttribute<object> _fillOpacity;
+        private SvgAttributeCollection.InheritedAttribute<object> _strokeWidth;
+        private SvgAttributeCollection.InheritedAttribute<object> _strokeLinecap;
+        private SvgAttributeCollection.InheritedAttribute<object> _strokeLinejoin;
+        private SvgAttributeCollection.InheritedAttribute<object> _strokeMiterlimit;
+        private SvgAttributeCollection.InheritedAttribute<object> _strokeDashoffset;
+        private SvgAttributeCollection.InheritedAttribute<object> _strokeOpacity;
+        private SvgAttributeCollection.InheritedAttribute<object> _stopColor;
+        private SvgAttributeCollection.InheritedAttribute<object> _opacity;
+        protected SvgAttributeCollection.InheritedAttribute<object> _fontFamily;
+        protected SvgAttributeCollection.InheritedAttribute<object> _fontSize;
+        protected SvgAttributeCollection.InheritedAttribute<object> _fontStyle;
+        protected SvgAttributeCollection.InheritedAttribute<object> _fontVariant;
+        private SvgAttributeCollection.InheritedAttribute<object> _textDecoration;
+        protected SvgAttributeCollection.InheritedAttribute<object> _fontWeight;
+        private SvgAttributeCollection.InheritedAttribute<object> _font;
+
         /// <summary>
         /// Gets or sets a value indicating whether this element's <see cref="System.IO.Path"/> is dirty.
         /// </summary>
@@ -34,7 +54,7 @@ namespace Svg
         [SvgAttribute("fill", true)]
         public virtual SvgPaintServer Fill
         {
-            get { return (this.Attributes["fill"] == null) ? SvgColourServer.NotSet : (SvgPaintServer)this.Attributes["fill"]; }
+            get { return (_fill??=this.Attributes.GetInheritedAttribute<object>("fill")).GetValue() is {} val ? (SvgPaintServer)val: SvgColourServer.NotSet; }
             set { this.Attributes["fill"] = value; }
         }
 
@@ -44,14 +64,14 @@ namespace Svg
         [SvgAttribute("stroke", true)]
         public virtual SvgPaintServer Stroke
         {
-            get { return Attributes.GetInheritedAttribute<SvgPaintServer>("stroke"); }
+            get { return (_stroke ??= Attributes.GetInheritedAttribute<SvgPaintServer>("stroke")).GetValue(); }
             set { Attributes["stroke"] = value; }
         }
 
         [SvgAttribute("fill-rule", true)]
         public virtual SvgFillRule FillRule
         {
-            get { return (this.Attributes["fill-rule"] == null) ? SvgFillRule.NonZero : (SvgFillRule)this.Attributes["fill-rule"]; }
+            get { return (_fillRule ??= this.Attributes.GetInheritedAttribute<object>("fill-rule")).GetValue() is {} val ? (SvgFillRule)val: SvgFillRule.NonZero; }
             set { this.Attributes["fill-rule"] = value; }
         }
 
@@ -61,7 +81,7 @@ namespace Svg
         [SvgAttribute("fill-opacity", true)]
         public virtual float FillOpacity
         {
-            get { return (this.Attributes["fill-opacity"] == null) ? this.Opacity : (float)this.Attributes["fill-opacity"]; }
+            get { return (_fillOpacity ??= this.Attributes.GetInheritedAttribute<object>("fill-opacity")).GetValue() is {} val ? (float)val: this.Opacity ; }
             set { this.Attributes["fill-opacity"] = FixOpacityValue(value); }
         }
 
@@ -71,42 +91,57 @@ namespace Svg
         [SvgAttribute("stroke-width", true)]
         public virtual SvgUnit StrokeWidth
         {
-            get { return (this.Attributes["stroke-width"] == null) ? new SvgUnit(1.0f) : (SvgUnit)this.Attributes["stroke-width"]; }
+            get
+            {
+                return (_strokeWidth ??= this.Attributes.GetInheritedAttribute<object>("stroke-width")).GetValue() is
+                    { } val
+                        ? (SvgUnit)val
+                        : new SvgUnit(1.0f); }
             set { this.Attributes["stroke-width"] = value; }
         }
 
         [SvgAttribute("stroke-linecap", true)]
         public virtual SvgStrokeLineCap StrokeLineCap
         {
-            get { return (this.Attributes["stroke-linecap"] == null) ? SvgStrokeLineCap.Butt : (SvgStrokeLineCap)this.Attributes["stroke-linecap"]; }
+            get
+            {
+                return (_strokeLinecap ??= this.Attributes.GetInheritedAttribute<object>("stroke-linecap"))
+                    .GetValue() is { } val
+                        ? (SvgStrokeLineCap)val
+                        : SvgStrokeLineCap.Butt; }
             set { this.Attributes["stroke-linecap"] = value; }
         }
 
         [SvgAttribute("stroke-linejoin", true)]
         public virtual SvgStrokeLineJoin StrokeLineJoin
         {
-            get { return (this.Attributes["stroke-linejoin"] == null) ? SvgStrokeLineJoin.Miter : (SvgStrokeLineJoin)this.Attributes["stroke-linejoin"]; }
+            get { return (_strokeLinejoin ??= this.Attributes.GetInheritedAttribute<object>("stroke-linejoin")).GetValue() is { } val ? (SvgStrokeLineJoin)val: SvgStrokeLineJoin.Miter; }
             set { this.Attributes["stroke-linejoin"] = value; }
         }
 
         [SvgAttribute("stroke-miterlimit", true)]
         public virtual float StrokeMiterLimit
         {
-            get { return (this.Attributes["stroke-miterlimit"] == null) ? 4f : (float)this.Attributes["stroke-miterlimit"]; }
+            get { return (_strokeMiterlimit ??= this.Attributes.GetInheritedAttribute<object>("stroke-miterlimit")).GetValue() is { } val ? (float)val: 4f; }
             set { this.Attributes["stroke-miterlimit"] = value; }
         }
 
         [SvgAttribute("stroke-dasharray", true)]
         public virtual SvgUnitCollection StrokeDashArray
         {
-            get { return Attributes.GetInheritedAttribute<SvgUnitCollection>("stroke-dasharray") ?? SvgUnitCollection.Inherit; }
+            get
+            {
+                var val = (_strokeDashArray ??= Attributes.GetInheritedAttribute<SvgUnitCollection>("stroke-dasharray"))
+                    .GetValue();
+                return val ?? SvgUnitCollection.Inherit;
+            }
             set { Attributes["stroke-dasharray"] = value; }
         }
 
         [SvgAttribute("stroke-dashoffset", true)]
         public virtual SvgUnit StrokeDashOffset
         {
-            get { return (this.Attributes["stroke-dashoffset"] == null) ? SvgUnit.Empty : (SvgUnit)this.Attributes["stroke-dashoffset"]; }
+            get { return (_strokeDashoffset ??= this.Attributes.GetInheritedAttribute<object>("stroke-dashoffset")).GetValue() is { } val ? (SvgUnit)val: SvgUnit.Empty; }
             set { this.Attributes["stroke-dashoffset"] = value; }
         }
 
@@ -116,7 +151,7 @@ namespace Svg
         [SvgAttribute("stroke-opacity", true)]
         public virtual float StrokeOpacity
         {
-            get { return (this.Attributes["stroke-opacity"] == null) ? this.Opacity : (float)this.Attributes["stroke-opacity"]; }
+            get { return (_strokeOpacity ??= this.Attributes.GetInheritedAttribute<object>("stroke-opacity")).GetValue() is { } val ? (float)val: this.Opacity; }
             set { this.Attributes["stroke-opacity"] = FixOpacityValue(value); }
         }
 
@@ -128,7 +163,7 @@ namespace Svg
         //[TypeConverter(typeof(SvgPaintServerFactory))]
         public SvgPaintServer StopColor
         {
-            get { return this.Attributes["stop-color"] as SvgPaintServer; }
+            get { return (_stopColor ??= this.Attributes.GetInheritedAttribute<object>("stop-color")).GetValue() as SvgPaintServer; }
             set { this.Attributes["stop-color"] = value; }
         }
 
@@ -138,7 +173,7 @@ namespace Svg
         [SvgAttribute("opacity", true)]
         public virtual float Opacity
         {
-            get { return (this.Attributes["opacity"] == null) ? 1.0f : (float)this.Attributes["opacity"]; }
+            get { return (_opacity ??= this.Attributes.GetInheritedAttribute<object>("opacity")).GetValue() is { } val ? (float)val: 1.0f; }
             set { this.Attributes["opacity"] = FixOpacityValue(value); }
         }
 
@@ -148,7 +183,7 @@ namespace Svg
         [SvgAttribute("font-family", true)]
         public virtual string FontFamily
         {
-            get { return this.Attributes["font-family"] as string; }
+            get { return (_fontFamily ??= this.Attributes.GetInheritedAttribute<object>("font-family")).GetValue() as string; }
             set { this.Attributes["font-family"] = value; this.IsPathDirty = true; }
         }
 
@@ -158,7 +193,7 @@ namespace Svg
         [SvgAttribute("font-size", true)]
         public virtual SvgUnit FontSize
         {
-            get { return (this.Attributes["font-size"] == null) ? SvgUnit.Empty : (SvgUnit)this.Attributes["font-size"]; }
+            get { return (_fontSize ??= this.Attributes.GetInheritedAttribute<object>("font-size")).GetValue() is { } val ? (SvgUnit)val: SvgUnit.Empty; }
             set { this.Attributes["font-size"] = value; this.IsPathDirty = true; }
         }
 
@@ -170,7 +205,7 @@ namespace Svg
         [SvgAttribute("font-style", true)]
         public virtual SvgFontStyle FontStyle
         {
-            get { return (this.Attributes["font-style"] == null) ? SvgFontStyle.All : (SvgFontStyle)this.Attributes["font-style"]; }
+            get { return (_fontStyle ??= this.Attributes.GetInheritedAttribute<object>("font-style")).GetValue() is { } val ? (SvgFontStyle)val: SvgFontStyle.All; }
             set { this.Attributes["font-style"] = value; this.IsPathDirty = true; }
         }
 
@@ -180,7 +215,7 @@ namespace Svg
         [SvgAttribute("font-variant", true)]
         public virtual SvgFontVariant FontVariant
         {
-            get { return (this.Attributes["font-variant"] == null) ? SvgFontVariant.Inherit : (SvgFontVariant)this.Attributes["font-variant"]; }
+            get { return (_fontVariant ??= this.Attributes.GetInheritedAttribute<object>("font-variant")).GetValue() is { } val ? (SvgFontVariant)val: SvgFontVariant.Inherit; }
             set { this.Attributes["font-variant"] = value; this.IsPathDirty = true; }
         }
 
@@ -190,7 +225,7 @@ namespace Svg
         [SvgAttribute("text-decoration", true)]
         public virtual SvgTextDecoration TextDecoration
         {
-            get { return (this.Attributes["text-decoration"] == null) ? SvgTextDecoration.Inherit : (SvgTextDecoration)this.Attributes["text-decoration"]; }
+            get { return (_textDecoration ??= this.Attributes.GetInheritedAttribute<object>("text-decoration")).GetValue() is { } val ? (SvgTextDecoration)val: SvgTextDecoration.Inherit; }
             set { this.Attributes["text-decoration"] = value; this.IsPathDirty = true; }
         }
 
@@ -200,7 +235,7 @@ namespace Svg
         [SvgAttribute("font-weight", true)]
         public virtual SvgFontWeight FontWeight
         {
-            get { return (this.Attributes["font-weight"] == null) ? SvgFontWeight.Inherit : (SvgFontWeight)this.Attributes["font-weight"]; }
+            get { return (_fontWeight ??= this.Attributes.GetInheritedAttribute<object>("font-weight")).GetValue() is { } val ? (SvgFontWeight)val: SvgFontWeight.Inherit; }
             set { this.Attributes["font-weight"] = value; this.IsPathDirty = true; }
         }
 
@@ -220,7 +255,7 @@ namespace Svg
         [SvgAttribute("font", true)]
         public virtual string Font
         {
-            get { return (this.Attributes["font"] == null ? "" : this.Attributes["font"] as string); }
+            get { return (_font ??= this.Attributes.GetInheritedAttribute<object>("font")).GetValue() is { } val? val as string: string.Empty; }
             set
             {
                 var state = FontParseState.fontStyle;

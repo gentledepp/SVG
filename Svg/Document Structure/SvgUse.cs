@@ -11,6 +11,8 @@ namespace Svg
     public class SvgUse : SvgVisualElement
     {
         private Uri _referencedElement;
+        private SvgAttributeCollection.Attribute<SvgUnit> _x;
+        private SvgAttributeCollection.Attribute<SvgUnit> _y;
 
         [SvgAttribute("href", SvgAttributeAttribute.XLinkNamespace)]
         public virtual Uri ReferencedElement
@@ -22,14 +24,14 @@ namespace Svg
         [SvgAttribute("x")]
         public virtual SvgUnit X
         {
-            get { return this.Attributes.GetAttribute<SvgUnit>("x"); }
+            get { return (_x ??= this.Attributes.GetAttribute<SvgUnit>("x")).GetValue(); }
             set { this.Attributes["x"] = value; }
         }
 
         [SvgAttribute("y")]
         public virtual SvgUnit Y
         {
-            get { return this.Attributes.GetAttribute<SvgUnit>("y"); }
+            get { return (_y ??= this.Attributes.GetAttribute<SvgUnit>("y")).GetValue(); }
             set { this.Attributes["y"] = value; }
         }
 
@@ -60,12 +62,9 @@ namespace Svg
             return (element != null) ? element.Path(renderer) : null;
         }
 
-        public override RectangleF Bounds
+        public override RectangleF GetBounds()
         {
-            get
-            {
                 return RectangleF.Create();
-            }
         }
 
         protected internal override bool Renderable { get { return false; } }

@@ -45,8 +45,9 @@ namespace Svg.Editor
 		private Subject<string> _propertyChangedSubject = new Subject<string>();
 		private readonly ISchedulerProvider _schedulerProvider;
 		private readonly object _lockObject = new object();
+        private ISvgRenderer _svgRenderer;
 
-		private IUndoRedoService UndoRedoService { get; }
+        private IUndoRedoService UndoRedoService { get; }
 
 		#endregion
 
@@ -486,8 +487,13 @@ namespace Svg.Editor
 		}
 
 		private ISvgRenderer GetOrCreateRenderer(Graphics graphics)
-		{
-			return SvgRenderer.FromGraphics(graphics);
+        {
+            if (_svgRenderer is null)
+            {
+                _svgRenderer = SvgRenderer.FromGraphics(graphics);
+                return _svgRenderer;
+            }
+            return _svgRenderer.UseGraphics(graphics);
 		}
 
 		public Bitmap CreateBitmap(int width, int height)
@@ -821,6 +827,7 @@ namespace Svg.Editor
 
 			_onGestureToken?.Dispose();
 			_document?.Dispose();
+            _svgRenderer?.Dispose();
 
             UndoRedoService.CanRedoChanged -= UndoRedoServiceOnCanRedoChanged;
             UndoRedoService.CanUndoChanged -= UndoRedoServiceOnCanRedoChanged;
