@@ -529,8 +529,8 @@ namespace Svg
                 DrawDocument(bitmap, backgroundColor, padding, maxWidthHeight);
                 return bitmap;
             }
-            var bounds = CalculateDocumentBounds();
-            return DrawAllContents((int)bounds.Width, (int)bounds.Height, backgroundColor, padding);
+            AdaptCanvasSizeToElementBoundsWithoutPadding();
+            return DrawAllContents(maxWidthHeight, backgroundColor, padding);
         }
 
         public Bitmap DrawAllContents(int maxWidth, int maxHeight, Color backgroundColor = null, SizeF padding = null)
@@ -624,7 +624,17 @@ namespace Svg
         /// </summary>
         public void AdaptCanvasSizeToElementBounds()
         {
-            var bounds = CalculateDocumentBounds().InflateAndCopy(10, 10);
+            AdaptCanvasSizeToElementBounds(10, 10);
+        }
+
+        private void AdaptCanvasSizeToElementBoundsWithoutPadding()
+        {
+            AdaptCanvasSizeToElementBounds(0,0);
+        }
+
+        private void AdaptCanvasSizeToElementBounds(int x, int y)
+        {
+            var bounds = CalculateDocumentBounds().InflateAndCopy(x, y);
             X = new SvgUnit(SvgUnitType.Pixel, bounds.X);
             Y = new SvgUnit(SvgUnitType.Pixel, bounds.Y);
             Width = new SvgUnit(SvgUnitType.Pixel, bounds.Width);

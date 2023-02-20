@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Svg.Converters;
 using Svg.Interfaces;
 using Svg.Platform;
 
@@ -33,6 +34,8 @@ namespace Svg
                 SvgEngine.RegisterSingleton<IFileSystem>(() => new FileSystem());
                 SvgEngine.Register<IAlternativeSvgTextRenderer>(() => new SkiaTextRenderer());
                 SvgEngine.Register<ISvgCachingService>(() => new SvgCachingService());
+                SvgEngine.Register<ISvgUnitConverter>(() => new SvgUnitConverterInvariant());
+
                 // register platform specific services
 
                 SvgEngine.Register<IFactory>(() => new SKFactory());

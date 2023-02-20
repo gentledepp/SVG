@@ -73,6 +73,7 @@
     <Compile Include="SvgHitTests_Line.cs" />
     <Compile Include="SvgHitTests_Rectangle.cs" />
     <Compile Include="SvgHitTest_Path.cs" />
+    <Compile Include="SvgTextTests.cs" />
     <Compile Include="TestSkPaint.cs" />
     <Compile Include="WebRequestSvcTests.cs" />
   </ItemGroup>
@@ -80,6 +81,9 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\59e4e3cb-0b9e-4a93-9d10-26d3ebea0369.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\Bends_01.svg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
