@@ -1,12 +1,34 @@
 ﻿using System;
 using System.Globalization;
 using Svg.Converters.Svg;
+using Svg.Interfaces;
 
 namespace Svg.Converters
 {
     public class SvgUnitConverter : BaseConverter
     {
         public override object ConvertFromString(string value, Type targetType, SvgDocument document)
+        {
+            return SvgUnitConverterProvider.ConvertFromString(value);
+        }
+
+        public override string ConvertToString(object value)
+        {
+            return ((SvgUnit)value).ToString();
+        }
+    }
+
+    public class SvgUnitConverterInvariant : ISvgUnitConverter
+    {
+        public object ConvertFromInvariantString(string value)
+        {
+           return SvgUnitConverterProvider.ConvertFromString(value);
+        }
+    }
+
+    public static class SvgUnitConverterProvider
+    {
+        public static object ConvertFromString(string value)
         {
             if (value == null)
             {
@@ -71,11 +93,6 @@ namespace Svg.Converters
                 default:
                     throw new FormatException("Unit is in an invalid format '" + unit + "'.");
             }
-        }
-
-        public override string ConvertToString(object value)
-        {
-            return ((SvgUnit)value).ToString();
         }
     }
 }

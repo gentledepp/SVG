@@ -4,11 +4,13 @@
     <AssemblyName>Svg.Editor</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>2.4.3.13</Version>
+    <Version>2.4.3.14</Version>
     <PackageReleaseNotes>
-	    #2.4.3.13
-	    - Texterendering renders with default size when no size available
-	    #2.4.3.10 - 11
+	    #2.4.3.14
+	    - DrawAllContents with Original SvgDocument size
+		#2.4.3.13
+		- Texterendering renders with default size when no size available
+		#2.4.3.10 - 11
 		- add OnScreenSet event in SvgDrawingCanvas after Screen properties set in OnDraw method
 		# 2.4.3.9
 		- small fixes
@@ -81,7 +83,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="SkiaSharp" Version="1.68.1" />
-    <PackageReference Include="Svg" Version="2.4.3.13" />
+    <PackageReference Include="Svg" Version="2.4.3.14" />
     <PackageReference Include="System.Reactive" Version="4.0.0" />
     <PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
   </ItemGroup>

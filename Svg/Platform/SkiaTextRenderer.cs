@@ -56,13 +56,13 @@ namespace Svg.Platform
                 }
             }
         }
-
+        
         private void RenderFill(SvgTextBase txt, ISvgRenderer renderer)
         {
             if (txt.Fill != null)
             {
                 var brush = txt.Fill.GetBrush(txt, renderer, 1f);
-                
+
                 var paint = ((SkiaBrushBase)brush).Paint;
                 paint.Typeface = SKTypeface.FromFamilyName(txt.FontFamily, txt.FontWeight.ToSkFontStyleWeight(), SKFontStyleWidth.Normal, txt.FontStyle.ToSkFontStyleSlant());
 
@@ -75,12 +75,32 @@ namespace Svg.Platform
                     pen.Paint.Color = new SKColor(pen.Paint.Color.Red, pen.Paint.Color.Green, pen.Paint.Color.Blue,
                         fillOpacity);
 
-                    var x = txt.X.Any() ? txt.X.FirstOrDefault().Value : 0f;
-                    var y = txt.Y.Any() ? txt.Y.FirstOrDefault().Value : 0f;
-
                     pen.Paint.IsStroke = false;
 
-                    DrawLines(txt, renderer, x, y, pen);
+                    if (txt.Parent is SvgTextBase parent && txt is SvgTextSpan)
+                    {
+                        var x = parent.X.FirstOrDefault().Value + txt.Dx.FirstOrDefault().Value;
+                        var y = parent.Y.FirstOrDefault().Value + txt.Dy.FirstOrDefault().Value;
+
+                        foreach (var svgElement in parent.Children)
+                        {
+                            var child = (SvgTextSpan)svgElement;
+                            if (txt.Equals(child))
+                            {
+                                break;
+                            }
+
+                            x += child.Bounds.Width + child.Dx.FirstOrDefault().Value;
+                        }
+                        DrawLines(txt, renderer, x, y, pen);
+                    }
+                    else
+                    {
+                        var x = txt.X.Any() ? txt.X.FirstOrDefault().Value : 0f;
+                        var y = txt.Y.Any() ? txt.Y.FirstOrDefault().Value : 0f;
+                        DrawLines(txt, renderer, x, y, pen);
+
+                    }
                 }
             }
         }

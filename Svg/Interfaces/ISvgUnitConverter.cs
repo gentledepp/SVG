@@ -10,3 +10,4 @@ namespace Svg.Interfaces
         object ConvertFromInvariantString(string text);
     }
 }
+
