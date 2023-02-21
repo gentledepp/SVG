@@ -2,10 +2,12 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.17763</TargetFrameworks>
-     <Version>2.4.3.15</Version>
+     <Version>2.4.3.16</Version>
     <PackageReleaseNotes>
-	    #2.4.3.15
-	    - Render tspan in textrenderer
+	    #2.4.3.16
+	    - Render text stroke
+		#2.4.3.15
+		- Render tspan in textrenderer
 		#2.4.3.14
 		- DrawAllContents with Original SvgDocument size
 		#2.4.3.13

@@ -3,15 +3,18 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.18362;net462</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version>2.4.3.15</Version>
+    <Version>2.4.3.16</Version>
     <Authors>gentledpp,bruzkovsky</Authors>
     <Company>Opti-Q GmbH</Company>
     <PackageReleaseNotes>
+	    #2.4.3.16
+	    - Render tspan in textrenderer
+
 	    #2.4.3.15
 	    - Render tspan in textrenderer
 
 		 #2.4.3.14
-			    - DrawAllContents with Original SvgDocument size
+	    - DrawAllContents with Original SvgDocument size
 
 	    #2.4.3.13
 	    - Texterendering renders with default size when no size available

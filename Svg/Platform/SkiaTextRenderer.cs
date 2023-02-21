@@ -47,6 +47,7 @@ namespace Svg.Platform
                     pen.Paint.Color = new SKColor(pen.Paint.Color.Red, pen.Paint.Color.Green, pen.Paint.Color.Blue,
                         strokeOpacity);
 
+                    pen.Paint.IsStroke = true;
                     DrawWithPen(txt, renderer, pen);
                 }
             }
@@ -70,6 +71,7 @@ namespace Svg.Platform
                     pen.Paint.Color = new SKColor(pen.Paint.Color.Red, pen.Paint.Color.Green, pen.Paint.Color.Blue,
                         fillOpacity);
 
+                    pen.Paint.IsStroke = false;
                     DrawWithPen(txt, renderer, pen);
                 }
             }
@@ -77,8 +79,6 @@ namespace Svg.Platform
 
         private void DrawWithPen(SvgTextBase txt, ISvgRenderer renderer, SkiaPen pen)
         {
-            pen.Paint.IsStroke = false;
-
             if (txt.Parent is SvgTextBase parent && txt is SvgTextSpan)
             {
                 var x = parent.X.FirstOrDefault().Value + txt.Dx.FirstOrDefault().Value;
