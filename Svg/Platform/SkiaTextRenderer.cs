@@ -47,12 +47,8 @@ namespace Svg.Platform
                     pen.Paint.Color = new SKColor(pen.Paint.Color.Red, pen.Paint.Color.Green, pen.Paint.Color.Blue,
                         strokeOpacity);
 
-                    var x = txt.X.Any() ? txt.X.FirstOrDefault().Value : 0f;
-                    var y = txt.Y.Any() ? txt.Y.FirstOrDefault().Value : 0f;
-
-
                     pen.Paint.IsStroke = true;
-                    DrawLines(txt, renderer, x, y, pen);
+                    DrawWithPen(txt, renderer, pen);
                 }
             }
         }
@@ -76,32 +72,35 @@ namespace Svg.Platform
                         fillOpacity);
 
                     pen.Paint.IsStroke = false;
-
-                    if (txt.Parent is SvgTextBase parent && txt is SvgTextSpan)
-                    {
-                        var x = parent.X.FirstOrDefault().Value + txt.Dx.FirstOrDefault().Value;
-                        var y = parent.Y.FirstOrDefault().Value + txt.Dy.FirstOrDefault().Value;
-
-                        foreach (var svgElement in parent.Children)
-                        {
-                            var child = (SvgTextSpan)svgElement;
-                            if (txt.Equals(child))
-                            {
-                                break;
-                            }
-
-                            x += child.Bounds.Width + child.Dx.FirstOrDefault().Value;
-                        }
-                        DrawLines(txt, renderer, x, y, pen);
-                    }
-                    else
-                    {
-                        var x = txt.X.Any() ? txt.X.FirstOrDefault().Value : 0f;
-                        var y = txt.Y.Any() ? txt.Y.FirstOrDefault().Value : 0f;
-                        DrawLines(txt, renderer, x, y, pen);
-
-                    }
+                    DrawWithPen(txt, renderer, pen);
                 }
+            }
+        }
+
+        private void DrawWithPen(SvgTextBase txt, ISvgRenderer renderer, SkiaPen pen)
+        {
+            if (txt.Parent is SvgTextBase parent && txt is SvgTextSpan)
+            {
+                var x = parent.X.FirstOrDefault().Value + txt.Dx.FirstOrDefault().Value;
+                var y = parent.Y.FirstOrDefault().Value + txt.Dy.FirstOrDefault().Value;
+
+                foreach (var svgElement in parent.Children)
+                {
+                    var child = (SvgTextSpan)svgElement;
+                    if (txt.Equals(child))
+                    {
+                        break;
+                    }
+
+                    x += child.Bounds.Width + child.Dx.FirstOrDefault().Value;
+                }
+                DrawLines(txt, renderer, x, y, pen);
+            }
+            else
+            {
+                var x = txt.X.Any() ? txt.X.FirstOrDefault().Value : 0f;
+                var y = txt.Y.Any() ? txt.Y.FirstOrDefault().Value : 0f;
+                DrawLines(txt, renderer, x, y, pen);
             }
         }
 

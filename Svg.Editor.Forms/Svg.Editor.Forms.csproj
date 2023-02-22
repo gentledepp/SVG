@@ -4,10 +4,14 @@
     <AssemblyName>Svg.Editor.Forms</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.17763</TargetFrameworks>
-    <Version>2.4.3.14</Version>
+    <Version>2.4.3.16</Version>
     <PackageReleaseNotes>
-	    #2.4.3.14
-	    - DrawAllContents with Original SvgDocument size
+	    #2.4.3.16
+	    - Render text stroke
+		#2.4.3.15
+		- Render tspan in textrenderer
+		#2.4.3.14
+		- DrawAllContents with Original SvgDocument size
 		#2.4.3.13
 		- Texterendering renders with default size when no size available
 		#2.4.3.10 - 11
@@ -66,7 +70,7 @@
   
   <ItemGroup>
     <PackageReference Include="SkiaSharp.Views.Forms" Version="1.68.1" />
-    <PackageReference Include="Svg" Version="2.4.3.14" />
+    <PackageReference Include="Svg" Version="2.4.3.16" />
     <PackageReference Include="System.Reactive" Version="4.0.0" />
     <PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
   </ItemGroup>
