@@ -74,24 +74,6 @@ namespace Svg.Tests.Win
         }
 
         [Test]
-        public void CanRenderComplexDocumentWithCustomFont()
-        {
-            var pngPath = "59e4e3cb-0b9e-4a93-9d10-26d3ebea0369.png";
-            var svgPath = "59e4e3cb-0b9e-4a93-9d10-26d3ebea0369.svg";
-
-            using var pngBitmap = TestHelper.GetBitmap(pngPath);
-
-            // Act
-            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height, Color.Create(255, 255, 255));
-                
-            // Assert
-            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
-
-
-            c.AssertAreSimilar(99, svgPath);
-        }
-
-        [Test]
         public void CanRenderTSpan_X()
         {
             var pngPath = "tspan_x.png";
@@ -106,7 +88,7 @@ namespace Svg.Tests.Win
             using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
 
 
-            c.AssertAreSimilar(93.3f, svgPath);
+            c.AssertAreSimilar(99f, svgPath);
         }
 
         [Test]
@@ -124,10 +106,9 @@ namespace Svg.Tests.Win
             using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
 
 
-            c.AssertAreSimilar(92.6f, svgPath);
+            c.AssertAreSimilar(99f, svgPath);
         }
         
-
         [Test]
         public void CanRenderTSpan_DX_of_DX()
         {
@@ -143,7 +124,7 @@ namespace Svg.Tests.Win
             using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
 
 
-            c.AssertAreSimilar(91.1f, svgPath);
+            c.AssertAreSimilar(99f, svgPath);
         }
         
         [Test]
@@ -161,7 +142,7 @@ namespace Svg.Tests.Win
             using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
 
 
-            c.AssertAreSimilar(91.14f, svgPath);
+            c.AssertAreSimilar(99f, svgPath);
         }
         
         [Test]
@@ -179,7 +160,7 @@ namespace Svg.Tests.Win
             using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
 
 
-            c.AssertAreSimilar(94.688f, svgPath);
+            c.AssertAreSimilar(99f, svgPath);
         }
         
         [Test]
@@ -197,7 +178,80 @@ namespace Svg.Tests.Win
             using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
 
 
-            c.AssertAreSimilar(74.8936f, svgPath);
+            c.AssertAreSimilar(99f, svgPath);
+        }
+
+        [Test]
+        public void CanRenderTSpan_WithWhiteSpaces2()
+        {
+            var pngPath = "tspan_whitespace2.png";
+            var svgPath = "tspan_whitespace2.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
+        }
+
+
+        [Test]
+        public void CanRenderTSpan_WithWhiteTspanPositionedRelativeToEmptyTspan()
+        {
+            var pngPath = "tspan_withdxon_emptytspan.png";
+            var svgPath = "tspan_withdxon_emptytspan.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
+        }
+
+        [Test]
+        public void CanRenderTSpan_WithWhiteTspanPositionedRelativeToEmptyTspan_WithEmbeddedFont()
+        {
+            var pngPath = "tspan_withdxon_emptytspan_withembeddedfont.png";
+            var svgPath = "tspan_withdxon_emptytspan_withembeddedfont.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
+        }
+
+        [Test]
+        public void CanRenderTSpans_WithCssStylingAndEmbeddedFont()
+        {
+            var pngPath = "Top3_1.png";
+            var svgPath = "Top3_1.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
         }
     }
 }

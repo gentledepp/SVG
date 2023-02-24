@@ -43,6 +43,11 @@ namespace Svg.Platform
         public string Name => _name;
 
         public SKTypeface Typeface => _typeface;
+
+        public void Dispose()
+        {
+            _typeface?.Dispose();
+        }
     }
 
     public static class TypeFaceExtensions

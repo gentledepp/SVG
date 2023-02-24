@@ -1,15 +1,18 @@
+using ExCSS;
 using SkiaSharp;
 using Svg.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
+using static Svg.SvgTextBase;
 using static Svg.SvgVisualElement;
 
 namespace Svg.Platform
 {
     public class SkiaTextRenderer : IAlternativeSvgTextRenderer
     {
-        // these constants were interpreted by using InkScape
-        private const string SvgDefaultFontFamily = "Segoe UI";
-
         public void Render(SvgTextBase txt, ISvgRenderer renderer)
         {
             if (!txt.Visible || !txt.Displayable)
@@ -21,7 +24,7 @@ namespace Svg.Platform
             if (textIsEmpty && hasNoChildren)
                 return;
 
-            var cache = txt.GetOrCreateRenderCacheEntry<RenderCacheEntry>(renderer);
+            var cache = txt.GetOrCreateRenderCacheEntry<TextRenderCacheEntry>(renderer);
 
             if (!textIsEmpty)
             {
@@ -30,26 +33,37 @@ namespace Svg.Platform
             }
         }
         
-        private void RenderStroke(SvgTextBase txt, ISvgRenderer renderer, RenderCacheEntry cacheEntry)
+        private void RenderStroke(SvgTextBase txt, ISvgRenderer renderer, TextRenderCacheEntry cacheEntry)
         {
             if (txt.Stroke != null)
             {
-                cacheEntry.StrokeBrush ??= CreateStrokeBrush(txt, renderer);
+                if (cacheEntry.StrokeBrush is null)
+                {
+                    cacheEntry.StrokeBrush = CreateStrokeBrush(txt, renderer);
+                    cacheEntry.FontFamily = renderer.GetFontFamily(txt);
+                    if (cacheEntry.FontFamily is { } ff)
+                        cacheEntry.StrokeBrush.SetFontFamily(ff);
+                }
                 cacheEntry.StrokePen ??= CreateStrokePen(txt, cacheEntry.StrokeBrush, renderer);
                 var pen = (SkiaPen)cacheEntry.StrokePen;
 
                 var (x, y) = GetPosition(txt, renderer);
 
-
                 DrawLines(txt, renderer, x, y, pen);
             }
         }
-        
-        private void RenderFill(SvgTextBase txt, ISvgRenderer renderer, RenderCacheEntry cacheEntry)
+
+        private void RenderFill(SvgTextBase txt, ISvgRenderer renderer, TextRenderCacheEntry cacheEntry)
         {
             if (txt.Fill != null)
             {
-                cacheEntry.FillBrush ??= CreateFillBrush(txt, renderer);
+                if (cacheEntry.FillBrush is null)
+                {
+                    cacheEntry.FillBrush = CreateFillBrush(txt, renderer);
+                    cacheEntry.FontFamily = renderer.GetFontFamily(txt);
+                    if (cacheEntry.FontFamily is { } ff)
+                        cacheEntry.FillBrush.SetFontFamily(ff);
+                }
                 cacheEntry.FillPen ??= CreateFillPen(txt, cacheEntry.FillBrush, renderer);
                 var pen = (SkiaPen)cacheEntry.FillPen;
 
@@ -107,10 +121,7 @@ namespace Svg.Platform
         
         private Brush CreateStrokeBrush(SvgTextBase txt, ISvgRenderer renderer)
         {
-            var brush = txt.Stroke.GetBrush(txt, renderer, 1f);
-            var paint = ((SkiaBrushBase)brush).Paint;
-            paint.Typeface = SKTypeface.FromFamilyName(txt.FontFamily ?? SvgDefaultFontFamily, txt.FontWeight.ToSkFontStyleWeight(), SKFontStyleWidth.Normal, txt.FontStyle.ToSkFontStyleSlant());
-            return brush;
+            return txt.Stroke.GetBrush(txt, renderer, 1f);
         }
         
         private Pen CreateStrokePen(SvgTextBase txt, Brush brush, ISvgRenderer renderer)
@@ -131,13 +142,15 @@ namespace Svg.Platform
         private Brush CreateFillBrush(SvgTextBase txt, ISvgRenderer renderer)
         {
             var brush = txt.Fill.GetBrush(txt, renderer, 1f);
-            var paint = ((SkiaBrushBase)brush).Paint;
-            paint.Typeface = SKTypeface.FromFamilyName(txt.FontFamily ?? SvgDefaultFontFamily, txt.FontWeight.ToSkFontStyleWeight(), SKFontStyleWidth.Normal, txt.FontStyle.ToSkFontStyleSlant());
-
+            var fontFamily = renderer.GetFontFamily(txt);
+            if (fontFamily is { } ff)
+                brush.SetFontFamily(ff);
             
             return brush;
         }
-        
+
+        public Dictionary<string, FontFaceRule> CustomFonts { get; set; }
+
         private Pen CreateFillPen(SvgTextBase txt, Brush brush, ISvgRenderer renderer)
         {
 
@@ -245,7 +258,6 @@ namespace Svg.Platform
                     return SKTextAlign.Left;
             }
         }
-
     }
 
     public static class SKPaintExtensions

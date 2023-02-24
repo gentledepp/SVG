@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+using SkiaSharp;
 using Svg.Interfaces;
 
 namespace Svg
@@ -291,8 +292,6 @@ namespace Svg
         /// <remarks>Necessary to make sure that any internal tspan elements get rendered as well</remarks>
         protected override void Render(ISvgRenderer renderer)
         {
-            var cache = GetOrCreateRenderCacheEntry<RenderCacheEntry>(renderer);
-
             if (Visible && Displayable && (_alternativeTextRenderer != null || Path(renderer) != null))
             {
                 PushTransforms(renderer);
@@ -311,6 +310,7 @@ namespace Svg
                 }
                 else
                 {
+                    var cache = GetOrCreateRenderCacheEntry<TextRenderCacheEntry>(renderer);
                     RenderFill(renderer, cache);
                     RenderStroke(renderer, cache);
                     RenderChildren(renderer);
@@ -497,6 +497,19 @@ namespace Svg
             }
         }
 
+
+        internal class TextRenderCacheEntry : RenderCacheEntry
+        {
+            public FontFamily FontFamily { get; set; }
+
+            public override void Dispose()
+            {
+                base.Dispose();
+
+                FontFamily?.Dispose();
+                FontFamily = null;
+            }
+        }
 
 
         //private static GraphicsPath GetPath(string text, Font font)

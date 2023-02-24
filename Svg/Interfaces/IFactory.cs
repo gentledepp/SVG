@@ -30,6 +30,9 @@ namespace Svg
         PathGradientBrush CreatePathGradientBrush(GraphicsPath path);
         StringFormat CreateStringFormatGenericTypographic();
         Font CreateFont(FontFamily fontFamily, float fontSize, FontStyle fontStyle, GraphicsUnit graphicsUnit);
+        FontFamily GetFontFamily(string textFontFamily, SvgFontWeight textFontWeight, SvgFontStyle textFontStyle, SvgDocument textOwnerDocument);
+        FontFamily LoadCustomFontFamily(string fontFamilyName, SvgFontWeight fontWeight, SvgFontStyle fontStyle,
+            SvgDocument doc);
         FontFamilyProvider GetFontFamilyProvider();
         Image CreateImageFromStream(Stream stream);
         Bitmap CreateBitmapFromStream(Stream stream);

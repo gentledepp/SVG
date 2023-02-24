@@ -41,7 +41,7 @@ namespace Svg.Tests.Win
             var actual = paint.TextSize;
 
             //Assert
-            actual.Should().Be(12);
+            actual.Should().Be(14);
         }
     }
 }

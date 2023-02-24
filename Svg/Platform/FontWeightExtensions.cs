@@ -28,4 +28,15 @@ internal static class FontWeightExtensions
             _ => SKFontStyleSlant.Upright
         };
     }
+
+    
+    internal static SKFontStyle ToSkFontStyle(this SvgFontStyle style)
+    {
+        return style switch
+        {
+            SvgFontStyle.Normal => SKFontStyle.Normal,
+            SvgFontStyle.Italic => SKFontStyle.Italic,
+            _ => SKFontStyle.Normal
+        };
+    }
 }

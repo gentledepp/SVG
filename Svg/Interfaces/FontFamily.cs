@@ -1,10 +1,10 @@
 
-using System.Collections;
+using System;
 using System.Collections.Generic;
 
 namespace Svg
 {
-    public interface FontFamily
+    public interface FontFamily : IDisposable
     {
         float GetCellAscent(FontStyle style);
         float GetEmHeight(FontStyle style);

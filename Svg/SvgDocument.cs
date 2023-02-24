@@ -25,6 +25,8 @@ namespace Svg
         private Dictionary<string, IEnumerable<SvgFontFace>> _fontDefns = null;
         private IFileSystem _fileSystem;
 
+        internal List<StyleSheet> StyleSheets = new List<StyleSheet>();
+
         internal Dictionary<string, IEnumerable<SvgFontFace>> FontDefns()
         {
             if (_fontDefns == null)
@@ -319,6 +321,14 @@ namespace Svg
                             element = elementStack.Peek();
                             element.Nodes.Add(new SvgContentNode() { Content = reader.Value });
                             break;
+                        // in tspans and text, whitespace is relevant
+                        case XmlNodeType.Whitespace:
+                            if (elementStack.Count > 0 && elementStack.Peek() is SvgTextBase)
+                            {
+                                element = elementStack.Peek();
+                                element.Nodes.Add(new SvgContentNode() { Content = reader.Value });
+                            }
+                            break;
                         case XmlNodeType.SignificantWhitespace:
                             if (elementStack.Count > 0 && elementStack.Peek() is SvgTextSpan)
                             {
@@ -372,6 +382,8 @@ namespace Svg
                         }
                     }
                 }
+
+                svgDocument.StyleSheets.Add(sheet);
             }
 
             if (svgDocument != null) FlushStyles(svgDocument);

@@ -28,5 +28,8 @@ namespace Svg
         IDictionary<object, IDisposable> DrawingCache { get; }
         IDisposable UsingContextVariable(string key, object variable);
         ISvgRenderer UseGraphics(Graphics graphics);
+
+        FontFamily GetFontFamily(SvgTextBase text);
+
     }
 }
