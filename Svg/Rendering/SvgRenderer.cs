@@ -149,6 +149,10 @@ namespace Svg
             if(text.FontFamily is {} ffm && _customFontCache.TryGetValue(ffm, out var ffamily))
                 return ffamily;
 
+            var od = text.OwnerDocument;
+            if (od is null)
+                return null;
+
             // 2. initialize cache of custom font families
             CustomFonts ??= text.OwnerDocument.StyleSheets.SelectMany(s => s.FontFaceDirectives)
                 .ToDictionary(d => d.FontFamily, d => d);
