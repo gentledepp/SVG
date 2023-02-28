@@ -25,6 +25,11 @@ namespace Svg
         Graphics Graphics { get; }
         void FillBackground(Color color);
         IDictionary<string, object> Context { get; }
+        IDictionary<object, IDisposable> DrawingCache { get; }
         IDisposable UsingContextVariable(string key, object variable);
+        ISvgRenderer UseGraphics(Graphics graphics);
+
+        FontFamily GetFontFamily(SvgTextBase text);
+
     }
 }

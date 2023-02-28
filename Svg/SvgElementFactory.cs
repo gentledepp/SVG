@@ -244,13 +244,9 @@ namespace Svg
             List<IPropertyDescriptor> properties;
             lock (syncLock)
             {
-                if (_propertyDescriptors.Keys.Contains(elementType))
+                if (_propertyDescriptors.TryGetValue(elementType, out var p))
                 {
-                    if (_propertyDescriptors[elementType].Keys.Contains(attributeName))
-                    {
-                        properties = _propertyDescriptors[elementType][attributeName];
-                    }
-                    else
+                    if (!p.TryGetValue(attributeName, out properties))
                     {
                         properties = TypeDescriptor.GetProperties(elementType, attributeName);
                         _propertyDescriptors[elementType].Add(attributeName, properties);
@@ -259,9 +255,11 @@ namespace Svg
                 else
                 {
                     properties = TypeDescriptor.GetProperties(elementType, attributeName);
-                    _propertyDescriptors.Add(elementType, new Dictionary<string, List<IPropertyDescriptor>>());
-
-                    _propertyDescriptors[elementType].Add(attributeName, properties);
+                    var p2 = new Dictionary<string, List<IPropertyDescriptor>>
+                    {
+                        {attributeName,properties}
+                    };
+                    _propertyDescriptors.Add(elementType, p2);
                 } 
             }
 

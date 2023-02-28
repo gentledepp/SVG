@@ -12,6 +12,10 @@ namespace Svg
 {
     public abstract partial class SvgVisualElement
     {
+        private SvgAttributeCollection.InheritedAttribute<bool?> _visible;
+        private SvgAttributeCollection.InheritedAttribute<string> _display;
+        private SvgAttributeCollection.InheritedAttribute<string> _enableBackground;
+
         /// <summary>
         /// Gets or sets a value to determine whether the element will be rendered.
         /// </summary>
@@ -19,7 +23,11 @@ namespace Svg
         [SvgAttribute("visibility")]
         public virtual bool Visible
         {
-            get { return (this.Attributes["visibility"] == null) ? true : (bool)this.Attributes["visibility"]; }
+            get { 
+                _visible??=this.Attributes.GetInheritedAttribute<bool?>("visibility");
+                var v = _visible.GetValue();
+                return  !v.HasValue || (bool)v.Value;
+            }
             set { this.Attributes["visibility"] = value; }
         }
 
@@ -30,7 +38,7 @@ namespace Svg
         [SvgAttribute("display")]
         public virtual string Display
         {
-            get { return this.Attributes["display"] as string; }
+            get { return (_display ??=this.Attributes.GetInheritedAttribute<string>("display")).GetValue(); }
             set { this.Attributes["display"] = value; }
         }
 
@@ -39,7 +47,7 @@ namespace Svg
         {
             get
             {
-                string checkForDisplayNone = this.Attributes["display"] as string;
+                string checkForDisplayNone = Display;
                 if ((!string.IsNullOrEmpty(checkForDisplayNone)) && (checkForDisplayNone == "none"))
                     return false;
                 else
@@ -53,7 +61,7 @@ namespace Svg
         [SvgAttribute("enable-background")]
         public virtual string EnableBackground
         {
-            get { return this.Attributes["enable-background"] as string; }
+            get { return (_enableBackground ??=this.Attributes.GetInheritedAttribute<string>("enable-background")).GetValue(); }
             set { this.Attributes["enable-background"] = value; }
         }
 

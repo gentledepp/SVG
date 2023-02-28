@@ -14,7 +14,9 @@ namespace Svg
     public class SvgGradientStop : SvgElement
     {
         private SvgUnit _offset;
-        
+        private SvgAttributeCollection.InheritedAttribute<object> _stopColor;
+        private SvgAttributeCollection.InheritedAttribute<string> _opacity;
+
         /// <summary>
         /// Gets or sets the offset, i.e. where the stop begins from the beginning, of the gradient stop.
         /// </summary>
@@ -63,9 +65,8 @@ namespace Svg
         {
             get 
             {
-                var direct = this.Attributes.GetAttribute<SvgPaintServer>("stop-color", SvgColourServer.NotSet);
-                if (direct == SvgColourServer.Inherit) return this.Attributes["stop-color"] as SvgPaintServer ?? SvgColourServer.NotSet;
-                return direct;
+                var value = (_stopColor ??= this.Attributes.GetInheritedAttribute<object>("stop-color")).GetValue();
+                return value as SvgPaintServer ?? SvgColourServer.NotSet;
             }
             set { this.Attributes["stop-color"] = value; }
         }
@@ -76,7 +77,7 @@ namespace Svg
         [SvgAttribute("stop-opacity")]
         public string Opacity
         {
-            get { return this.Attributes["stop-opacity"] as string; }
+            get { return (_opacity ??= this.Attributes.GetInheritedAttribute<string>("stop-opacity")).GetValue(); }
             set { this.Attributes["stop-opacity"] = value; }
         }
 

@@ -72,13 +72,9 @@ namespace Svg
         	}
         }
 
-        /// <summary>
-        /// Gets the bounds of the circle.
-        /// </summary>
-        /// <value>The rectangular bounds of the circle.</value>
-        public override RectangleF Bounds
+        public override RectangleF GetBounds()
         {
-            get { return this.Path(null).GetBounds();}
+            return this.Path(null).GetBounds();
         }
 
         /// <summary>
@@ -99,6 +95,7 @@ namespace Svg
         {
             if (this._path == null || this.IsPathDirty)
             {
+                _path?.Dispose();
                 _path = SvgEngine.Factory.CreateGraphicsPath();
                 _path.StartFigure();
                 var center = this.Center.ToDeviceValue(renderer, this);

@@ -92,16 +92,9 @@ namespace Svg
             get { return true; }
         }
 
-        /// <summary>
-        /// Gets the bounds of the element.
-        /// </summary>
-        /// <value>The bounds.</value>
-        public override RectangleF Bounds
+        public override RectangleF GetBounds()
         {
-            get
-            {
                 return this.Path(null).GetBounds();
-            }
         }
 
         /// <summary>
@@ -114,7 +107,8 @@ namespace Svg
             {
                 var center = SvgUnit.GetDevicePoint(this._centerX, this._centerY, renderer, this);
                 var radius = SvgUnit.GetDevicePoint(this._radiusX, this._radiusY, renderer, this);
-
+                
+                _path?.Dispose();
                 this._path = SvgEngine.Factory.CreateGraphicsPath();
                 _path.StartFigure();
                 _path.AddEllipse(center.X - radius.X, center.Y - radius.Y, 2 * radius.X, 2 * radius.Y);

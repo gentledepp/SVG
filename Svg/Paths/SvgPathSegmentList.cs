@@ -36,22 +36,28 @@ namespace Svg.Pathing
 
         public void Insert(int index, SvgPathSegment item)
         {
-            var o = (SvgPathSegmentList)this.Clone();
-            this._segments.Insert(index, item);
+            // because cloning is expensive, we only do so if there is an _owner that may be interested
             if (this._owner != null)
             {
+                var o = (SvgPathSegmentList)this.Clone();
+                this._segments.Insert(index, item);
                 this._owner.OnPathUpdated(o);
             }
+            else
+                this._segments.Insert(index, item);
         }
 
         public void RemoveAt(int index)
         {
-            var o = (SvgPathSegmentList)this.Clone();
-            this._segments.RemoveAt(index);
+            // because cloning is expensive, we only do so if there is an _owner that may be interested
             if (this._owner != null)
             {
+                var o = (SvgPathSegmentList)this.Clone();
+                this._segments.RemoveAt(index);
                 this._owner.OnPathUpdated(o);
             }
+            else
+                this._segments.RemoveAt(index);
         }
 
         public SvgPathSegment this[int index]
@@ -59,20 +65,29 @@ namespace Svg.Pathing
             get { return this._segments[index]; }
             set
             {
-                var o = (SvgPathSegmentList)this.Clone();
-                this._segments[index] = value;
-                this._owner.OnPathUpdated(o);
+                // because cloning is expensive, we only do so if there is an _owner that may be interested
+                if (_owner != null)
+                {
+                    var o = (SvgPathSegmentList)this.Clone();
+                    this._segments[index] = value;
+                    this._owner.OnPathUpdated(o);
+                }
+                else
+                    this._segments[index] = value;
             }
         }
 
         public void Add(SvgPathSegment item)
         {
-            var o = (SvgPathSegmentList)this.Clone();
-            this._segments.Add(item);
+            // because cloning is expensive, we only do so if there is an _owner that may be interested
             if (this._owner != null)
             {
+                var o = (SvgPathSegmentList)this.Clone();
+                this._segments.Add(item);
                 this._owner.OnPathUpdated(o);
             }
+            else
+                this._segments.Add(item);
         }
 
         public void Clear()
@@ -102,18 +117,19 @@ namespace Svg.Pathing
 
         public bool Remove(SvgPathSegment item)
         {
-            var o = (SvgPathSegmentList)this.Clone();
-            bool removed = this._segments.Remove(item);
-
-            if (removed)
+            // because cloning is expensive, we only do so if there is an _owner that may be interested
+            if (this._owner != null)
             {
-                if (this._owner != null)
-                {
-                    this._owner.OnPathUpdated(o);
-                }
-            }
+                var o = (SvgPathSegmentList)this.Clone();
+                bool removed = this._segments.Remove(item);
 
-            return removed;
+                if (removed)
+                    this._owner.OnPathUpdated(o);
+
+                return removed;
+            }
+            
+            return this._segments.Remove(item);
         }
 
         public IEnumerator<SvgPathSegment> GetEnumerator()

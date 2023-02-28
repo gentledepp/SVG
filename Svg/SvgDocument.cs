@@ -25,6 +25,8 @@ namespace Svg
         private Dictionary<string, IEnumerable<SvgFontFace>> _fontDefns = null;
         private IFileSystem _fileSystem;
 
+        internal List<StyleSheet> StyleSheets = new List<StyleSheet>();
+
         internal Dictionary<string, IEnumerable<SvgFontFace>> FontDefns()
         {
             if (_fontDefns == null)
@@ -300,6 +302,7 @@ namespace Svg
 
                             if (element.Nodes.OfType<SvgContentNode>().Any())
                             {
+                                element.InitializeContent();
                                 element.Content = (from e in element.Nodes select e.Content).Aggregate((p, c) => p + c);
                             }
                             else
@@ -317,6 +320,14 @@ namespace Svg
                         case XmlNodeType.Text:
                             element = elementStack.Peek();
                             element.Nodes.Add(new SvgContentNode() { Content = reader.Value });
+                            break;
+                        // in tspans and text, whitespace is relevant
+                        case XmlNodeType.Whitespace:
+                            if (elementStack.Count > 0 && elementStack.Peek() is SvgTextBase)
+                            {
+                                element = elementStack.Peek();
+                                element.Nodes.Add(new SvgContentNode() { Content = reader.Value });
+                            }
                             break;
                         case XmlNodeType.SignificantWhitespace:
                             if (elementStack.Count > 0 && elementStack.Peek() is SvgTextSpan)
@@ -371,6 +382,8 @@ namespace Svg
                         }
                     }
                 }
+
+                svgDocument.StyleSheets.Add(sheet);
             }
 
             if (svgDocument != null) FlushStyles(svgDocument);
@@ -797,17 +810,31 @@ namespace Svg
             this.X += new SvgUnit(SvgUnitType.Pixel, x);
             this.Y += new SvgUnit(SvgUnitType.Pixel, y);
         }
+        
+        public override SvgElement DeepCopy()
+        {
+            return DeepCopy<SvgDocument>();
+        }
+
+        public override SvgElement DeepCopy<T>()
+        {
+            var newObj = base.DeepCopy<T>() as SvgDocument;
+            newObj.BaseUri = BaseUri;
+            newObj.Ppi = Ppi;
+            newObj.ExternalCSSHref = ExternalCSSHref;
+            return newObj;
+        }
 
         protected override void OnSubTreeChanged(SvgElement svgElement)
         {
             ContentModified?.Invoke(this, svgElement);
         }
 
-        public override void Dispose()
+        public override void DisposeOverride()
         {
             foreach (var c in Descendants())
                 c.Dispose();
-            base.Dispose();
+            base.DisposeOverride();
         }
     }
 }

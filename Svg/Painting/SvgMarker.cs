@@ -14,18 +14,27 @@ namespace Svg
         private const string MARKER_OWNER = "MARKER_OWNER";
 
         private SvgOrient _svgOrient = new SvgOrient();
+        private SvgAttributeCollection.InheritedAttribute<float?> _strokeWidth;
+        private SvgAttributeCollection.Attribute<SvgUnit> _refX;
+        private SvgAttributeCollection.Attribute<SvgUnit> _refY;
+        private SvgAttributeCollection.Attribute<SvgOverflow> _overflow;
+        private SvgAttributeCollection.Attribute<SvgViewBox> _viewBox;
+        private SvgAttributeCollection.Attribute<SvgAspectRatio> _preserveAspectRatio;
+        private SvgAttributeCollection.Attribute<SvgUnit> _markerWidth;
+        private SvgAttributeCollection.Attribute<SvgUnit> _markerHeight;
+        private SvgAttributeCollection.Attribute<SvgMarkerUnits> _markerUnits;
 
         [SvgAttribute("refX")]
         public virtual SvgUnit RefX
         {
-            get { return this.Attributes.GetAttribute<SvgUnit>("refX"); }
+            get { return (_refX ??= this.Attributes.GetAttribute<SvgUnit>("refX")).GetValue(); }
             set { this.Attributes["refX"] = value; }
         }
 
         [SvgAttribute("refY")]
         public virtual SvgUnit RefY
         {
-            get { return this.Attributes.GetAttribute<SvgUnit>("refY"); }
+            get { return (_refY ??= this.Attributes.GetAttribute<SvgUnit>("refY")).GetValue(); }
             set { this.Attributes["refY"] = value; }
         }
 
@@ -45,7 +54,7 @@ namespace Svg
         [SvgAttribute("overflow")]
         public virtual SvgOverflow Overflow
         {
-            get { return this.Attributes.GetAttribute<SvgOverflow>("overflow"); }
+            get { return (_overflow ??= this.Attributes.GetAttribute<SvgOverflow>("overflow")).GetValue(); }
             set { this.Attributes["overflow"] = value; }
         }
 
@@ -53,7 +62,7 @@ namespace Svg
         [SvgAttribute("viewBox")]
         public virtual SvgViewBox ViewBox
         {
-            get { return this.Attributes.GetAttribute<SvgViewBox>("viewBox"); }
+            get { return (_viewBox ??= this.Attributes.GetAttribute<SvgViewBox>("viewBox")).GetValue(); }
             set { this.Attributes["viewBox"] = value; }
         }
 
@@ -61,7 +70,7 @@ namespace Svg
         [SvgAttribute("preserveAspectRatio")]
         public virtual SvgAspectRatio AspectRatio
         {
-            get { return this.Attributes.GetAttribute<SvgAspectRatio>("preserveAspectRatio"); }
+            get { return (_preserveAspectRatio ??= this.Attributes.GetAttribute<SvgAspectRatio>("preserveAspectRatio")).GetValue(); }
             set { this.Attributes["preserveAspectRatio"] = value; }
         }
 
@@ -69,21 +78,21 @@ namespace Svg
         [SvgAttribute("markerWidth")]
         public virtual SvgUnit MarkerWidth
         {
-            get { return this.Attributes.GetAttribute<SvgUnit>("markerWidth"); }
+            get { return (_markerWidth ??= this.Attributes.GetAttribute<SvgUnit>("markerWidth")).GetValue(); }
             set { this.Attributes["markerWidth"] = value; }
         }
 
         [SvgAttribute("markerHeight")]
         public virtual SvgUnit MarkerHeight
         {
-            get { return this.Attributes.GetAttribute<SvgUnit>("markerHeight"); }
+            get { return (_markerHeight ??= this.Attributes.GetAttribute<SvgUnit>("markerHeight")).GetValue(); }
             set { this.Attributes["markerHeight"] = value; }
         }
 
         [SvgAttribute("markerUnits")]
         public virtual SvgMarkerUnits MarkerUnits
         {
-            get { return this.Attributes.GetAttribute<SvgMarkerUnits>("markerUnits"); }
+            get { return (_markerUnits ??= this.Attributes.GetAttribute<SvgMarkerUnits>("markerUnits")).GetValue(); }
             set { this.Attributes["markerUnits"] = value; }
         }
 
@@ -93,7 +102,11 @@ namespace Svg
         [SvgAttribute("stroke-width", true)]
         public override SvgUnit StrokeWidth
         {
-            get { return (this.Attributes["stroke-width"] == null) ? new SvgUnit(0f) : (SvgUnit)this.Attributes["stroke-width"]; }
+            get {
+                _strokeWidth ??= this.Attributes.GetInheritedAttribute<float?>("stroke-width");
+                var v = _strokeWidth.GetValue();
+                return v == null ? new SvgUnit(0f) : (SvgUnit)v; 
+            }
             set { this.Attributes["stroke-width"] = value; }
         }
 
@@ -113,17 +126,14 @@ namespace Svg
             return null;
         }
 
-        public override RectangleF Bounds
+        public override RectangleF GetBounds()
         {
-            get
+            var path = this.Path(null);
+            if (path != null)
             {
-                var path = this.Path(null);
-                if (path != null)
-                {
-                    return path.GetBounds();
-                }
-                return RectangleF.Create();
+                return path.GetBounds();
             }
+            return RectangleF.Create();
         }
 
         public override SvgElement DeepCopy()

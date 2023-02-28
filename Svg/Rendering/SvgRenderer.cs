@@ -1,17 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ExCSS;
 using Svg.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Svg
 {
     /// <summary>
     /// Convenience wrapper around a graphics object
+    ///
+    /// The renderer can be re-used when rendering the same document multiple times.
+    /// For performance reasons, graphics objects (brush, pen, fontfamily) are cached per svg-object in the renderer.
+    /// This is because the SvgDocument can be loaded and shared by multiple threads in read-only fashion.
     /// </summary>
     public sealed class SvgRenderer : IDisposable, IGraphicsProvider, ISvgRenderer
     {
         private Graphics _innerGraphics;
         private Stack<ISvgBoundable> _boundables = new Stack<ISvgBoundable>();
         private readonly IDictionary<string, object> _context = new Dictionary<string, object>();
+        private readonly IDictionary<object, IDisposable> _drawingCache = new Dictionary<object, IDisposable>();
+        private readonly IDictionary<string, FontFamily> _customFontCache = new Dictionary<string, FontFamily>();
 
         public void SetBoundable(ISvgBoundable boundable)
         {
@@ -83,6 +91,7 @@ namespace Svg
         }
 
         public IDictionary<string, object> Context => _context;
+        public IDictionary<object, IDisposable> DrawingCache => _drawingCache;
         public IDisposable UsingContextVariable(string key, object variable)
         {
             return new TemporaryContextVariable(key, variable, _context);
@@ -110,12 +119,64 @@ namespace Svg
         public void Dispose()
         {
             this._innerGraphics.Dispose();
-        }
 
+            foreach(var d in _drawingCache.Values)
+                d.Dispose();
+            foreach (var ffam in _customFontCache.Values)
+                ffam?.Dispose();
+
+            _drawingCache.Clear();
+        }
+        
         Graphics IGraphicsProvider.GetGraphics()
         {
             return _innerGraphics;
         }
+
+        public ISvgRenderer UseGraphics(Graphics graphics)
+        {
+            // ensure we do not dispose the existing graphics
+            if(_innerGraphics!=graphics)
+                _innerGraphics?.Dispose();
+
+            _innerGraphics = graphics;
+            return this;
+        }
+
+        public FontFamily GetFontFamily(SvgTextBase text)
+        {
+            // 1. try to get cached font
+            if(text.FontFamily is {} ffm && _customFontCache.TryGetValue(ffm, out var ffamily))
+                return ffamily;
+
+            var od = text.OwnerDocument;
+            if (od is null)
+                return null;
+
+            // 2. initialize cache of custom font families
+            CustomFonts ??= text.OwnerDocument.StyleSheets.SelectMany(s => s.FontFaceDirectives)
+                .ToDictionary(d => d.FontFamily, d => d);
+
+            // 3. create font if custom
+            if (!string.IsNullOrEmpty(text.FontFamily))
+            {
+                if (CustomFonts.ContainsKey(text.FontFamily))
+                {
+                    var fontFamily = SvgEngine.Factory.LoadCustomFontFamily(text.FontFamily, text.FontWeight,
+                        text.FontStyle, text.OwnerDocument);
+                    // note: we deliberately also store "null" here to cache that loading some custom font did not work out
+                    _customFontCache[text.FontFamily] = fontFamily;
+                    return fontFamily;
+                }
+            }
+            else
+                return SvgEngine.Factory.GetFontFamily(text.FontFamily, text.FontWeight, text.FontStyle,
+                    text.OwnerDocument);
+
+            return null;
+        }
+
+        public IDictionary<string, FontFaceRule> CustomFonts { get; set; }
 
         /// <summary>
         /// Creates a new <see cref="ISvgRenderer"/> from the specified <see cref="Image"/>.

@@ -50,10 +50,8 @@ namespace Svg
         /// <param name="propertyValue">.NET value of the attribute</param>
         public static bool IsDefault(string attributeName, string value)
         {
-            if (_defaults.ContainsKey(attributeName))
-            {
-                if (_defaults[attributeName] == value) return true;
-            }
+            if (_defaults.TryGetValue(attributeName, out var defaultValue) && defaultValue== value) 
+                return true;
             return false;
         }
     }

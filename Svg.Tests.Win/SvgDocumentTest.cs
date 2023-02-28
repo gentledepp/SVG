@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Svg.Tests.Win
 {
+    [TestFixture]
     public class SvgDocumentTest
     {
 

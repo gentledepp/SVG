@@ -9,12 +9,17 @@ namespace Svg
     [SvgElement("linearGradient")]
     public sealed class SvgLinearGradientServer : SvgGradientServer
     {
+        private SvgAttributeCollection.Attribute<SvgUnit> _x1;
+        private SvgAttributeCollection.Attribute<SvgUnit> _y1;
+        private SvgAttributeCollection.Attribute<SvgUnit> _x2;
+        private SvgAttributeCollection.Attribute<SvgUnit> _y2;
+
         [SvgAttribute("x1")]
         public SvgUnit X1
         {
             get
             {
-                return this.Attributes.GetAttribute<SvgUnit>("x1");
+                return (_x1 ??= this.Attributes.GetAttribute<SvgUnit>("x1")).GetValue();
             }
             set
             {
@@ -27,7 +32,7 @@ namespace Svg
         {
             get
             {
-                return this.Attributes.GetAttribute<SvgUnit>("y1");
+                return (_y1 ??= this.Attributes.GetAttribute<SvgUnit>("y1")).GetValue();
             }
             set
             {
@@ -40,7 +45,7 @@ namespace Svg
         {
             get
             {
-                return this.Attributes.GetAttribute<SvgUnit>("x2");
+                return (_x2 ??= this.Attributes.GetAttribute<SvgUnit>("x2")).GetValue();
             }
             set
             {
@@ -53,7 +58,7 @@ namespace Svg
         {
             get
             {
-                return this.Attributes.GetAttribute<SvgUnit>("y2");
+                return (_y2 ??= this.Attributes.GetAttribute<SvgUnit>("y2")).GetValue();
             }
             set
             {

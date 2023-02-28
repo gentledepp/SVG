@@ -121,6 +121,11 @@ namespace Svg
         }
         #endregion
 
+        public SvgViewBox DeepCopy()
+        {
+            return this == SvgViewBox.Empty ? SvgViewBox.Empty : new SvgViewBox(MinX, MinY, Width, Height);
+        }
+
         public void AddViewBoxTransform(SvgAspectRatio aspectRatio, ISvgRenderer renderer)
         {
             AddViewBoxTransform(aspectRatio, renderer, RectangleF.Create(0, 0, Width, Height));

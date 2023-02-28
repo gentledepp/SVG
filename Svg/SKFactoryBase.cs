@@ -1,20 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
 using SkiaSharp;
 using Svg.Interfaces;
 using Svg.Interfaces.Xml;
 using Svg.Platform;
 using Svg.Shared.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Svg
 {
     public abstract class SKFactoryBase : IFactory
     {
         private static readonly Lazy<Colors> _colors = new Lazy<Colors>(() => new SkiaColors());
+        public static readonly Regex Base64UrlRegex = new Regex(
+            "^(url\\(['\"]?data:[a-zA-Z/-]+;base64,)(?<source>(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?)['\"]?\\)",
+            RegexOptions.Compiled);
+        private const string SvgDefaultFontFamily = "Segoe UI";
 
         public virtual GraphicsPath CreateGraphicsPath()
         {
@@ -76,7 +81,7 @@ namespace Svg
         {
             throw new NotImplementedException();
         }
-
+        
         public virtual SolidBrush CreateSolidBrush(Color color)
         {
             return new SkiaSolidBrush(color);
@@ -121,6 +126,46 @@ namespace Svg
 
             return font;
         }
+
+        public FontFamily GetFontFamily(string fontFamilyName, SvgFontWeight fontWeight, SvgFontStyle fontStyle,
+            SvgDocument textOwnerDocument)
+        {
+            var typeFace = SKTypeface.FromFamilyName(fontFamilyName, fontWeight.ToSkFontStyleWeight(), SKFontStyleWidth.Normal, fontStyle.ToSkFontStyleSlant());
+
+            if (typeFace is null)
+                return null;
+            
+            return new SkiaFontFamily(typeFace, fontFamilyName??typeFace.FamilyName);
+        }
+
+        public FontFamily LoadCustomFontFamily(string fontFamilyName, SvgFontWeight fontWeight, SvgFontStyle fontStyle, SvgDocument doc)
+        {
+            if (string.IsNullOrEmpty(fontFamilyName))
+                throw new ArgumentNullException(nameof(fontFamilyName));
+            
+            var customFont = doc.StyleSheets.SelectMany(s => s.FontFaceDirectives).FirstOrDefault(ff => ff.FontFamily == fontFamilyName);
+            if (customFont?.Src is { } src)
+            {
+                var m = Base64UrlRegex.Match(src);
+                if (m.Success)
+                {
+                    var base64 = m.Groups["source"].Value;
+                    using var ms = new MemoryStream(Convert.FromBase64String(base64));
+                    ms.Seek(0, SeekOrigin.Begin);
+                    var tf = SKTypeface.FromStream(ms);
+                    if (tf is null)
+                        return null;
+                    return new SkiaFontFamily(tf, fontFamilyName);
+                }
+            }
+
+            var typeFace = SKTypeface.FromFamilyName(fontFamilyName, fontWeight.ToSkFontStyleWeight(), SKFontStyleWidth.Normal, fontStyle.ToSkFontStyleSlant());
+            if (typeFace is null)
+                return null;
+            
+            return new SkiaFontFamily(typeFace, fontFamilyName);
+        }
+        
 
         public virtual FontFamilyProvider GetFontFamilyProvider()
         {
@@ -232,5 +277,10 @@ namespace Svg
         public abstract IXmlReader CreateSvgTextReader(Stream stream, Dictionary<string, string> entities);
 
         public abstract IXmlReader CreateSvgTextReader(StringReader r, Dictionary<string, string> entities);
+
+        public void Dispose()
+        {
+           
+        }
     }
 }

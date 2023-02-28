@@ -1,4 +1,5 @@
 ﻿using System;
+using Svg.Interfaces;
 
 namespace Svg
 {
@@ -9,6 +10,8 @@ namespace Svg
     public class SvgTextPath : SvgTextBase
     {
         private Uri _referencedPath;
+        private SvgAttributeCollection.InheritedAttribute<object> _method;
+        private SvgAttributeCollection.InheritedAttribute<object> _spacing;
 
         public override SvgUnitCollection Dx
         {
@@ -37,14 +40,14 @@ namespace Svg
         [SvgAttribute("method")]
         public virtual SvgTextPathMethod Method
         {
-            get { return (this.Attributes["method"] == null ? SvgTextPathMethod.Align : (SvgTextPathMethod)this.Attributes["method"]); }
+            get { return (_method ??= this.Attributes.GetInheritedAttribute<object>("method")).GetValue() is {} val ? (SvgTextPathMethod)val :  SvgTextPathMethod.Align; }
             set { this.Attributes["method"] = value; }
         }
 
         [SvgAttribute("spacing")]
         public virtual SvgTextPathSpacing Spacing
         {
-            get { return (this.Attributes["spacing"] == null ? SvgTextPathSpacing.Exact : (SvgTextPathSpacing)this.Attributes["spacing"]); }
+            get { return (_spacing ??= this.Attributes.GetInheritedAttribute<object>("spacing")).GetValue() is {} val ? (SvgTextPathSpacing)val: SvgTextPathSpacing.Exact; }
             set { this.Attributes["spacing"] = value; }
         }
 
@@ -88,9 +91,5 @@ namespace Svg
         {
             return base.DeepCopy<SvgTextPath>();
         }
-
-        
-
-
     }
 }

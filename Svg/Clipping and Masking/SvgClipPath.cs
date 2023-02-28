@@ -14,13 +14,16 @@ namespace Svg
     {
         private bool _pathDirty = true;
 
+        private GraphicsPath cachedClipPath = null;
+        private SvgAttributeCollection.Attribute<SvgCoordinateUnits> _clipPathUnits;
+
         /// <summary>
         /// Specifies the coordinate system for the clipping path.
         /// </summary>
         [SvgAttribute("clipPathUnits")]
         public SvgCoordinateUnits ClipPathUnits
         {
-            get { return this.Attributes.GetAttribute<SvgCoordinateUnits>("clipPathUnits"); }
+            get { return (_clipPathUnits ??= this.Attributes.GetAttribute<SvgCoordinateUnits>("clipPathUnits")).GetValue(); }
             set { this.Attributes["clipPathUnits"] = value; }
         }
 
@@ -32,8 +35,6 @@ namespace Svg
             this.ClipPathUnits = SvgCoordinateUnits.Inherit;
         }
 
-        private GraphicsPath cachedClipPath = null;
-
         /// <summary>
         /// Gets this <see cref="SvgClipPath"/>'s region to be used as a clipping region.
         /// </summary>
@@ -42,6 +43,7 @@ namespace Svg
         {
             if (cachedClipPath == null || this._pathDirty)
             {
+                cachedClipPath?.Dispose();
                 cachedClipPath = SvgEngine.Factory.CreateGraphicsPath();
 
                 foreach (SvgElement element in this.Children)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Svg.DataTypes;
 
 
@@ -13,18 +14,43 @@ namespace Svg.Converters
             {
                 if (targetType == typeof(string))
                     return value;
+
                 if (targetType == typeof(bool))
-                    return Convert.ToBoolean(value);
+                {
+                    if(value is { } v && bool.TryParse(v, out var bo))
+                        return bo;
+                    return false;
+                }
                 if (targetType == typeof(short))
-                    return Convert.ToInt16(value);
+                {
+                    if (value is { } v && short.TryParse(v, NumberStyles.Integer, CultureInfo.InvariantCulture, out var bo))
+                        return bo;
+                    return default(short);
+                }
                 if (targetType == typeof(int))
-                    return Convert.ToInt32(value);
+                {
+                    if (value is { } v && int.TryParse(v, NumberStyles.Integer, CultureInfo.InvariantCulture, out var bo))
+                        return bo;
+                    return default(int);
+                }
                 if (targetType == typeof(long))
-                    return Convert.ToInt64(value);
+                {
+                    if (value is { } v && long.TryParse(v, NumberStyles.Integer, CultureInfo.InvariantCulture, out var bo))
+                        return bo;
+                    return default(long);
+                }
                 if (targetType == typeof(double))
-                    return Convert.ToDouble(value);
+                {
+                    if (value is { } v && double.TryParse(v, NumberStyles.Number, CultureInfo.InvariantCulture, out var bo))
+                        return bo;
+                    return default(double);
+                }
                 if (targetType == typeof(float))
-                    return Convert.ToSingle(value);
+                {
+                    if (value is { } v && float.TryParse(v, NumberStyles.Number, CultureInfo.InvariantCulture, out var bo))
+                        return bo;
+                    return default(float);
+                }
                 if (targetType == typeof(Uri))
                     return new Uri(value, UriKind.RelativeOrAbsolute);
                 if (targetType == typeof(Guid))

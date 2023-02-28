@@ -13,8 +13,10 @@ namespace Svg.FilterEffects
     [SvgElement("feColorMatrix")]
     public class SvgColourMatrix : SvgFilterPrimitive
     {
-		
-		/// <summary>
+        private SvgAttributeCollection.Attribute<SvgColourMatrixType> _type;
+        private SvgAttributeCollection.Attribute<string> _values;
+
+        /// <summary>
 		/// matrix | saturate | hueRotate | luminanceToAlpha
 		/// Indicates the type of matrix operation. The keyword 'matrix' indicates that a full 5x4 matrix of values will be provided. The other keywords represent convenience shortcuts to allow commonly used color operations to be performed without specifying a complete matrix. If attribute ‘type’ is not specified, then the effect is as if a value of matrix were specified.
 		/// Note: this is not used in calculations to bitmap - used only to allow for svg xml output
@@ -22,7 +24,7 @@ namespace Svg.FilterEffects
 		[SvgAttribute("type")]
 		public SvgColourMatrixType Type
         {
-            get { return this.Attributes.GetAttribute<SvgColourMatrixType>("type"); }
+            get { return (_type ??= this.Attributes.GetAttribute<SvgColourMatrixType>("type")).GetValue(); }
             set { this.Attributes["type"] = value; }
         }
 
@@ -35,7 +37,7 @@ namespace Svg.FilterEffects
         [SvgAttribute("values")]
 		public string Values
         {
-            get { return this.Attributes.GetAttribute<string>("values"); }
+            get { return (_values ??= this.Attributes.GetAttribute<string>("values")).GetValue(); }
             set { this.Attributes["values"] = value; }
         }
 

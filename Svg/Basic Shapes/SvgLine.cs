@@ -15,6 +15,9 @@ namespace Svg
         private SvgUnit _endX;
         private SvgUnit _endY;
         private GraphicsPath _path;
+        private SvgAttributeCollection.Attribute<Uri> _markerEnd;
+        private SvgAttributeCollection.Attribute<Uri> _markerMid;
+        private SvgAttributeCollection.Attribute<Uri> _markerStart;
 
         [SvgAttribute("x1")]
         public SvgUnit StartX
@@ -90,7 +93,7 @@ namespace Svg
         [SvgAttribute("marker-end")]
         public Uri MarkerEnd
         {
-            get { return this.Attributes.GetAttribute<Uri>("marker-end"); }
+            get { return (_markerEnd ??= this.Attributes.GetAttribute<Uri>("marker-end")).GetValue(); }
             set { this.Attributes["marker-end"] = value; }
         }
 
@@ -101,7 +104,7 @@ namespace Svg
         [SvgAttribute("marker-mid")]
         public Uri MarkerMid
         {
-            get { return this.Attributes.GetAttribute<Uri>("marker-mid"); }
+            get { return (_markerMid ??= this.Attributes.GetAttribute<Uri>("marker-mid")).GetValue(); }
             set { this.Attributes["marker-mid"] = value; }
         }
 
@@ -112,7 +115,7 @@ namespace Svg
         [SvgAttribute("marker-start")]
         public Uri MarkerStart
         {
-            get { return this.Attributes.GetAttribute<Uri>("marker-start"); }
+            get { return (_markerStart ??= this.Attributes.GetAttribute<Uri>("marker-start")).GetValue(); }
             set { this.Attributes["marker-start"] = value; }
         }
 
@@ -124,7 +127,8 @@ namespace Svg
                                           this.StartY.ToDeviceValue(renderer, UnitRenderingType.Vertical, this));
                 PointF end = PointF.Create(this.EndX.ToDeviceValue(renderer, UnitRenderingType.Horizontal, this), 
                                         this.EndY.ToDeviceValue(renderer, UnitRenderingType.Vertical, this));
-
+                
+                _path?.Dispose();
                 this._path = SvgEngine.Factory.CreateGraphicsPath();
                 this._path.AddLine(start, end);
                 this.IsPathDirty = false;
@@ -136,9 +140,9 @@ namespace Svg
         /// Renders the stroke of the <see cref="SvgVisualElement"/> to the specified <see cref="ISvgRenderer"/>
         /// </summary>
         /// <param name="renderer">The <see cref="ISvgRenderer"/> object to render to.</param>
-        protected internal override bool RenderStroke(ISvgRenderer renderer)
+        protected override bool RenderStroke(ISvgRenderer renderer, RenderCacheEntry cacheEntry)
         {
-            var result = base.RenderStroke(renderer);
+            var result = base.RenderStroke(renderer, cacheEntry);
             var path = this.Path(renderer);
 
             if (this.MarkerStart != null)
@@ -163,6 +167,11 @@ namespace Svg
             return result;
         }
 
+        public override RectangleF GetBounds()
+        {
+                return this.Path(null).GetBounds();
+        }
+        
         protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
         {
             var start = PointF.Create(this.StartX, this.StartY);
@@ -170,15 +179,7 @@ namespace Svg
             
             return (start,end).IsIntersectingWithLine(transform, rectangle);
         }
-
-        public override RectangleF Bounds
-        {
-            get
-            {
-                return this.Path(null).GetBounds();
-            }
-        }
-
+        
 		public override SvgElement DeepCopy()
 		{
 			return DeepCopy<SvgLine>();

@@ -4,91 +4,94 @@
     <AssemblyName>Svg.Editor</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>2.4.3.16</Version>
-    <PackageReleaseNotes>
-	    #2.4.3.16
-	    - Render text stroke
-	    #2.4.3.15
-	    - Render tspan in textrenderer		
-		#2.4.3.14
-		- DrawAllContents with Original SvgDocument size
-		#2.4.3.13
-		- Texterendering renders with default size when no size available
-		#2.4.3.10 - 11
-		- add OnScreenSet event in SvgDrawingCanvas after Screen properties set in OnDraw method
-		# 2.4.3.9
-		- small fixes
-		# 2.4.3.8
-		- zoomtool.ShowAll
-		# 2.4.3.7
-		- Svg 2.4.5.7
-		# 2.4.3.6
-		- bumped version for Svg 2.4.3.5
-		# 2.4.3.5
-		- fixed UWP gesture recognizer
-		# 2.4.3.4
-		- fixed for plan rendering
-		- polygon tool improvements (selection rendered on adorner layer)
-		# 2.4.3.3
-		- polygon tool
-		- hit testing basic shapes without fill tests line intersection
-	</PackageReleaseNotes>
+	  <Version>2.4.4.1</Version>
+	  <LangVersion>latest</LangVersion>
+	  <PackageReleaseNotes>
+		  #2.4.4.1
+		  - major rendering performance improvements
+		  #2.4.3.16
+		  - Render text stroke
+		  #2.4.3.15
+		  - Render tspan in textrenderer
+		  #2.4.3.14
+		  - DrawAllContents with Original SvgDocument size
+		  #2.4.3.13
+		  - Texterendering renders with default size when no size available
+		  #2.4.3.10 - 11
+		  - add OnScreenSet event in SvgDrawingCanvas after Screen properties set in OnDraw method
+		  # 2.4.3.9
+		  - small fixes
+		  # 2.4.3.8
+		  - zoomtool.ShowAll
+		  # 2.4.3.7
+		  - Svg 2.4.5.7
+		  # 2.4.3.6
+		  - bumped version for Svg 2.4.3.5
+		  # 2.4.3.5
+		  - fixed UWP gesture recognizer
+		  # 2.4.3.4
+		  - fixed for plan rendering
+		  - polygon tool improvements (selection rendered on adorner layer)
+		  # 2.4.3.3
+		  - polygon tool
+		  - hit testing basic shapes without fill tests line intersection
+	  </PackageReleaseNotes>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(Configuration) == 'Release'">
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <IncludeSource>True</IncludeSource>
-    <IncludeSymbols>True</IncludeSymbols>
-  </PropertyGroup>
+	<PropertyGroup Condition="$(Configuration) == 'Release'">
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IncludeSource>True</IncludeSource>
+		<IncludeSymbols>True</IncludeSymbols>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Assets\**" />
-    <EmbeddedResource Remove="Assets\**" />
-    <None Remove="Assets\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\svg\ic_arrow_downward.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_arrow_upward.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_aspect_ratio.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_border_style.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_brush.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_code.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_color_lens.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_delete.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_flip_to_back.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_flip_to_front.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_format_color_fill.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_grid_off.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_grid_on.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_insert_photo.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_line_endings.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_line_style.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_mode_edit.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_pan_tool.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_pin_resize.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_pin_tool.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_panorama_fish_eye.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_polygon.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_redo.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_rotate_left.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_rotate_right.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_save.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_select.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_swap_vert.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_text_fields.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_undo.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_zoom.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_zoom_100.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_zoom_200.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_zoom_in.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_zoom_out.svg" />
-    <EmbeddedResource Include="Resources\svg\ic_crop_square.svg" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="SkiaSharp" Version="1.68.1" />
-    <PackageReference Include="Svg" Version="2.4.3.16" />
-    <PackageReference Include="System.Reactive" Version="4.0.0" />
-    <PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Assets\**" />
+		<EmbeddedResource Remove="Assets\**" />
+		<None Remove="Assets\**" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\svg\ic_arrow_downward.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_arrow_upward.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_aspect_ratio.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_border_style.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_brush.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_code.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_color_lens.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_delete.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_flip_to_back.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_flip_to_front.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_format_color_fill.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_grid_off.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_grid_on.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_insert_photo.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_line_endings.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_line_style.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_mode_edit.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_pan_tool.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_pin_resize.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_pin_tool.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_panorama_fish_eye.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_polygon.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_redo.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_rotate_left.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_rotate_right.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_save.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_select.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_swap_vert.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_text_fields.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_undo.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_zoom.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_zoom_100.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_zoom_200.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_zoom_in.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_zoom_out.svg" />
+		<EmbeddedResource Include="Resources\svg\ic_crop_square.svg" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+		<PackageReference Include="SkiaSharp" Version="1.68.1" />
+		<PackageReference Include="Svg" Version="2.4.4.1" />
+		<PackageReference Include="System.Reactive" Version="4.0.0" />
+		<PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
+	</ItemGroup>
 </Project>

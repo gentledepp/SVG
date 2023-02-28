@@ -4,10 +4,12 @@
     <AssemblyName>Svg.Editor.Forms</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.17763</TargetFrameworks>
-    <Version>2.4.3.16</Version>
+    <Version>2.4.4.1</Version>
     <PackageReleaseNotes>
-	    #2.4.3.16
-	    - Render text stroke
+	    #2.4.4.1
+	    - major rendering performance improvements
+		#2.4.3.16
+		- Render text stroke
 		#2.4.3.15
 		- Render tspan in textrenderer
 		#2.4.3.14
@@ -70,7 +72,7 @@
   
   <ItemGroup>
     <PackageReference Include="SkiaSharp.Views.Forms" Version="1.68.1" />
-    <PackageReference Include="Svg" Version="2.4.3.16" />
+    <PackageReference Include="Svg" Version="2.4.4.1" />
     <PackageReference Include="System.Reactive" Version="4.0.0" />
     <PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
   </ItemGroup>

@@ -1,11 +1,8 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
-using Svg.Converters;
 using Svg.Editor.Tests;
 using Svg.Interfaces;
+using System.Linq;
 
 namespace Svg.Tests.Win
 {
@@ -76,5 +73,185 @@ namespace Svg.Tests.Win
                 .Be(0); 
         }
 
+        [Test]
+        public void CanRenderTSpan_X()
+        {
+            var pngPath = "tspan_x.png";
+            var svgPath = "tspan_x.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
+        }
+
+        [Test]
+        public void CanRenderTSpan_DX()
+        {
+            var pngPath = "tspan_dx.png";
+            var svgPath = "tspan_dx.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
+        }
+        
+        [Test]
+        public void CanRenderTSpan_DX_of_DX()
+        {
+            var pngPath = "tspan_dx_2.png";
+            var svgPath = "tspan_dx_2.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
+        }
+        
+        [Test]
+        public void CanRenderTSpan_DX_WithTransforms()
+        {
+            var pngPath = "tspan_dx_transform.png";
+            var svgPath = "tspan_dx_transform.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
+        }
+        
+        [Test]
+        public void CanRenderTSpan_TakesXYFromParent_IgnoresWhiteSpaces()
+        {
+            var pngPath = "tspan_dx_withparentx.png";
+            var svgPath = "tspan_dx_withparentx.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
+        }
+        
+        [Test]
+        public void CanRenderTSpan_WithWhiteSpaces()
+        {
+            var pngPath = "tspan_whitespace.png";
+            var svgPath = "tspan_whitespace.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
+        }
+
+        [Test]
+        public void CanRenderTSpan_WithWhiteSpaces2()
+        {
+            var pngPath = "tspan_whitespace2.png";
+            var svgPath = "tspan_whitespace2.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
+        }
+
+
+        [Test]
+        public void CanRenderTSpan_WithWhiteTspanPositionedRelativeToEmptyTspan()
+        {
+            var pngPath = "tspan_withdxon_emptytspan.png";
+            var svgPath = "tspan_withdxon_emptytspan.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
+        }
+
+        [Test]
+        public void CanRenderTSpan_WithWhiteTspanPositionedRelativeToEmptyTspan_WithEmbeddedFont()
+        {
+            var pngPath = "tspan_withdxon_emptytspan_withembeddedfont.png";
+            var svgPath = "tspan_withdxon_emptytspan_withembeddedfont.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
+        }
+
+        [Test]
+        public void CanRenderTSpans_WithCssStylingAndEmbeddedFont()
+        {
+            var pngPath = "Top3_1.png";
+            var svgPath = "Top3_1.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
+        }
     }
 }

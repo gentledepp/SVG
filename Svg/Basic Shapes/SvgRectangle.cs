@@ -171,16 +171,9 @@ namespace Svg
             get { return (CornerRadiusX.Value > 0 || CornerRadiusY.Value > 0); }
         }
 
-        /// <summary>
-        /// Gets the bounds of the element.
-        /// </summary>
-        /// <value>The bounds.</value>
-        public override RectangleF Bounds
+        public override RectangleF GetBounds()
         {
-            get
-            {
                 return Path(null).GetBounds();
-            }
         }
 
         /// <summary>
@@ -195,7 +188,8 @@ namespace Svg
                 {
                     var rectangle = RectangleF.Create(Location.ToDeviceValue(renderer, this),
                         SvgUnit.GetDeviceSize(this.Width, this.Height, renderer, this));
-
+                    
+                    _path?.Dispose();
                     _path = SvgEngine.Factory.CreateGraphicsPath();
                     _path.StartFigure();
                     _path.AddRectangle(rectangle);
@@ -203,6 +197,7 @@ namespace Svg
                 }
                 else
                 {
+                    _path?.Dispose();
                     _path = SvgEngine.Factory.CreateGraphicsPath();
                     var arcBounds = RectangleF.Create();
                     var lineStart = PointF.Create(0f,0f);
