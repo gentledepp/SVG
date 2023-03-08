@@ -822,6 +822,7 @@ namespace Svg
             newObj.BaseUri = BaseUri;
             newObj.Ppi = Ppi;
             newObj.ExternalCSSHref = ExternalCSSHref;
+            newObj.StyleSheets = new List<StyleSheet>(StyleSheets);
             return newObj;
         }
 
