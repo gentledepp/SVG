@@ -220,6 +220,16 @@ namespace Svg
 
                 return CreateColorFromArgb(255, r, g, b);
             }
+            if (Regex.IsMatch(hex.ToLowerInvariant(), @"^#[a-f0-9]{4}$"))
+            {
+                var c = string.Format("#{0}{0}{1}{1}{2}{2}{3}{3}",hex[1], hex[2], hex[3], hex[4]);
+                var a = int.Parse(c.Substring(1, 2), NumberStyles.HexNumber);
+                var r = int.Parse(c.Substring(3, 2), NumberStyles.HexNumber);
+                var g = int.Parse(c.Substring(5, 2), NumberStyles.HexNumber);
+                var b = int.Parse(c.Substring(7, 2), NumberStyles.HexNumber);
+
+                return CreateColorFromArgb(a, r, g, b);
+            }
 
 
             if (Regex.IsMatch(hex.ToLowerInvariant(), @"^#[a-f0-9]{3}$"))

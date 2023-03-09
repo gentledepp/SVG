@@ -74,6 +74,7 @@
     <Compile Include="GetSvgPathAsLinesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveDocumentTests.cs" />
+    <Compile Include="SvgColorParsingTests.cs" />
     <Compile Include="SvgDocumentTest.cs" />
     <Compile Include="SvgHitTests.cs" />
     <Compile Include="SvgHitTests_Polygon.cs" />

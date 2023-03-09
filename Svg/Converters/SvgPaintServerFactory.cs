@@ -66,9 +66,17 @@ namespace Svg.Converters
                                 servers.Add(new SvgColourServer((Color)_colourConverter.ConvertFromString(value.Substring(0, 4), typeof(Color), document)));
                                 value = value.Substring(4).Trim();
                                 break;
+                            case 4:
+                                servers.Add(new SvgColourServer((Color)_colourConverter.ConvertFromString(value.Substring(0, 5), typeof(Color), document)));
+                                value = value.Substring(5).Trim();
+                                break;
                             case 6:
                                 servers.Add(new SvgColourServer((Color)_colourConverter.ConvertFromString(value.Substring(0, 7), typeof(Color), document)));
                                 value = value.Substring(7).Trim();
+                                break;
+                            case 8:
+                                servers.Add(new SvgColourServer((Color)_colourConverter.ConvertFromString(value.Substring(0, 9), typeof(Color), document)));
+                                value = value.Substring(9).Trim();
                                 break;
                             default:
                                 return new SvgDeferredPaintServer(document, value);
