@@ -13,6 +13,8 @@ namespace Svg
         private Uri _referencedElement;
         private SvgAttributeCollection.Attribute<SvgUnit> _x;
         private SvgAttributeCollection.Attribute<SvgUnit> _y;
+        private SvgAttributeCollection.Attribute<SvgUnit> _width;
+        private SvgAttributeCollection.Attribute<SvgUnit> _height;
 
         [SvgAttribute("href", SvgAttributeAttribute.XLinkNamespace)]
         public virtual Uri ReferencedElement
@@ -35,6 +37,29 @@ namespace Svg
             set { this.Attributes["y"] = value; }
         }
 
+
+        /// <summary>
+        /// Gets or sets the width of the fragment.
+        /// </summary>
+        /// <value>The width.</value>
+        [SvgAttribute("width")]
+        public SvgUnit Width
+        {
+            get { return (_width ??= this.Attributes.GetAttribute<SvgUnit>("width")).GetValue(); }
+            set { this.Attributes["width"] = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the height of the fragment.
+        /// </summary>
+        /// <value>The height.</value>
+        [SvgAttribute("height")]
+        public SvgUnit Height
+        {
+            get { return (_height ??= this.Attributes.GetAttribute<SvgUnit>("height")).GetValue(); }
+            set { this.Attributes["height"] = value; }
+        }
+
         /// <summary>
         /// Applies the required transforms to <see cref="ISvgRenderer"/>.
         /// </summary>
@@ -44,6 +69,19 @@ namespace Svg
             if (!base.PushTransforms(renderer)) return false;
             renderer.TranslateTransform(this.X.ToDeviceValue(renderer, UnitRenderingType.Horizontal, this),
                                         this.Y.ToDeviceValue(renderer, UnitRenderingType.Vertical, this));
+
+            var element = this.OwnerDocument.IdManager.GetElementById(this.ReferencedElement) as SvgVisualElement;
+            if (element != null)
+            {
+                var childBounds = element.Bounds;
+                var scaleX = this.Width != SvgUnit.None ? this.Width / childBounds.Width : 1;
+                var scaleY = this.Height != SvgUnit.None ? this.Height / childBounds.Height : 1;
+                
+                //renderer.ScaleTransform(scaleX, scaleY);
+                var scale = Math.Min(scaleX, scaleY);
+                renderer.ScaleTransform(scale, scale);
+            }
+
             return true;
         }
 
@@ -60,11 +98,6 @@ namespace Svg
         {
             SvgVisualElement element = (SvgVisualElement)this.OwnerDocument.IdManager.GetElementById(this.ReferencedElement);
             return (element != null) ? element.Path(renderer) : null;
-        }
-
-        public override RectangleF GetBounds()
-        {
-                return RectangleF.Create();
         }
 
         protected internal override bool Renderable { get { return false; } }

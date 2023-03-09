@@ -204,10 +204,11 @@ namespace Svg
 
             if (Regex.IsMatch(hex.ToLowerInvariant(), @"^#[a-f0-9]{8}$"))
             {
-                var a = int.Parse(hex.Substring(1, 2), NumberStyles.HexNumber);
-                var r = int.Parse(hex.Substring(3, 2), NumberStyles.HexNumber);
-                var g = int.Parse(hex.Substring(5, 2), NumberStyles.HexNumber);
-                var b = int.Parse(hex.Substring(7, 2), NumberStyles.HexNumber);
+                //RGBA - so the last two digits are the alpha
+                var r = int.Parse(hex.Substring(1, 2), NumberStyles.HexNumber);
+                var g = int.Parse(hex.Substring(3, 2), NumberStyles.HexNumber);
+                var b = int.Parse(hex.Substring(5, 2), NumberStyles.HexNumber);
+                var a = int.Parse(hex.Substring(7, 2), NumberStyles.HexNumber);
 
                 return CreateColorFromArgb(a, r, g, b);
             }
@@ -220,13 +221,15 @@ namespace Svg
 
                 return CreateColorFromArgb(255, r, g, b);
             }
+
             if (Regex.IsMatch(hex.ToLowerInvariant(), @"^#[a-f0-9]{4}$"))
             {
+                //RGBA - so the last digit is the alpha
                 var c = string.Format("#{0}{0}{1}{1}{2}{2}{3}{3}",hex[1], hex[2], hex[3], hex[4]);
-                var a = int.Parse(c.Substring(1, 2), NumberStyles.HexNumber);
-                var r = int.Parse(c.Substring(3, 2), NumberStyles.HexNumber);
-                var g = int.Parse(c.Substring(5, 2), NumberStyles.HexNumber);
-                var b = int.Parse(c.Substring(7, 2), NumberStyles.HexNumber);
+                var r= int.Parse(c.Substring(1, 2), NumberStyles.HexNumber);
+                var g = int.Parse(c.Substring(3, 2), NumberStyles.HexNumber);
+                var b = int.Parse(c.Substring(5, 2), NumberStyles.HexNumber);
+                var a = int.Parse(c.Substring(7, 2), NumberStyles.HexNumber);
 
                 return CreateColorFromArgb(a, r, g, b);
             }

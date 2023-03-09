@@ -83,8 +83,15 @@ namespace Svg.Document_Structure
         protected internal override bool PushTransforms(ISvgRenderer renderer)
         {
             if (!base.PushTransforms(renderer)) return false;
-            this.ViewBox.AddViewBoxTransform(this.AspectRatio, renderer);
+            renderer.Graphics.Save();
+            this.ViewBox.AddViewBoxTransform(this.AspectRatio, renderer, Bounds);
             return true;
+        }
+
+        protected internal override void PopTransforms(ISvgRenderer renderer)
+        {
+            renderer.Graphics.Restore();
+            base.PopTransforms(renderer);
         }
 
         // Only render if the parent is set to a Use element

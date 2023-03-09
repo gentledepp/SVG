@@ -253,5 +253,41 @@ namespace Svg.Tests.Win
 
             c.AssertAreSimilar(99f, svgPath);
         }
+
+        [Test]
+        public void CanRenderSymbol()
+        {
+            var pngPath = "use_symbol.png";
+            var svgPath = "use_symbol.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(99f, svgPath);
+        }
+
+        [Test]
+        public void CanRenderSymbol_WithViewBoxTransform()
+        {
+            var pngPath = "use_symbol_transforms.png";
+            var svgPath = "use_symbol_transforms.svg";
+
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            // Act
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(71.8133316f, svgPath);
+        }
     }
 }

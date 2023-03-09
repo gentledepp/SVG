@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,9 +21,9 @@ namespace Svg.Tests.Win
 
         [TestCase("named", "red")]
         [TestCase("3 digits","#F00")]
-        [TestCase("4 digits", "#FF00")]
+        [TestCase("4 digits", "#F00F")]
         [TestCase("6 digits", "#FF0000")]
-        [TestCase("8 digits", "#FFFF0000")]
+        [TestCase("8 digits", "#FF0000FF")]
         public void CanParseColor(string _, string color)
         {
 
