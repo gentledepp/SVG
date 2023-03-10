@@ -74,6 +74,7 @@
     <Compile Include="GetSvgPathAsLinesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveDocumentTests.cs" />
+    <Compile Include="SvgColorParsingTests.cs" />
     <Compile Include="SvgDocumentTest.cs" />
     <Compile Include="SvgHitTests.cs" />
     <Compile Include="SvgHitTests_Polygon.cs" />
@@ -155,6 +156,18 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\tspan_whitespace2.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\use_symbol_transforms.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\use_symbol_transforms.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\use_symbol.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\use_symbol.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\tspan_x.png">

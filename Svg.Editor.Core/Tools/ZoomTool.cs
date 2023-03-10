@@ -181,7 +181,7 @@ namespace Svg.Editor.Tools
                     CurrentFocusY = se.FocusY;
                     var zoomFactor = GetBoundedZoomFactor(se, ws);
                     // jusst set focal point if not focused and zoom factor actually changed
-                    if (!_focused && Math.Abs(zoomFactor - ws.ZoomFactor) > 0.01f)
+                    if ((!_focused || se.ChangeFocus) && Math.Abs(zoomFactor - ws.ZoomFactor) > 0.01f)
                     {
                         /*
                          * A zoom with a focal point is a mix of scaling and translation. When the user zooms in, we will place the focal point on the canvas
@@ -258,6 +258,7 @@ namespace Svg.Editor.Tools
                          * 
                          */
                         var canvasFocus = ws.ScreenToCanvas(CurrentFocusX, CurrentFocusY);
+                        System.Diagnostics.Debug.WriteLine($"CanvasFocus x: {canvasFocus.X}| y: {canvasFocus.Y}");
                         // save translate from previous zoom
                         ws.Translate -= (ws.ZoomFocus - canvasFocus) * (ws.ZoomFactor - 1);
                         ws.ZoomFocus = canvasFocus;

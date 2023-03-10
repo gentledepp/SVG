@@ -111,7 +111,10 @@ namespace Svg.Editor.Views.UWP
             var pointerPoint = args.GetCurrentPoint(_element);
             var wheelDelta = pointerPoint.Properties.MouseWheelDelta;
 
-            _inputEventSubject.OnNext(new ScaleEvent(ScaleStatus.Scaling, 1 + wheelDelta / MaxMouseWheelStep, (float) pointerPoint.Position.X, (float) pointerPoint.Position.Y));
+            _inputEventSubject.OnNext(new ScaleEvent(ScaleStatus.Scaling, 1 + wheelDelta / MaxMouseWheelStep, (float) pointerPoint.Position.X, (float) pointerPoint.Position.Y)
+            {
+                ChangeFocus = true
+            });
         }
 
         private void ElementOnDoubleTapped(object sender, DoubleTappedRoutedEventArgs args)
