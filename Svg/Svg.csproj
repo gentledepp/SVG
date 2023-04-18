@@ -3,10 +3,12 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.18362;net462</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version>2.4.4.3</Version>
+    <Version>2.4.4.4</Version>
     <Authors>gentledpp,bruzkovsky</Authors>
     <Company>Opti-Q GmbH</Company>
     <PackageReleaseNotes>
+		#2.4.4.4
+		- fix: Arrow tips of lines are not filled (transparent)
 	    #2.4.4.3
 	    - fix: can not parse 4-digit color values 
 	    

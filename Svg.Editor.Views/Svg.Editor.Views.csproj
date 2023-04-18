@@ -2,9 +2,11 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.17763</TargetFrameworks>
-	  <Version>2.4.4.2</Version>
+	  <Version>2.4.4.4</Version>
 	  <LangVersion>latest</LangVersion>
 	  <PackageReleaseNotes>
+		  #2.4.4.4
+		  - fix: Arrow tips of lines are not filled (transparent)
 		  #2.4.4.2
 		  - on UWP changes zoom focus correctly while zooming with mouse wheel
 		  #2.4.4.1

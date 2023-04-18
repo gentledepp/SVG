@@ -16,6 +16,7 @@ namespace Svg
         private Region _previousClip;
         public const string CONTEXT_STROKE = "context-stroke";
         public const string CONTEXT_FILL = "context-fill";
+        public const string CONTEXT_RENDERCACHE = "context-rendercache";
         
         /// <summary>
         /// Gets the <see cref="GraphicsPath"/> for this element.
@@ -288,24 +289,35 @@ namespace Svg
         {
             object fillTemp;
             var fill = this.Fill;
-            if (fill == SvgColourServer.ContextFill &&
-                renderer.Context.TryGetValue(CONTEXT_FILL, out fillTemp))
+            var isContextFill = fill == SvgColourServer.ContextFill;
+            if (isContextFill && renderer.Context.TryGetValue(CONTEXT_FILL, out fillTemp))
             {
                 fill = (SvgPaintServer)fillTemp;
             }
 
             if (this.HasFill())
             {
-                /*using (*/
-                //var brush = GetFillBrush(renderer);/*)*/
-                cacheEntry.FillBrush ??= fill.GetBrush(this, renderer, Math.Min(Math.Max(this.FillOpacity * this.Opacity, 0), 1));
-                var brush = cacheEntry.FillBrush;
+                Brush brush;
+
+                // if we get the color from our context (i.e. we are a marker that is re-used by many paths)
+                // we cannot use our own cache entry, as we would overwrite the cache entry of the owner object
+                if (isContextFill && 
+                    renderer.Context.TryGetValue(CONTEXT_RENDERCACHE, out var rco) &&
+                    rco is RenderCacheEntry rc)
+                    brush = rc.FillBrush ?? fill.GetBrush(this, renderer,
+                        Math.Min(Math.Max(this.FillOpacity * this.Opacity, 0), 1));
+                else
                 {
-                    if (brush != null)
-                    {
-                        this.Path(renderer).FillMode = this.FillRule == SvgFillRule.NonZero ? FillMode.Winding : FillMode.Alternate;
-                        renderer.FillPath(brush, this.Path(renderer));
-                    }
+                    cacheEntry.FillBrush ??= fill.GetBrush(this, renderer,
+                        Math.Min(Math.Max(this.FillOpacity * this.Opacity, 0), 1));
+
+                    brush = cacheEntry.FillBrush;
+                }
+
+                if (brush != null)
+                {
+                    this.Path(renderer).FillMode = this.FillRule == SvgFillRule.NonZero ? FillMode.Winding : FillMode.Alternate;
+                    renderer.FillPath(brush, this.Path(renderer));
                 }
             }
         }
@@ -319,8 +331,8 @@ namespace Svg
             // allow to override stroke using context variable (used by marker to have same stoke color as owning path)
             object strokeTemp;
             SvgPaintServer stroke = this.Stroke;
-            if (this.Stroke == SvgColourServer.ContextStroke &&
-                renderer.Context.TryGetValue(CONTEXT_STROKE, out strokeTemp))
+            var isContextStroke = stroke == SvgColourServer.ContextStroke;
+            if (isContextStroke && renderer.Context.TryGetValue(CONTEXT_STROKE, out strokeTemp))
             {
                 stroke = (SvgPaintServer)strokeTemp;
             }
@@ -328,11 +340,23 @@ namespace Svg
             if (this.HasStroke())
             {
                 float strokeWidth = this.StrokeWidth.ToDeviceValue(renderer, UnitRenderingType.Other, this);
-                
-                cacheEntry.StrokeBrush ??= stroke.GetBrush(this, renderer,
-                    Math.Min(Math.Max(this.StrokeOpacity * this.Opacity, 0), 1), true);
-                
-                var brush = cacheEntry.StrokeBrush;
+
+                Brush brush;
+
+                // if we get the color from our context (i.e. we are a marker that is re-used by many paths)
+                // we cannot use our own cache entry, as we would overwrite the cache entry of the owner object
+                if (isContextStroke &&
+                    renderer.Context.TryGetValue(CONTEXT_RENDERCACHE, out var rco) &&
+                    rco is RenderCacheEntry rc)
+                    brush = rc.StrokeBrush ?? stroke.GetBrush(this, renderer,
+                        Math.Min(Math.Max(this.StrokeOpacity * this.Opacity, 0), 1), true);
+                else
+                {
+                    cacheEntry.StrokeBrush ??= stroke.GetBrush(this, renderer,
+                        Math.Min(Math.Max(this.StrokeOpacity * this.Opacity, 0), 1), true);
+                    brush = cacheEntry.StrokeBrush;
+                }
+
                 if (brush != null)
                 {
                     var path = this.Path(renderer);
@@ -360,9 +384,18 @@ namespace Svg
                     }
                     else
                     {
-                        cacheEntry.StrokePen ??= CreatePen(brush,strokeWidth, renderer);
+                        Pen pen = null;
+                        if (isContextStroke &&
+                            renderer.Context.TryGetValue(CONTEXT_RENDERCACHE, out var rco2) &&
+                            rco2 is RenderCacheEntry rc2)
+                            pen = rc2.StrokePen ?? CreatePen(brush, strokeWidth, renderer);
+                        else
+                        {
+                            cacheEntry.StrokePen ??= CreatePen(brush,strokeWidth, renderer);
+                            pen = cacheEntry.StrokePen;
+                        }
 
-                        renderer.DrawPath(cacheEntry.StrokePen, path);
+                        renderer.DrawPath(pen, path);
 
                         return true;
                     }

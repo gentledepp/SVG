@@ -161,13 +161,13 @@ namespace Svg
         /// <param name="pOwner"></param>
         /// <param name="pMarkerPoint1"></param>
         /// <param name="pMarkerPoint2"></param>
-        public void RenderMarker(ISvgRenderer pRenderer, SvgVisualElement pOwner, PointF pRefPoint, PointF pMarkerPoint1, PointF pMarkerPoint2)
+        public void RenderMarker(ISvgRenderer pRenderer, SvgVisualElement pOwner, PointF pRefPoint, PointF pMarkerPoint1, PointF pMarkerPoint2, RenderCacheEntry cacheEntry)
         {
             float xDiff = pMarkerPoint2.X - pMarkerPoint1.X;
             float yDiff = pMarkerPoint2.Y - pMarkerPoint1.Y;
             float fAngle1 = (float)(Math.Atan2(yDiff, xDiff) * 180.0 / Math.PI);
 
-            RenderPart2(fAngle1, pRenderer, pOwner, pRefPoint);
+            RenderPart2(fAngle1, pRenderer, pOwner, pRefPoint, cacheEntry);
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace Svg
         /// <param name="pMarkerPoint1"></param>
         /// <param name="pMarkerPoint2"></param>
         /// <param name="pMarkerPoint3"></param>
-        public void RenderMarker(ISvgRenderer pRenderer, SvgVisualElement pOwner, PointF pRefPoint, PointF pMarkerPoint1, PointF pMarkerPoint2, PointF pMarkerPoint3)
+        public void RenderMarker(ISvgRenderer pRenderer, SvgVisualElement pOwner, PointF pRefPoint, PointF pMarkerPoint1, PointF pMarkerPoint2, PointF pMarkerPoint3, RenderCacheEntry cacheEntry)
         {
             float xDiff = pMarkerPoint2.X - pMarkerPoint1.X;
             float yDiff = pMarkerPoint2.Y - pMarkerPoint1.Y;
@@ -188,7 +188,7 @@ namespace Svg
             yDiff = pMarkerPoint3.Y - pMarkerPoint2.Y;
             float fAngle2 = (float)(Math.Atan2(yDiff, xDiff) * 180.0 / Math.PI);
 
-            RenderPart2((fAngle1 + fAngle2) / 2, pRenderer, pOwner, pRefPoint);
+            RenderPart2((fAngle1 + fAngle2) / 2, pRenderer, pOwner, pRefPoint, cacheEntry);
         }
 
         /// <summary>
@@ -198,13 +198,14 @@ namespace Svg
         /// <param name="pRenderer"></param>
         /// <param name="pOwner"></param>
         /// <param name="pMarkerPoint"></param>
-        private void RenderPart2(float fAngle, ISvgRenderer pRenderer, SvgVisualElement pOwner, PointF pMarkerPoint)
+        private void RenderPart2(float fAngle, ISvgRenderer pRenderer, SvgVisualElement pOwner, PointF pMarkerPoint, RenderCacheEntry cacheEntry)
         {
             using (pRenderer.UsingContextVariable(MARKER_POINT, pMarkerPoint))
             using (pRenderer.UsingContextVariable(MARKER_ANGLE, fAngle))
             using (pRenderer.UsingContextVariable(MARKER_OWNER, pOwner))
             using (pRenderer.UsingContextVariable(CONTEXT_STROKE, pOwner.Stroke))
             using (pRenderer.UsingContextVariable(CONTEXT_FILL, pOwner.Fill))
+            using (pRenderer.UsingContextVariable(CONTEXT_RENDERCACHE, cacheEntry))
             {
                 Render(pRenderer);
             }
