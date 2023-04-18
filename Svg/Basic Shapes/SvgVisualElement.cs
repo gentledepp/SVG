@@ -1,9 +1,7 @@
+using Svg.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using Svg.Interfaces;
-using Svg.Transforms;
 
 namespace Svg
 {
@@ -16,7 +14,6 @@ namespace Svg
         private Region _previousClip;
         public const string CONTEXT_STROKE = "context-stroke";
         public const string CONTEXT_FILL = "context-fill";
-        public const string CONTEXT_RENDERCACHE = "context-rendercache";
         
         /// <summary>
         /// Gets the <see cref="GraphicsPath"/> for this element.
@@ -301,10 +298,8 @@ namespace Svg
 
                 // if we get the color from our context (i.e. we are a marker that is re-used by many paths)
                 // we cannot use our own cache entry, as we would overwrite the cache entry of the owner object
-                if (isContextFill && 
-                    renderer.Context.TryGetValue(CONTEXT_RENDERCACHE, out var rco) &&
-                    rco is RenderCacheEntry rc)
-                    brush = rc.FillBrush ?? fill.GetBrush(this, renderer,
+                if (isContextFill)
+                    brush = fill.GetBrush(this, renderer,
                         Math.Min(Math.Max(this.FillOpacity * this.Opacity, 0), 1));
                 else
                 {
@@ -345,10 +340,8 @@ namespace Svg
 
                 // if we get the color from our context (i.e. we are a marker that is re-used by many paths)
                 // we cannot use our own cache entry, as we would overwrite the cache entry of the owner object
-                if (isContextStroke &&
-                    renderer.Context.TryGetValue(CONTEXT_RENDERCACHE, out var rco) &&
-                    rco is RenderCacheEntry rc)
-                    brush = rc.StrokeBrush ?? stroke.GetBrush(this, renderer,
+                if (isContextStroke )
+                    brush = stroke.GetBrush(this, renderer,
                         Math.Min(Math.Max(this.StrokeOpacity * this.Opacity, 0), 1), true);
                 else
                 {
@@ -385,10 +378,8 @@ namespace Svg
                     else
                     {
                         Pen pen = null;
-                        if (isContextStroke &&
-                            renderer.Context.TryGetValue(CONTEXT_RENDERCACHE, out var rco2) &&
-                            rco2 is RenderCacheEntry rc2)
-                            pen = rc2.StrokePen ?? CreatePen(brush, strokeWidth, renderer);
+                        if (isContextStroke )
+                            pen = CreatePen(brush, strokeWidth, renderer);
                         else
                         {
                             cacheEntry.StrokePen ??= CreatePen(brush,strokeWidth, renderer);
