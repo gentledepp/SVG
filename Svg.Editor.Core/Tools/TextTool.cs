@@ -195,6 +195,7 @@ namespace Svg.Editor.Tools
 					(t, i) =>
 						new SvgTextSpan
 						{
+							Text = t,
 							Nodes = {new SvgContentNode {Content = t}},
 							X = new SvgUnitCollection {0},
 							Y = new SvgUnitCollection {fontSize * lineHeight * i}
@@ -222,7 +223,7 @@ namespace Svg.Editor.Tools
 			{
 				Canvas.Document.Children.Add(svgText);
 				Canvas.FireInvalidateCanvas();
-			}, o =>
+            }, o =>
 			{
 				Canvas.Document.Children.Remove(svgText);
 				Canvas.FireInvalidateCanvas();
@@ -281,7 +282,7 @@ namespace Svg.Editor.Tools
 				.Select(span =>
 					new SvgTextSpan
 					{
-						Nodes = {new SvgContentNode {Content = span.Text}},
+                        Nodes = {new SvgContentNode {Content = span.Text}},
 						X = span.X,
 						Y = span.Y,
 						TextAnchor = span.TextAnchor,
@@ -297,15 +298,16 @@ namespace Svg.Editor.Tools
 				{
 					svgText.Text = null;
 					var origin = svgText.Children.OfType<SvgTextSpan>().FirstOrDefault() ?? svgText;
-					var spans = lines.Select((t, i) =>
+					var spans = lines.Where(s => !string.IsNullOrEmpty(s)).Select((t, i) =>
 						new SvgTextSpan
 						{
-							Nodes = {new SvgContentNode {Content = t}},
+							Text = t,
+                            Nodes = {new SvgContentNode {Content = t}},
 							X = origin.X,
 							Y =
 								new SvgUnitCollection
 								{
-									origin.Y.FirstOrDefault() + fontSize * lineHeight * i
+                                    (origin.Y.FirstOrDefault() + fontSize + lineHeight) * i
 								},
 							TextAnchor = origin.TextAnchor,
 							SpaceHandling = origin.SpaceHandling
