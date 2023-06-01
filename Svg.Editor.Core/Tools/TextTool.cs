@@ -191,7 +191,7 @@ namespace Svg.Editor.Tools
 			var lines = txt.Split('\n', '\r');
 			if (lines.Length > 1)
 			{
-				var spans = lines.Select(
+				var spans = lines.Where(s => !string.IsNullOrEmpty(s)).Select(
 					(t, i) =>
 						new SvgTextSpan
 						{
@@ -274,7 +274,7 @@ namespace Svg.Editor.Tools
 				return;
 			}
 
-			if ((text == svgText.Text || text == svgText.Children.OfType<SvgTextSpan>().FirstOrDefault()?.Text) &&
+			if ((text == svgText.Text || text == svgText.Children.OfType<SvgTextSpan>().FirstOrDefault()?.Text && svgText.Children.OfType<SvgTextSpan>().Count()<=1) &&
 			    Math.Abs(svgText.FontSize.Value - fontSize) < 0.1f) return;
 
 			var formerText = svgText.Text;
@@ -303,11 +303,13 @@ namespace Svg.Editor.Tools
 						{
 							Text = t,
                             Nodes = {new SvgContentNode {Content = t}},
-							X = origin.X,
+							X = new SvgUnitCollection(){
+                                0
+								},
 							Y =
 								new SvgUnitCollection
 								{
-                                    (origin.Y.FirstOrDefault() + fontSize + lineHeight) * i
+                                    origin.Y.FirstOrDefault() + fontSize * lineHeight * i
 								},
 							TextAnchor = origin.TextAnchor,
 							SpaceHandling = origin.SpaceHandling

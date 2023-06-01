@@ -4,9 +4,12 @@
     <AssemblyName>Svg.Editor.Forms</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.17763</TargetFrameworks>
-	  <Version>2.4.4.5</Version>
+	  <Version>2.4.4.6</Version>
 	  <LangVersion>latest</LangVersion>
 	  <PackageReleaseNotes>
+		  #2.4.4.6
+		  - fix: TextTool, when text edit, textspan renders not with bound from last textspan
+		  - fix: TextTool, removing lines until one remains, updates
 		  #2.4.4.5
 		  - fix: TextTool, Works with textspan
 		  #2.4.4.4
