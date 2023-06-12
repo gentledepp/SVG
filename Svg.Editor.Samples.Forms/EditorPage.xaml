@@ -6,6 +6,9 @@
              Title="Simple SVG Editor"
              forms:BindableToolbarProperty.BindableToolbarItems="{Binding DrawingCanvas.ToolCommands, Converter={StaticResource ToolCommandsToToolbarItemsConverter}}">
 
-    <forms:SvgEditorView BindingContext="{Binding DrawingCanvas}"/>
+    <ContentView>
+        <forms:SvgEditorView BindingContext="{Binding DrawingCanvas}"/>
+    </ContentView>
+
 
 </ContentPage>

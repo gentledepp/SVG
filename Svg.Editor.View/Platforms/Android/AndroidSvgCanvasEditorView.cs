@@ -10,6 +10,7 @@ using SkiaSharp.Views.Android;
 using Svg.Editor.Droid.Services;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Services;
+using SKPaintSurfaceEventArgs = SkiaSharp.Views.Maui.SKPaintSurfaceEventArgs;
 
 namespace Svg.Editor.Views.Droid
 {
@@ -131,5 +132,7 @@ namespace Svg.Editor.Views.Droid
             }
             base.Dispose(disposing);
         }
+
+        public event EventHandler<SKPaintSurfaceEventArgs> PaintSurface;
     }
 }

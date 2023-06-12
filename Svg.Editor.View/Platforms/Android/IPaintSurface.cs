@@ -1,5 +1,5 @@
 ﻿using System;
-using SkiaSharp.Views.Android;
+using SkiaSharp.Views.Maui;
 
 namespace SkiaSharp.Views
 {

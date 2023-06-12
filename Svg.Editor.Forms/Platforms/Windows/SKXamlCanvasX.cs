@@ -1,6 +1,4 @@
-﻿using SkiaSharp.Views.Maui;
-using SkiaSharp.Views.Windows;
-using SKPaintSurfaceEventArgs = SkiaSharp.Views.Maui.SKPaintSurfaceEventArgs;
+﻿using SkiaSharp.Views.Windows;
 
 namespace SkiaSharp.Views.UWP
 {
