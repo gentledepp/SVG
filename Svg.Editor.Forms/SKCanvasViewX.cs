@@ -4,7 +4,7 @@ using SkiaSharp.Views.Maui.Controls;
 
 namespace SkiaSharp.Views.Forms
 {
-    public class SKCanvasViewX : ContentView, ISKCanvasViewController
+    public class SKCanvasViewX : View, ISKCanvasViewController
     {
         public static readonly BindableProperty IgnorePixelScalingProperty =
             BindableProperty.Create(nameof(IgnorePixelScaling), typeof(bool), typeof(SKCanvasViewX), default(bool));

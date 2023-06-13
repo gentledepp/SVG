@@ -2,35 +2,93 @@
 using System.ComponentModel;
 using Microsoft.Maui.Controls.Handlers.Compatibility;
 using Microsoft.Maui.Controls.Platform;
+using Microsoft.Maui.Controls.PlatformConfiguration;
 using Microsoft.Maui.Handlers;
+using Microsoft.UI.Xaml.Controls;
 using SkiaSharp.Views.Maui.Controls;
 using SkiaSharp.Views.UWP;
 using SkiaSharp.Views.Windows;
 using Svg.Editor.Forms;
+using Svg.Editor.Interfaces;
+using Svg.Editor.Views.UWP;
 
 namespace SkiaSharp.Views.Forms
 {
     public class UwpCanvasViewHandlerBase : ViewHandler<SvgCanvasEditorView, SKXamlCanvasX>
     {
 
+        private static UwpGestureRecognizer _gestureRecognizer;
+
         public static PropertyMapper<SvgCanvasEditorView, UwpCanvasViewHandlerBase> Mapper =
             new PropertyMapper<SvgCanvasEditorView, UwpCanvasViewHandlerBase>(ViewHandler.ViewMapper)
             {
+                [nameof(SvgCanvasEditorView.ParentChanged)] = OnPropertyChanged,
+                [nameof(SvgCanvasEditorView.InvalidateSurface)] = OnInvalidateSurface,
+                [nameof(SvgCanvasEditorView.IgnorePixelScaling)] = MapIgnorePixelScaling,
+                ["GetCanvasSize"] = GetCanvasSize
+
+
 
             };
+
+        private static void GetCanvasSize(UwpCanvasViewHandlerBase handler, SvgCanvasEditorView view)
+        {
+            //view.CanvasSize = handler.PlatformView?.CanvasSize ?? SKSize.Empty;
+        }
+
+        private static void MapIgnorePixelScaling(UwpCanvasViewHandlerBase handler, SvgCanvasEditorView view)
+        {
+            handler.PlatformView.IgnorePixelScaling = view.IgnorePixelScaling;
+        }
+
+        private static void OnInvalidateSurface(UwpCanvasViewHandlerBase handler, SvgCanvasEditorView view)
+        {
+            handler.PlatformView.Invalidate();
+        }
+
+        private static void OnPropertyChanged(UwpCanvasViewHandlerBase handler, SvgCanvasEditorView view)
+        {
+            if(handler.PlatformView == null)
+                return;
+
+            _gestureRecognizer = new UwpGestureRecognizer(handler.PlatformView);
+            _gestureRecognizer.UserInputEvents.Subscribe(async uie => await view.DrawingCanvas.OnEvent(uie));
+            view.DrawingCanvas.GestureRecognizer = _gestureRecognizer;
+            view.DrawingCanvas = view.BindingContext as ISvgDrawingCanvas;
+            handler.PlatformView.Invalidate();
+        }
+
+
 
         public UwpCanvasViewHandlerBase() : base(Mapper)
         {
 
         }
 
-        public UwpCanvasViewHandlerBase(IPropertyMapper mapper, CommandMapper commandMapper = null) : base(mapper, commandMapper)
+        protected override void ConnectHandler(SKXamlCanvasX platformView)
         {
+            platformView.PaintSurface += new EventHandler<SKPaintSurfaceEventArgs>(this.OnPaintSurface);
+            base.ConnectHandler(platformView);
+        }
+
+        protected override void DisconnectHandler(SKXamlCanvasX platformView)
+        {
+            platformView.PaintSurface -= new EventHandler<SKPaintSurfaceEventArgs>(this.OnPaintSurface);
+            base.DisconnectHandler(platformView);
+        }
+
+        private void OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
+        {
+            var controller = this.VirtualView as ISKCanvasViewController;
+
+            // the control is being repainted, let the user know
+            controller?.OnPaintSurface(new Maui.SKPaintSurfaceEventArgs(e.Surface, e.Info));
         }
 
         protected override SKXamlCanvasX CreatePlatformView()
         {
-            throw new NotImplementedException();
+            var view = Activator.CreateInstance<SKXamlCanvasX>();
+            return view;
         }
         //protected override void OnElementChanged(ElementChangedEventArgs<TFormsView> e)
         //{

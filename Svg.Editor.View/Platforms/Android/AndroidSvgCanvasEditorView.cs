@@ -10,7 +10,6 @@ using SkiaSharp.Views.Android;
 using Svg.Editor.Droid.Services;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Services;
-using SKPaintSurfaceEventArgs = SkiaSharp.Views.Maui.SKPaintSurfaceEventArgs;
 
 namespace Svg.Editor.Views.Droid
 {
@@ -43,40 +42,16 @@ namespace Svg.Editor.Views.Droid
         public override bool OnTouchEvent(MotionEvent ev)
         {
             // this is intentionally not awaited
-            _detector.OnTouch(ev);
+            //_detector.OnTouch(ev);
+            base.OnTouchEvent(ev);
             
             return true;
         }
 
         protected override async void OnDraw(Canvas canvas)
         {
-            if (IsFormsMode)
-            {
-                base.OnDraw(canvas);
-                return;
-            }
+            base.OnDraw(canvas);
 
-            if (DrawingCanvas == null)
-                return;
-
-	        using (var bitmap =
-		        Android.Graphics.Bitmap.CreateBitmap(canvas.Width, canvas.Height, Android.Graphics.Bitmap.Config.Argb8888))
-	        {
-		        try
-		        {
-			        using (var surface = SKSurface.Create(canvas.Width, canvas.Height, SKColorType.Rgba8888, SKAlphaType.Premul,
-				        bitmap.LockPixels(), canvas.Width * 4))
-			        {
-				        await DrawingCanvas.OnDraw(new SKCanvasRenderer(surface, canvas.Width, canvas.Height));
-			        }
-		        }
-		        finally
-		        {
-			        bitmap.UnlockPixels();
-		        }
-
-		        canvas.DrawBitmap(bitmap, 0, 0, null);
-	        }
         }
 
         protected override void OnAttachedToWindow()
@@ -133,6 +108,5 @@ namespace Svg.Editor.Views.Droid
             base.Dispose(disposing);
         }
 
-        public event EventHandler<SKPaintSurfaceEventArgs> PaintSurface;
     }
 }

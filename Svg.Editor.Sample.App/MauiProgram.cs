@@ -1,6 +1,9 @@
 ﻿using Microsoft.Maui.Controls.Compatibility.Hosting;
 using SkiaSharp.Views.Forms;
+using SkiaSharp.Views.Maui;
+using SkiaSharp.Views.Maui.Controls;
 using SkiaSharp.Views.Maui.Controls.Hosting;
+using SkiaSharp.Views.Maui.Handlers;
 using Svg.Editor.Forms;
 using Svg.Editor.Samples.Forms;
 #if ANDROID
@@ -11,7 +14,6 @@ using SkiaSharp.Views.Forms;
 using SkiaSharp.Views.Forms;
 #endif
 
-[assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 namespace Svg.Editor.Sample.App
 {
 
@@ -24,7 +26,7 @@ namespace Svg.Editor.Sample.App
             builder
                 .UseMauiApp<Samples.Forms.App>()
                 .UseMauiCompatibility()
-                //.UseSkiaSharp()
+                .UseSkiaSharp()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -33,12 +35,19 @@ namespace Svg.Editor.Sample.App
                 .ConfigureMauiHandlers(handlers =>
                 {
 #if ANDROID
-                    handlers.AddHandler(typeof(SvgCanvasEditorView), typeof(SKCanvasView));
+                    handlers.AddHandler(typeof(SvgCanvasEditorView), typeof(DroidCanvasViewHandlerBase));
 #elif IOS
-                    handlers.AddCompatibilityRenderer(typeof(SvgEditorView), typeof(TouchCanvasViewHandlerBase));
+                    handlers.AddHandler(typeof(SvgEditorView), typeof(TouchCanvasViewHandlerBase));
 #else
-                    handlers.AddCompatibilityRenderer(typeof(SvgEditorView), typeof(UwpCanvasViewHandlerBase));
+                    handlers.AddHandler(typeof(SvgCanvasEditorView), typeof(UwpCanvasViewHandlerBase));
 #endif
+                })
+                .ConfigureImageSources(sources =>
+                {
+                    sources.AddService<ISKImageImageSource, SKImageSourceService>();
+                    sources.AddService<ISKBitmapImageSource, SKImageSourceService>();
+                    sources.AddService<ISKPixmapImageSource, SKImageSourceService>();
+                    sources.AddService<ISKPictureImageSource, SKImageSourceService>();
                 });
 
             return builder.Build();
