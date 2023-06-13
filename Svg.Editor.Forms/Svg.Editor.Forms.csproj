@@ -53,6 +53,7 @@
 
 
 	<ItemGroup>
+		<PackageReference Include="Svg" Version="2.4.4.6" />
 		<PackageReference Include="System.Reactive" Version="4.0.0" />
 		<PackageReference Include="SkiaSharp.Views.Maui.Controls.Compatibility" Version="2.88.0" />
 	</ItemGroup>
@@ -60,7 +61,6 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Svg.Editor.Core\Svg.Editor.Core.csproj" />
 	  <ProjectReference Include="..\Svg.Editor.View\Svg.Editor.View.csproj" />
-	  <ProjectReference Include="..\Svg\Svg.csproj" />
 	</ItemGroup>
 
 </Project>

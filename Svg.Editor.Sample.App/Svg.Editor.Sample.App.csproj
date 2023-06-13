@@ -58,6 +58,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Svg" Version="2.4.4.6" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <ProjectReference Include="..\Svg.Editor.Core\Svg.Editor.Core.csproj" />
 	  <ProjectReference Include="..\Svg.Editor.Forms\Svg.Editor.Forms.csproj" />
 	  <ProjectReference Include="..\Svg.Editor.Samples.Forms\Svg.Editor.Samples.Forms.csproj" />

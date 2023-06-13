@@ -94,6 +94,9 @@
     <PackageReference Include="NUnit">
       <Version>3.12.0</Version>
     </PackageReference>
+    <PackageReference Include="Svg">
+      <Version>2.4.4.6</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\iso_sketch_large.svg">
@@ -107,10 +110,6 @@
     <ProjectReference Include="..\Svg.Editor.Core\Svg.Editor.Core.csproj">
       <Project>{4cf34d1c-662c-400d-beaf-e87ce1d08fab}</Project>
       <Name>Svg.Editor.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Svg\Svg.csproj">
-      <Project>{5603f55a-e869-4d15-b39d-252430b4575d}</Project>
-      <Name>Svg</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
