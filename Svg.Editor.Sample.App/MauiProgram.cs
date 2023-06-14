@@ -26,7 +26,6 @@ namespace Svg.Editor.Sample.App
             builder
                 .UseMauiApp<Samples.Forms.App>()
                 .UseMauiCompatibility()
-                .UseSkiaSharp()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -37,17 +36,10 @@ namespace Svg.Editor.Sample.App
 #if ANDROID
                     handlers.AddHandler(typeof(SvgCanvasEditorView), typeof(DroidCanvasViewHandlerBase));
 #elif IOS
-                    handlers.AddHandler(typeof(SvgEditorView), typeof(TouchCanvasViewHandlerBase));
+                    handlers.AddHandler(typeof(SvgCanvasEditorView), typeof(TouchCanvasViewHandlerBase));
 #else
                     handlers.AddHandler(typeof(SvgCanvasEditorView), typeof(UwpCanvasViewHandlerBase));
 #endif
-                })
-                .ConfigureImageSources(sources =>
-                {
-                    sources.AddService<ISKImageImageSource, SKImageSourceService>();
-                    sources.AddService<ISKBitmapImageSource, SKImageSourceService>();
-                    sources.AddService<ISKPixmapImageSource, SKImageSourceService>();
-                    sources.AddService<ISKPictureImageSource, SKImageSourceService>();
                 });
 
             return builder.Build();

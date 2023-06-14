@@ -1,106 +1,116 @@
 ﻿using System.ComponentModel;
-using Microsoft.Maui.Controls.Compatibility.Platform.iOS;
-using Microsoft.Maui.Controls.Platform;
 using Microsoft.Maui.Handlers;
 using SkiaSharp.Views.iOS;
+using Svg.Editor;
 using Svg.Editor.Forms;
+using Svg.Editor.Views.iOS;
 
 namespace SkiaSharp.Views.Forms
 {
-    public class TouchCanvasViewHandlerBase : ViewHandler<SvgCanvasEditorView, SKCanvasView>
+    public class TouchCanvasViewHandlerBase : ViewHandler<SvgCanvasEditorView, TouchSvgCanvasEditorView>
     {
-        //protected override void OnElementChanged(ElementChangedEventArgs<TFormsView> e)
-        //{
-        //    if (e.OldElement != null)
-        //    {
-        //        var oldController = (ISKCanvasViewController)e.OldElement;
 
-        //        // unsubscribe from events
-        //        oldController.SurfaceInvalidated -= OnSurfaceInvalidated;
-        //        oldController.GetCanvasSize -= OnGetCanvasSize;
-        //    }
-        //    if (Control != null)
-        //    {
-        //        Control.PaintSurface -= OnPaintSurface;
-        //    }
+        public static PropertyMapper<SvgCanvasEditorView, TouchCanvasViewHandlerBase> PropertyMapper =
+            new PropertyMapper<SvgCanvasEditorView, TouchCanvasViewHandlerBase>(ViewHandler.ViewMapper)
+            {
+                [nameof(SvgCanvasEditorView.IgnorePixelScaling)] = MapIgnorePixelScaling,
+                [nameof(SvgCanvasEditorView.BindingContextChanged)] = OnBindingContextChanged,
+                [nameof(SvgCanvasEditorView.ParentChanged)] = OnParentChanged
 
-        //    if (e.NewElement != null)
-        //    {
-        //        var newController = (ISKCanvasViewController)e.NewElement;
+            };
 
-        //        // create the native view
-        //        var view = CreateNativeView();
-        //        view.IgnorePixelScaling = e.NewElement.IgnorePixelScaling;
-        //        view.PaintSurface += OnPaintSurface;
-        //        SetNativeControl(view);
+        public static CommandMapper<SvgCanvasEditorView, TouchCanvasViewHandlerBase> CommandMapper =
+            new CommandMapper<SvgCanvasEditorView, TouchCanvasViewHandlerBase>()
+            {
+                [nameof(SvgCanvasEditorView.InvalidateSurface)] = OnInvalidateSurface,
+                [nameof(SvgCanvasEditorView.PropertyChanged)] = OnPropertyChanged,
+            };
 
-        //        // subscribe to events from the user
-        //        newController.SurfaceInvalidated += OnSurfaceInvalidated;
-        //        newController.GetCanvasSize += OnGetCanvasSize;
-
-        //        // paint for the first time
-        //        Control.SetNeedsDisplay();
-        //    }
-
-        //    base.OnElementChanged(e);
-        //}
-        
-        //protected virtual TNativeView CreateNativeView()
-        //{
-        //    var view = Activator.CreateInstance<TNativeView>();
-        //    return view;
-        //}
-
-        //protected override void OnElementPropertyChanged(object sender, PropertyChangedEventArgs e)
-        //{
-        //    base.OnElementPropertyChanged(sender, e);
-
-        //    if (e.PropertyName == nameof(SKFormsView.IgnorePixelScaling))
-        //    {
-        //        Control.IgnorePixelScaling = Element.IgnorePixelScaling;
-        //    }
-        //}
-
-        //protected override void Dispose(bool disposing)
-        //{
-        //    // detach all events before disposing
-        //    var controller = (ISKCanvasViewController)Element;
-        //    if (controller != null)
-        //    {
-        //        controller.SurfaceInvalidated -= OnSurfaceInvalidated;
-        //    }
-
-        //    base.Dispose(disposing);
-        //}
-
-        //// the user asked for the size
-        //private void OnGetCanvasSize(object sender, GetCanvasSizeEventArgs e)
-        //{
-        //    e.CanvasSize = Control?.CanvasSize ?? SKSize.Empty;
-        //}
-
-        //private void OnSurfaceInvalidated(object sender, EventArgs eventArgs)
-        //{
-        //    // repaint the native control
-        //    Control.SetNeedsDisplay();
-        //}
-
-        //private void OnPaintSurface(object sender, iOS.SKPaintSurfaceEventArgs e)
-        //{
-        //    var controller = this.Element as ISKCanvasViewController;
-
-        //    // the control is being repainted, let the user know
-        //    controller?.OnPaintSurface(new SKPaintSurfaceEventArgs(e.Surface, e.Info));
-        //}
-
-        public TouchCanvasViewHandlerBase(IPropertyMapper mapper, CommandMapper commandMapper = null) : base(mapper, commandMapper)
+        public TouchCanvasViewHandlerBase() : base(PropertyMapper, CommandMapper)
         {
         }
 
-        protected override SKCanvasView CreatePlatformView()
+        protected override void ConnectHandler(TouchSvgCanvasEditorView platformView)
         {
-            var view = Activator.CreateInstance<SKCanvasView>();
+            platformView.PaintSurface += new EventHandler<SKPaintSurfaceEventArgs>(OnPaintSurface);
+            var controller = VirtualView as ISKCanvasViewController;
+            controller.GetCanvasSize += OnGetCanvasSize;
+            controller.SurfaceInvalidated += OnSurfaceInvalidated;
+            base.ConnectHandler(platformView);
+        }
+
+        protected override void DisconnectHandler(TouchSvgCanvasEditorView platformView)
+        {
+            platformView.PaintSurface -= new EventHandler<SKPaintSurfaceEventArgs>(OnPaintSurface);
+            var controller = VirtualView as ISKCanvasViewController;
+            controller.GetCanvasSize -= OnGetCanvasSize;
+            controller.SurfaceInvalidated -= OnSurfaceInvalidated;
+            platformView.Dispose();
+            base.DisconnectHandler(platformView);
+        }
+
+        private static void OnParentChanged(TouchCanvasViewHandlerBase handler, SvgCanvasEditorView view)
+        {
+            handler.PlatformView.SetNeedsDisplay();
+            UpdateBinding(handler, view);
+        }
+
+        private static void OnPropertyChanged(TouchCanvasViewHandlerBase handler, SvgCanvasEditorView view, object arg)
+        {
+            if (arg is not PropertyChangedEventArgs e)
+                return;
+
+            if (e.PropertyName == nameof(SvgCanvasEditorView.IgnorePixelScaling))
+            {
+                handler.PlatformView.IgnorePixelScaling = view.IgnorePixelScaling;
+            }
+
+            UpdateBinding(handler, view);
+        }
+
+        private void OnPaintSurface(object sender, iOS.SKPaintSurfaceEventArgs e)
+        {
+            var controller = this.VirtualView as ISKCanvasViewController;
+
+            // the control is being repainted, let the user know
+            controller?.OnPaintSurface(new Maui.SKPaintSurfaceEventArgs(e.Surface, e.Info));
+        }
+
+        private static void OnInvalidateSurface(TouchCanvasViewHandlerBase handler, SvgCanvasEditorView view, object arg)
+        {
+            handler.PlatformView.SetNeedsDisplay();
+        }
+
+        private static void OnBindingContextChanged(TouchCanvasViewHandlerBase handler, SvgCanvasEditorView view)
+        {
+            UpdateBinding(handler, view);
+        }
+
+        private static void MapIgnorePixelScaling(TouchCanvasViewHandlerBase handler, SvgCanvasEditorView view)
+        {
+            handler.PlatformView.IgnorePixelScaling = view.IgnorePixelScaling;
+        }
+
+        private static void UpdateBinding(TouchCanvasViewHandlerBase handler, SvgCanvasEditorView view)
+        {
+            handler.PlatformView.DrawingCanvas = view.BindingContext as SvgDrawingCanvas;
+        }
+
+
+        protected override TouchSvgCanvasEditorView CreatePlatformView()
+        {
+            var view = Activator.CreateInstance<TouchSvgCanvasEditorView>();
             return view;
+        }
+
+        private void OnSurfaceInvalidated(object sender, EventArgs e)
+        {
+            PlatformView.SetNeedsDisplay();
+        }
+
+        private void OnGetCanvasSize(object sender, GetCanvasSizeEventArgs e)
+        {
+            e.CanvasSize = PlatformView.CanvasSize;
         }
     }
 }

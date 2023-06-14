@@ -6,7 +6,7 @@
         {
             InitializeComponent();
             
-            MainPage = new NavigationPage(new EditorPage());
+            MainPage = new NavigationPage(new MainPage());
         }
 
         protected override void OnStart()

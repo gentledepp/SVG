@@ -41,8 +41,9 @@ namespace Svg.Editor.Views.Droid
 
         public override bool OnTouchEvent(MotionEvent ev)
         {
+            
             // this is intentionally not awaited
-            //_detector.OnTouch(ev);
+            _detector.OnTouch(ev);
             base.OnTouchEvent(ev);
             
             return true;
@@ -62,7 +63,7 @@ namespace Svg.Editor.Views.Droid
             RegisterCallbacks();
         }
 
-        private void RegisterCallbacks()
+        public void RegisterCallbacks()
         {
             if (_drawingCanvas != null)
             {

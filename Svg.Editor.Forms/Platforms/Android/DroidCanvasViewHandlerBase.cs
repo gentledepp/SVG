@@ -1,126 +1,122 @@
-using Microsoft.Maui.Controls.Platform;
+using System.ComponentModel;
 using Microsoft.Maui.Handlers;
-using SkiaSharp.Views.Android;
-using Svg.Editor;
 using Svg.Editor.Forms;
 using Svg.Editor.Views.Droid;
 using SKPaintSurfaceEventArgs = SkiaSharp.Views.Maui.SKPaintSurfaceEventArgs;
 
 namespace SkiaSharp.Views.Forms
 {
-    public class DroidCanvasViewHandlerBase : ViewHandler<SvgCanvasEditorView, SKCanvasView>
+    public class DroidCanvasViewHandlerBase : ViewHandler<SvgCanvasEditorView, AndroidSvgCanvasEditorView>
     {
 
-        public static PropertyMapper<SvgCanvasEditorView, DroidCanvasViewHandlerBase> Mapper =
+        public static PropertyMapper<SvgCanvasEditorView, DroidCanvasViewHandlerBase> PropertyMapper =
             new PropertyMapper<SvgCanvasEditorView, DroidCanvasViewHandlerBase>(ViewHandler.ViewMapper)
             {
                 [nameof(SvgCanvasEditorView.IgnorePixelScaling)] = MapIgnorePixelScaling,
-                //[nameof(SvgCanvasEditorView.ParentChanged)] = OnPropertyChanged,
-                //[nameof(SvgCanvasEditorView.InvalidateSurface)] = OnInvalidateSurface
+                [nameof(SvgCanvasEditorView.BindingContextChanged)] = OnBindingContextChanged,
+                [nameof(SvgCanvasEditorView.ParentChanged)] = OnParentChanged
+
             };
 
-        private static void OnPropertyChanged(SKCanvasView handler, SvgCanvasEditorView view)
+
+        public static CommandMapper<SvgCanvasEditorView, DroidCanvasViewHandlerBase> CommandMapper =
+            new CommandMapper<SvgCanvasEditorView, DroidCanvasViewHandlerBase>()
+            {
+                [nameof(SvgCanvasEditorView.InvalidateSurface)] = OnInvalidateSurface,
+                [nameof(SvgCanvasEditorView.PropertyChanged)] = OnPropertyChanged,
+
+            };
+
+
+        public DroidCanvasViewHandlerBase() : base(PropertyMapper, CommandMapper)
         {
-            //UpdateBinding(handler, view);
         }
 
-        private static void OnInvalidateSurface(SKCanvasView handler, SvgCanvasEditorView view)
+        protected override void ConnectHandler(AndroidSvgCanvasEditorView platformView)
         {
-            //handler.PlatformView.Invalidate();
-        }
-
-
-        protected override void ConnectHandler(SKCanvasView platformView)
-        {
-            platformView.PaintSurface += new EventHandler<Android.SKPaintSurfaceEventArgs>(this.OnPaintSurface);
-
+            platformView.PaintSurface += new EventHandler<Android.SKPaintSurfaceEventArgs>(OnPaintSurface);
+            var controller = VirtualView as ISKCanvasViewController;
+            controller.GetCanvasSize += OnGetCanvasSize;
+            controller.SurfaceInvalidated += OnSurfaceInvalidated;
             base.ConnectHandler(platformView);
         }
 
-        protected override void DisconnectHandler(SKCanvasView platformView)
+        protected override void DisconnectHandler(AndroidSvgCanvasEditorView platformView)
         {
-            platformView.PaintSurface -= new EventHandler<Android.SKPaintSurfaceEventArgs>(this.OnPaintSurface);
-
+            platformView.PaintSurface -= new EventHandler<Android.SKPaintSurfaceEventArgs>(OnPaintSurface);
+            var controller = VirtualView as ISKCanvasViewController;
+            controller.GetCanvasSize -= OnGetCanvasSize;
+            controller.SurfaceInvalidated -= OnSurfaceInvalidated;
+            platformView.Dispose();
             base.DisconnectHandler(platformView);
         }
 
-        private void OnPaintSurface(object sender, Android.SKPaintSurfaceEventArgs e)
-        {
-            var controller = this.VirtualView as ISKCanvasViewController;
-
-            // the control is being repainted, let the user know
-            controller?.OnPaintSurface(new SKPaintSurfaceEventArgs(e.Surface, e.Info));
-        }
-
-        private static void UpdateBinding(DroidCanvasViewHandlerBase handler, SvgCanvasEditorView view)
+        private static void OnParentChanged(DroidCanvasViewHandlerBase handler, SvgCanvasEditorView view)
         {
             handler.PlatformView.Invalidate();
-            //handler.PlatformView.DrawingCanvas?.Dispose();
-            //handler.PlatformView.DrawingCanvas = view.BindingContext as SvgDrawingCanvas;
+            UpdateBinding(handler, view);
         }
 
-        //private void UpdateBinding(object sender, EventArgs e)
-        //{
-        //    PlatformView.DrawingCanvas?.Dispose();
-        //    PlatformView.DrawingCanvas = VirtualView.BindingContext as SvgDrawingCanvas;
-        //}
+        private static void OnPropertyChanged(DroidCanvasViewHandlerBase handler, SvgCanvasEditorView view, object arg)
+        {
+            if (arg is not PropertyChangedEventArgs e)
+                return;
 
+            if (e.PropertyName == nameof(SvgCanvasEditorView.IgnorePixelScaling))
+            {
+                handler.PlatformView.IgnorePixelScaling = view.IgnorePixelScaling;
+            }
 
-        private static void MapIgnorePixelScaling(DroidCanvasViewHandlerBase handler, SKCanvasViewX view)
+            UpdateBinding(handler, view);
+        }
+
+        protected override AndroidSvgCanvasEditorView CreatePlatformView()
+        {
+            var view = (AndroidSvgCanvasEditorView)Activator.CreateInstance(typeof(AndroidSvgCanvasEditorView), new object[] { Context, null });
+            view.IsFormsMode = true;
+            return view;
+        }        
+        
+        
+
+        private static void OnInvalidateSurface(DroidCanvasViewHandlerBase handler, SvgCanvasEditorView view, object args)
+        {
+            handler.PlatformView.Invalidate();
+        }
+
+        private static void OnBindingContextChanged(DroidCanvasViewHandlerBase handler, SvgCanvasEditorView view)
+        {
+            UpdateBinding(handler, view);
+        }
+
+        private static void MapIgnorePixelScaling(DroidCanvasViewHandlerBase handler, SvgCanvasEditorView view)
         {
             handler.PlatformView.IgnorePixelScaling = view.IgnorePixelScaling;
         }
 
-        protected static void OnElementChanged(ElementChangedEventArgs<SvgCanvasEditorView> e)
+
+        private void OnPaintSurface(object sender, Android.SKPaintSurfaceEventArgs e)
         {
-            //if (e.OldElement != null)
-            //{
-            //    var oldController = (ISKCanvasViewController)e.OldElement;
+            var controller = VirtualView as ISKCanvasViewController;
 
-            //    //unsubscribe from events
-            //    oldController.SurfaceInvalidated -= OnSurfaceInvalidated;
-            //    oldController.GetCanvasSize -= OnGetCanvasSize;
-            //}
-
-            //PlatformView.PaintSurface -= OnPaintSurface;
-
-
-            //if (e.NewElement != null)
-            //{
-            //    var newController = (ISKCanvasViewController)e.NewElement;
-
-            //    //create the native view
-            //    var view = CreateNativeView();
-            //    view.IgnorePixelScaling = e.NewElement.IgnorePixelScaling;
-            //    view.PaintSurface += OnPaintSurface;
-
-            //    //subscribe to events from the user
-            //    newController.SurfaceInvalidated += OnSurfaceInvalidated;
-            //    newController.GetCanvasSize += OnGetCanvasSize;
-
-            //    //paint for the first time
-
-            //    PlatformView.Invalidate();
-
-            //    // setup new element
-            //    if (e.NewElement != null)
-            //    {
-            //        var newElement = e.NewElement;
-            //        newElement.BindingContextChanged += UpdateBindings;
-            //        UpdateBindings(newElement);
-            //    }
-            //}
-
+            // the control is being repainted, let the user know
+            controller.OnPaintSurface(new SKPaintSurfaceEventArgs(e.Surface, e.Info));
         }
 
-        public DroidCanvasViewHandlerBase() : base(Mapper)
+
+        private static void UpdateBinding(DroidCanvasViewHandlerBase handler, SvgCanvasEditorView view)
         {
+            handler.PlatformView.DrawingCanvas = view.DrawingCanvas;
         }
 
-        protected override SKCanvasView CreatePlatformView()
+        private void OnSurfaceInvalidated(object sender, EventArgs e)
         {
-            var view = new SKCanvasView(Context, null);
-            return view;
+            PlatformView.Invalidate();
+        }
+
+        private void OnGetCanvasSize(object sender, GetCanvasSizeEventArgs e)
+        {
+            e.CanvasSize = PlatformView.CanvasSize;
         }
     }
 }
