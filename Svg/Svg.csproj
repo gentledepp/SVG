@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net462;net6.0;net6.0-android;net6.0-ios;net6.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462;net6.0;net6.0-android;net6.0-ios;net6.0-windows10.0.19041.0;net6.0-maccatalyst</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <Version>3.0.0.0-maui1</Version>
     <Authors>gentledpp,bruzkovsky</Authors>
@@ -80,17 +80,17 @@
     <None Include="Platforms\**\*.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('uap')) ">
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('net6.0-windows10')) ">
     <Compile Include="Platforms\UniversalWindows\**\*.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('net6.0-android')) ">
     <Compile Include="Platforms\Android\**\*.cs" />
     <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.0" />
 
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('net6.0-ios')) ">
     <Compile Include="Platforms\iOS\**\*.cs" />
   </ItemGroup>
 
