@@ -1,23 +1,25 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.18362;net462</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462;net6.0;net6.0-android;net6.0-ios;net6.0-maccatalyst</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version>2.4.4.6</Version>
+    <Version>3.0.0.0-maui1</Version>
     <Authors>gentledpp,bruzkovsky</Authors>
     <Company>Opti-Q GmbH</Company>
     <PackageReleaseNotes>
-	    #2.4.4.6
-	    - fix: TextTool, when text edit, textspan renders not with bound from last textspan
-	    - fix: TextTool, removing lines until one remains, updates 
-	    #2.4.4.5
+		#3.0.0.0-maui1
+		-support for .net maui
+		#2.4.4.6
+		- fix: TextTool, when text edit, textspan renders not with bound from last textspan
+		- fix: TextTool, removing lines until one remains, updates
+		#2.4.4.5
 		- fix: arrow tips too large
-	    #2.4.4.4.4
+		#2.4.4.4.4
 		- fix: Arrow tips of lines are not filled (transparent)
-	    #2.4.4.3
-	    - fix: can not parse 4-digit color values 
-	    
-	    #2.4.4.2
+		#2.4.4.3
+		- fix: can not parse 4-digit color values
+
+		#2.4.4.2
 		- fix: SvgDocument.DeepCopy&lt;T&gt; also copies stylesheets
 	    
 	    #2.4.4.1
