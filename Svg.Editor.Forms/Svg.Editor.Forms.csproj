@@ -39,7 +39,7 @@
 	<ItemGroup Condition=" $(TargetFramework.StartsWith('net6.0-android')) ">
 		<Compile Include="Platforms\Android\**\*.cs" />
 
-		<PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
+		<PackageReference Include="Plugin.Maui.CurrentActivity" Version="1.0.0.61" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" $(TargetFramework.StartsWith('net6.0-ios')) ">
@@ -55,7 +55,7 @@
 	<ItemGroup>
 		<PackageReference Include="Svg" Version="3.0.0-maui1" />
 		<PackageReference Include="System.Reactive" Version="4.0.0" />
-		<PackageReference Include="SkiaSharp.Views.Maui.Controls.Compatibility" Version="2.88.0" />
+		<PackageReference Include="SkiaSharp.Views.Maui.Controls.Compatibility" Version="2.88.3" />
 	</ItemGroup>
 
 	<ItemGroup>
