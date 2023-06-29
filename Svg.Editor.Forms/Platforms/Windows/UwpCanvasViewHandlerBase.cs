@@ -2,6 +2,7 @@
 using Microsoft.Maui.Handlers;
 using SkiaSharp.Views.UWP;
 using SkiaSharp.Views.Windows;
+using Svg.Editor;
 using Svg.Editor.Forms;
 using Svg.Editor.Views.UWP;
 
@@ -15,8 +16,8 @@ namespace SkiaSharp.Views.Forms
                     new PropertyMapper<SvgCanvasEditorView, UwpCanvasViewHandlerBase>(ViewHandler.ViewMapper)
                     {
                         [nameof(SvgCanvasEditorView.IgnorePixelScaling)] = MapIgnorePixelScaling,
-
                     };
+
 
         public static CommandMapper<SvgCanvasEditorView, UwpCanvasViewHandlerBase> CommandMapper =
             new CommandMapper<SvgCanvasEditorView, UwpCanvasViewHandlerBase>()
@@ -27,27 +28,28 @@ namespace SkiaSharp.Views.Forms
 
         public UwpCanvasViewHandlerBase() : base(PropertyMapper, CommandMapper)
         {
+
         }
 
         protected override void ConnectHandler(SKXamlCanvasX platformView)
         {
-            platformView.PaintSurface += new EventHandler<SKPaintSurfaceEventArgs>(OnPaintSurface);
+            platformView.PaintSurface += OnPaintSurface;
             var controller = VirtualView as ISKCanvasViewController;
             controller.GetCanvasSize += OnGetCanvasSize;
             controller.SurfaceInvalidated += OnSurfaceInvalidated;
 
-            platformView.Invalidate();
 
             _gestureRecognizer = new UwpGestureRecognizer(platformView);
             _gestureRecognizer.UserInputEvents.Subscribe(async uie => await VirtualView.DrawingCanvas.OnEvent(uie));
             VirtualView.DrawingCanvas.GestureRecognizer = _gestureRecognizer;
 
+            platformView.Invalidate();
             base.ConnectHandler(platformView);
         }
 
         protected override void DisconnectHandler(SKXamlCanvasX platformView)
         {
-            platformView.PaintSurface -= new EventHandler<SKPaintSurfaceEventArgs>(OnPaintSurface);
+            platformView.PaintSurface -= OnPaintSurface;
             var controller = VirtualView as ISKCanvasViewController;
             controller.GetCanvasSize -= OnGetCanvasSize;
             controller.SurfaceInvalidated -= OnSurfaceInvalidated;
@@ -65,7 +67,7 @@ namespace SkiaSharp.Views.Forms
             }
         }
 
-        private void OnPaintSurface(object sender, Windows.SKPaintSurfaceEventArgs e)
+        private void OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
         {
             var controller = this.VirtualView as ISKCanvasViewController;
 
@@ -83,7 +85,6 @@ namespace SkiaSharp.Views.Forms
         {
             handler.PlatformView.IgnorePixelScaling = view.IgnorePixelScaling;
         }
-
 
 
         protected override SKXamlCanvasX CreatePlatformView()

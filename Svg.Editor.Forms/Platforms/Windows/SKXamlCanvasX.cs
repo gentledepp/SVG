@@ -2,8 +2,7 @@
 
 namespace SkiaSharp.Views.UWP
 {
-    public class SKXamlCanvasX : SKXamlCanvas, IPaintSurface
+    public class SKXamlCanvasX : SKXamlCanvas
     {
-        public event EventHandler<SKPaintSurfaceEventArgs> PaintSurface;
     }
 }
