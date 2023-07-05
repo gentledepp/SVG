@@ -1,9 +1,8 @@
 ﻿using System;
+using System.Globalization;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using Windows.Foundation;
-using Windows.Graphics.Display;
-using Windows.UI.Input;
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
@@ -11,8 +10,7 @@ using SkiaSharp.Views.Windows;
 using Svg.Editor.Events;
 using Svg.Editor.Gestures;
 using Svg.Editor.Interfaces;
-using Svg.Interfaces;
-using GestureRecognizer = Windows.UI.Input.GestureRecognizer;
+using GestureRecognizer = Microsoft.UI.Input.GestureRecognizer;
 using IGestureRecognizer = Svg.Editor.Interfaces.IGestureRecognizer;
 using Point = Windows.Foundation.Point;
 using PointF = Svg.Interfaces.PointF;
@@ -64,7 +62,7 @@ namespace Svg.Editor.Views.UWP
         private Point _currentPoint;
 
         // DIPs = pixels / (DPI/96.0), see: https://msdn.microsoft.com/en-us/library/windows/desktop/ff684173(v=vs.85).aspx
-        private static float PixelDensityFactor => DisplayInformation.GetForCurrentView().LogicalDpi / 96;
+        private static float PixelDensityFactor => (float)DeviceDisplay.Current.MainDisplayInfo.Density;
 
         public IObservable<UserGesture> RecognizedGestures => _gesturesSubject.AsObservable();
         public IObservable<UserInputEvent> UserInputEvents => _inputEventSubject.AsObservable();
@@ -81,6 +79,7 @@ namespace Svg.Editor.Views.UWP
             // Gesture Recognizer will listen to.  This will set it to a limited
             // subset of these events.
             _recognizer.GestureSettings = GenerateDefaultSettings();
+            _element.ManipulationMode = ManipulationModes.All;
 
             // Set up pointer event handlers. These receive input events that are used by the gesture recognizer.
             _element.PointerPressed += OnPointerPressed;
@@ -92,11 +91,41 @@ namespace Svg.Editor.Views.UWP
             _element.RightTapped += ElementRightTapped;
             _element.DoubleTapped += ElementOnDoubleTapped;
             _element.PointerWheelChanged += ElementOnPointerWheelChanged;
+            _element.ManipulationStarted += Da;
+            _element.ManipulationDelta += Db;
+            _element.ManipulationCompleted += Dc;
 
             // Set up event handlers to respond to gesture recognizer output
             _recognizer.ManipulationStarted += OnManipulationStarted;
             _recognizer.ManipulationUpdated += OnManipulationUpdated;
             _recognizer.ManipulationCompleted += OnManipulationCompleted;
+        }
+
+        private void Dc(object sender, ManipulationCompletedRoutedEventArgs e)
+        {
+            _gesturesSubject.OnNext(DragGesture.Exit);
+        }
+
+        private void Db(object sender, ManipulationDeltaRoutedEventArgs e)
+        {
+            var pixelDensityFactor = PixelDensityFactor;
+            var position = PointF.Create((float)e.Position.X, (float)e.Position.Y) * pixelDensityFactor;
+            var delta = SizeF.Create((float)e.Cumulative.Translation.X * pixelDensityFactor, (float)e.Cumulative.Translation.Y * pixelDensityFactor);
+            var start = PointF.Create((float)_startPoint.X * pixelDensityFactor, (float)_startPoint.Y * pixelDensityFactor);
+            var distance = Math.Sqrt(Math.Pow(delta.Width, 2) + Math.Pow(delta.Height, 2));
+            _gesturesSubject.OnNext(new DragGesture(position, start, delta, distance));
+        }
+
+        private void Da(object sender, ManipulationStartedRoutedEventArgs e)
+        {
+            var dpi = 1.0;
+            if (_element is SKXamlCanvas c)
+            {
+                dpi = c.Dpi;
+            }
+
+            _gesturesSubject.OnNext(
+                DragGesture.Enter(PointF.Create((float)(e.Position.X * dpi), (float)(e.Position.Y * dpi))));
         }
 
         private void ElementRightTapped(object sender, RightTappedRoutedEventArgs args)
@@ -162,8 +191,8 @@ namespace Svg.Editor.Views.UWP
         private GestureSettings GenerateDefaultSettings()
         {
             return GestureSettings.ManipulationTranslateX |
-                GestureSettings.ManipulationTranslateY |
-                GestureSettings.ManipulationMultipleFingerPanning;
+                   GestureSettings.ManipulationTranslateY |
+                   GestureSettings.ManipulationMultipleFingerPanning;
         }
 
         // Route the pointer pressed event to the gesture recognizer.
@@ -205,8 +234,8 @@ namespace Svg.Editor.Views.UWP
                 _inputEventSubject.OnNext(new MoveEvent(startPointF, previousPointF, currentPointF, delta, 2));
 
             // Feed the set of points into the gesture recognizer as a move event
-            //if (pointerPoint.Properties.IsLeftButtonPressed)
-            //    _recognizer.ProcessMoveEvents(args.GetIntermediatePoints(_element));
+            if (pointerPoint.Properties.IsLeftButtonPressed)
+                _recognizer.ProcessMoveEvents(args.GetIntermediatePoints(_element));
         }
 
         // Route the pointer released event to the gesture recognizer.
@@ -214,7 +243,7 @@ namespace Svg.Editor.Views.UWP
         private void OnPointerReleased(object sender, PointerRoutedEventArgs args)
         {
             // Feed the current point into the gesture recognizer as an up event
-            //_recognizer.ProcessUpEvent(args.GetCurrentPoint(_element));
+            _recognizer.ProcessUpEvent(args.GetCurrentPoint(_element));
 
             // Release the pointer
             _element.ReleasePointerCapture(args.Pointer);
@@ -232,7 +261,7 @@ namespace Svg.Editor.Views.UWP
 
         // When a manipulation begins, change the color of the object to reflect
         // that a manipulation is in progress
-        private void OnManipulationStarted(object sender, ManipulationStartedEventArgs e)
+        private void OnManipulationStarted(object sender, Microsoft.UI.Input.ManipulationStartedEventArgs e)
         {
             var dpi = 1.0;
             if (_element is SKXamlCanvas c)
@@ -245,7 +274,7 @@ namespace Svg.Editor.Views.UWP
         }
 
         // Process the change resulting from a manipulation
-        private void OnManipulationUpdated(object sender, ManipulationUpdatedEventArgs e)
+        private void OnManipulationUpdated(object sender, Microsoft.UI.Input.ManipulationUpdatedEventArgs e)
         {
             var pixelDensityFactor = PixelDensityFactor;
             var position = PointF.Create((float) e.Position.X, (float) e.Position.Y) * pixelDensityFactor;
@@ -269,54 +298,9 @@ namespace Svg.Editor.Views.UWP
         }
 
         // When a manipulation has finished, reset the color of the object
-        private void OnManipulationCompleted(object sender, ManipulationCompletedEventArgs e)
+        private void OnManipulationCompleted(object sender, Microsoft.UI.Input.ManipulationCompletedEventArgs e)
         {
             _gesturesSubject.OnNext(DragGesture.Exit);
-        }
-
-        // Modify the GestureSettings property to only allow movement on the X axis
-        public void LockToXAxis()
-        {
-            _recognizer.CompleteGesture();
-            _recognizer.GestureSettings |= GestureSettings.ManipulationTranslateY | GestureSettings.ManipulationTranslateX;
-            _recognizer.GestureSettings ^= GestureSettings.ManipulationTranslateY;
-        }
-
-        // Modify the GestureSettings property to only allow movement on the Y axis
-        public void LockToYAxis()
-        {
-            _recognizer.CompleteGesture();
-            _recognizer.GestureSettings |= GestureSettings.ManipulationTranslateY | GestureSettings.ManipulationTranslateX;
-            _recognizer.GestureSettings ^= GestureSettings.ManipulationTranslateX;
-        }
-
-        // Modify the GestureSettings property to allow movement on both the the X and Y axes
-        public void MoveOnXAndYAxes()
-        {
-            _recognizer.CompleteGesture();
-            _recognizer.GestureSettings |= GestureSettings.ManipulationTranslateX | GestureSettings.ManipulationTranslateY;
-        }
-
-        // Modify the GestureSettings property to enable or disable inertia based on the passed-in value
-        public void UseInertia(bool inertia)
-        {
-            if (!inertia)
-            {
-                _recognizer.CompleteGesture();
-                _recognizer.GestureSettings ^= GestureSettings.ManipulationTranslateInertia | GestureSettings.ManipulationRotateInertia;
-            }
-            else
-            {
-                _recognizer.GestureSettings |= GestureSettings.ManipulationTranslateInertia | GestureSettings.ManipulationRotateInertia;
-            }
-        }
-
-        public void Reset()
-        {
-            _element.RenderTransform = null;
-            _recognizer.CompleteGesture();
-            InitializeTransforms();
-            _recognizer.GestureSettings = GenerateDefaultSettings();
         }
 
         public void Dispose()
@@ -330,11 +314,59 @@ namespace Svg.Editor.Views.UWP
             _element.Tapped -= ElementOnTapped;
             _element.DoubleTapped -= ElementOnDoubleTapped;
             _element.PointerWheelChanged -= ElementOnPointerWheelChanged;
+            _element.ManipulationStarted -= Da;
+            _element.ManipulationDelta -= Db;
+            _element.ManipulationCompleted -= Dc;
 
             // Unregister event handlers
             _recognizer.ManipulationStarted -= OnManipulationStarted;
             _recognizer.ManipulationUpdated -= OnManipulationUpdated;
             _recognizer.ManipulationCompleted -= OnManipulationCompleted;
         }
+
+        // Modify the GestureSettings property to only allow movement on the X axis
+        //public void LockToXAxis()
+        //{
+        //    _recognizer.CompleteGesture();
+        //    _recognizer.GestureSettings |= GestureSettings.ManipulationTranslateY | GestureSettings.ManipulationTranslateX;
+        //    _recognizer.GestureSettings ^= GestureSettings.ManipulationTranslateY;
+        //}
+
+        //// Modify the GestureSettings property to only allow movement on the Y axis
+        //public void LockToYAxis()
+        //{
+        //    _recognizer.CompleteGesture();
+        //    _recognizer.GestureSettings |= GestureSettings.ManipulationTranslateY | GestureSettings.ManipulationTranslateX;
+        //    _recognizer.GestureSettings ^= GestureSettings.ManipulationTranslateX;
+        //}
+
+        //// Modify the GestureSettings property to allow movement on both the the X and Y axes
+        //public void MoveOnXAndYAxes()
+        //{
+        //    _recognizer.CompleteGesture();
+        //    _recognizer.GestureSettings |= GestureSettings.ManipulationTranslateX | GestureSettings.ManipulationTranslateY;
+        //}
+
+        //// Modify the GestureSettings property to enable or disable inertia based on the passed-in value
+        //public void UseInertia(bool inertia)
+        //{
+        //    if (!inertia)
+        //    {
+        //        _recognizer.CompleteGesture();
+        //        _recognizer.GestureSettings ^= GestureSettings.ManipulationTranslateInertia | GestureSettings.ManipulationRotateInertia;
+        //    }
+        //    else
+        //    {
+        //        _recognizer.GestureSettings |= GestureSettings.ManipulationTranslateInertia | GestureSettings.ManipulationRotateInertia;
+        //    }
+        //}
+
+        //public void Reset()
+        //{
+        //    _element.RenderTransform = null;
+        //    _recognizer.CompleteGesture();
+        //    InitializeTransforms();
+        //    _recognizer.GestureSettings = GenerateDefaultSettings();
+        //}
     }
 }

@@ -11,6 +11,8 @@ namespace SkiaSharp.Views.Forms
     public class UwpCanvasViewHandlerBase : ViewHandler<SvgCanvasEditorView, SKXamlCanvasX>
     {
         private UwpGestureRecognizer _gestureRecognizer;
+        private IDisposable _onEventToken;
+        private IDisposable _onGestureToken;
 
         public static PropertyMapper<SvgCanvasEditorView, UwpCanvasViewHandlerBase> PropertyMapper =
                     new PropertyMapper<SvgCanvasEditorView, UwpCanvasViewHandlerBase>(ViewHandler.ViewMapper)
@@ -33,15 +35,15 @@ namespace SkiaSharp.Views.Forms
 
         protected override void ConnectHandler(SKXamlCanvasX platformView)
         {
+            _gestureRecognizer = new UwpGestureRecognizer(platformView);
+            _onEventToken = _gestureRecognizer.UserInputEvents.Subscribe(async uie => await VirtualView.DrawingCanvas.OnEvent(uie));
+            _onGestureToken = _gestureRecognizer.RecognizedGestures.Subscribe(async g => await VirtualView.DrawingCanvas.OnGesture(g));
+            VirtualView.DrawingCanvas.GestureRecognizer = _gestureRecognizer;
+
             platformView.PaintSurface += OnPaintSurface;
             var controller = VirtualView as ISKCanvasViewController;
             controller.GetCanvasSize += OnGetCanvasSize;
             controller.SurfaceInvalidated += OnSurfaceInvalidated;
-
-
-            _gestureRecognizer = new UwpGestureRecognizer(platformView);
-            _gestureRecognizer.UserInputEvents.Subscribe(async uie => await VirtualView.DrawingCanvas.OnEvent(uie));
-            VirtualView.DrawingCanvas.GestureRecognizer = _gestureRecognizer;
 
             platformView.Invalidate();
             base.ConnectHandler(platformView);
@@ -53,6 +55,9 @@ namespace SkiaSharp.Views.Forms
             var controller = VirtualView as ISKCanvasViewController;
             controller.GetCanvasSize -= OnGetCanvasSize;
             controller.SurfaceInvalidated -= OnSurfaceInvalidated;
+            _onEventToken.Dispose();
+            _onGestureToken.Dispose();
+            _gestureRecognizer.Dispose();
             base.DisconnectHandler(platformView);
         }
 
