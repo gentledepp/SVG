@@ -12,6 +12,7 @@ using Svg.Editor.Events;
 using Svg.Editor.Gestures;
 using Svg.Editor.Interfaces;
 using Svg.Editor.View.Platforms.Windows;
+using GestureSettings = Microsoft.UI.Input.GestureSettings;
 using IGestureRecognizer = Svg.Editor.Interfaces.IGestureRecognizer;
 using Point = Windows.Foundation.Point;
 using PointF = Svg.Interfaces.PointF;
@@ -277,27 +278,18 @@ namespace Svg.Editor.Views.UWP
         // Process the change resulting from a manipulation
         private void OnManipulationUpdated(object sender, GestureRecognizerEventArgs e)
         {
+            var previousPointF = PointF.Create((float)_startPoint.X, (float)_startPoint.Y);
+            var currentPointF = PointF.Create((float)e.Point.X, (float)e.Point.Y);
+            var deltaV = currentPointF - previousPointF;
+
             var pixelDensityFactor = PixelDensityFactor;
             var position = PointF.Create((float)e.Point.X, (float)e.Point.Y) * pixelDensityFactor;
-            var delta = SizeF.Create((float)e.Point.X * pixelDensityFactor,
-                (float)e.Point.Y * pixelDensityFactor);
+            var delta = SizeF.Create((float)deltaV.X * pixelDensityFactor,
+                deltaV.Y * pixelDensityFactor);
             var start = PointF.Create((float)_startPoint.X * pixelDensityFactor,
                 (float)_startPoint.Y * pixelDensityFactor);
             var distance = Math.Sqrt(Math.Pow(delta.Width, 2) + Math.Pow(delta.Height, 2));
             _gesturesSubject.OnNext(new DragGesture(position, start, delta, distance));
-
-            //_previousTransform.Matrix = _cumulativeTransform.Value;
-
-            //// Get the center point of the manipulation for rotation
-            //Point center = new Point(e.Point.Position.X, e.Point.Position.Y);
-            //_deltaTransform.CenterX = center.X;
-            //_deltaTransform.CenterY = center.Y;
-
-            //// Look at the Delta property of the ManipulationDeltaRoutedEventArgs to retrieve
-            //// the rotation, X, and Y changes
-            //_deltaTransform.Rotation = e.Delta.Rotation;
-            //_deltaTransform.TranslateX = e.Delta.Translation.X;
-            //_deltaTransform.TranslateY = e.Delta.Translation.Y;
         }
 
         // When a manipulation has finished, reset the color of the object

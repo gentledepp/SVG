@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Input;
+using System.Runtime.CompilerServices;
 
 namespace Svg.Editor.View.Platforms.Windows;
 
@@ -17,7 +18,7 @@ public class CustomGestureRecognizer
     {
             OnManipulationCompleted?.Invoke(this, new GestureRecognizerEventArgs()
             {
-                Point = point.Position
+                Point = point.Position,
             });
     }
     public void ProcessMove(PointerPoint point)

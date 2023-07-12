@@ -1,13 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net462;net6.0;net6.0-android;net6.0-ios</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462;net7.0;net7.0-android;net7.0-ios</TargetFrameworks>
 	  <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net6.0-windows10.0.19041.0</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version>3.0.0.0-maui1</Version>
+    <Version>3.0.0.1-maui1</Version>
     <Authors>gentledpp,bruzkovsky</Authors>
     <Company>Opti-Q GmbH</Company>
     <PackageReleaseNotes>
+		#3.0.0.1-maui1
+		-switch to net7
 		#3.0.0.0-maui1
 		-support for .net maui
 		#2.4.4.6
@@ -81,17 +83,17 @@
     <None Include="Platforms\**\*.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('net6.0-windows10')) ">
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('net7.0-windows10')) ">
     <Compile Include="Platforms\UniversalWindows\**\*.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('net6.0-android')) ">
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('net7.0-android')) ">
     <Compile Include="Platforms\Android\**\*.cs" />
     <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.0" />
 
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('net6.0-ios')) ">
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('net7.0-ios')) ">
     <Compile Include="Platforms\iOS\**\*.cs" />
   </ItemGroup>
 

@@ -81,7 +81,8 @@ namespace Svg.Editor.Tools
             }
             else
             {
-                Points.Add(point);
+                if(!Points.Contains(point))
+                    Points.Add(point);
             }
 
             Canvas.FireInvalidateCanvas();

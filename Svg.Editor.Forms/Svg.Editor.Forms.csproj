@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net6.0-android;net6.0-ios</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net6.0-windows10.0.19041.0</TargetFrameworks>
+		<TargetFrameworks>net7.0;net7.0-android;net7.0-ios</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net6.0-tizen</TargetFrameworks> -->
 		<UseMaui>true</UseMaui>
@@ -33,16 +33,16 @@
 		<Compile Include="Platforms\Windows\**\*.cs" />
 	</ItemGroup>
 
-	<PropertyGroup Condition=" $(TargetFramework.StartsWith('net6.0-android')) ">
+	<PropertyGroup Condition=" $(TargetFramework.StartsWith('net7.0-android')) ">
 		<AndroidUseIntermediateDesignerFile>False</AndroidUseIntermediateDesignerFile>
 	</PropertyGroup>
-	<ItemGroup Condition=" $(TargetFramework.StartsWith('net6.0-android')) ">
+	<ItemGroup Condition=" $(TargetFramework.StartsWith('net7.0-android')) ">
 		<Compile Include="Platforms\Android\**\*.cs" />
 
 		<PackageReference Include="Plugin.Maui.CurrentActivity" Version="1.0.0.61" />
 	</ItemGroup>
 
-	<ItemGroup Condition=" $(TargetFramework.StartsWith('net6.0-ios')) ">
+	<ItemGroup Condition=" $(TargetFramework.StartsWith('net7.0-ios')) ">
 		<Compile Include="Platforms\iOS\**\*.cs" />
 
 		<!-- Fix bug with System.Reflection.Emit (see: https://github.com/xamarin/Xamarin.Forms/issues/1380) -->
@@ -53,7 +53,7 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="Svg" Version="3.0.0-maui1" />
+		<PackageReference Include="Svg" Version="3.0.0.1-maui1" />
 		<PackageReference Include="System.Reactive" Version="4.0.0" />
 		<PackageReference Include="SkiaSharp.Views.Maui.Controls.Compatibility" Version="2.88.3" />
 	</ItemGroup>
