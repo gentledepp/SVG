@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using Microsoft.Maui.Controls;
 using Microsoft.Maui.Handlers;
 using SkiaSharp.Views.iOS;
 using Svg.Editor;
@@ -36,6 +37,10 @@ namespace SkiaSharp.Views.Forms
             var controller = VirtualView as ISKCanvasViewController;
             controller.GetCanvasSize += OnGetCanvasSize;
             controller.SurfaceInvalidated += OnSurfaceInvalidated;
+            
+            platformView.DrawingCanvas = VirtualView.BindingContext as SvgDrawingCanvas;
+            platformView.SetNeedsDisplay();
+
             base.ConnectHandler(platformView);
         }
 
@@ -100,6 +105,7 @@ namespace SkiaSharp.Views.Forms
         protected override TouchSvgCanvasEditorView CreatePlatformView()
         {
             var view = Activator.CreateInstance<TouchSvgCanvasEditorView>();
+            view.IsFormsMode = true;
             return view;
         }
 

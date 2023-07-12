@@ -5,6 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	  <UseMaui>true</UseMaui>
 	  <Nullable>enable</Nullable>
+	  <Version>3.0.0.0-maui</Version>
+	  <PckageReleaseNotes>
+		  #3.0.0.0-maui
+		  migrated to maui
+	  </PckageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

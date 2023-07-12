@@ -26,6 +26,7 @@ namespace Svg.Editor.Sample.App
             builder
                 .UseMauiApp<Samples.Forms.App>()
                 .UseMauiCompatibility()
+                .UseSkiaSharp()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
