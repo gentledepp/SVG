@@ -93,7 +93,10 @@ namespace Svg.Editor.Views.Droid
 
         private void OnToolCommandsChanged(object sender, EventArgs e)
         {
-            ((Activity)Context).InvalidateOptionsMenu();
+            var a = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
+            if (a is null)
+                throw new InvalidOperationException("Activity must not be null");
+            a.InvalidateOptionsMenu();
         }
 
         protected override void Dispose(bool disposing)
