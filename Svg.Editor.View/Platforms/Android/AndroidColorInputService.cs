@@ -15,9 +15,7 @@ namespace Svg.Editor.Droid.Services
     {
         public Task<int> GetIndexFromUserInput(string title, string[] items, string[] colors, int defaultIndex = 0)
         {
-
-            var cp = SvgEngine.Resolve<IContextProvider>();
-            var context = cp.Context;
+            var context = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
 
             var builder = new AlertDialog.Builder(context);
             var tcs = new TaskCompletionSource<int>();

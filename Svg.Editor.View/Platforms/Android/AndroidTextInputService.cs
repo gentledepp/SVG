@@ -24,9 +24,8 @@ namespace Svg.Editor.Droid.Services
             IEnumerable<string> textSizeOptions = null, int textSizeSelected = 0, int maxTextLength = -1)
         {
             var tcs = new TaskCompletionSource<TextTool.TextProperties>();
-
-            var cp = SvgEngine.Resolve<IContextProvider>();
-            var context = cp.Context;
+            
+            var context = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
             var result = new TextTool.TextProperties();
 
             AlertDialog.Builder builder = new AlertDialog.Builder(context);

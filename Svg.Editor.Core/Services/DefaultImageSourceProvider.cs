@@ -28,8 +28,8 @@ namespace Svg.Editor.Services
                 var cache = SvgEngine.TryResolve<ISvgCachingService>();
                 if (cache != null)
                 {
-                    if (!options.Force && Cache.ContainsKey(resource))
-                        return Cache[resource];
+                    if (!options.Force && Cache.TryGetValue(resource, out var cachedImage))
+                        return cachedImage;
 
                     var cached = cache.GetCachedPng(resource, options);
                     Cache.AddOrUpdate(resource, cached, (o, n) => n);

@@ -57,8 +57,6 @@ namespace Svg.Editor.Views.Droid
 
         protected override void OnAttachedToWindow()
         {
-            AndroidContextProvider._context = Context;
-
             base.OnAttachedToWindow();
             RegisterCallbacks();
         }
@@ -82,8 +80,6 @@ namespace Svg.Editor.Views.Droid
                 _drawingCanvas.ToolCommandsChanged -= OnToolCommandsChanged;
             }
             base.OnDetachedFromWindow();
-
-            AndroidContextProvider._context = null;
         }
 
         private void OnCanvasInvalidated(object sender, EventArgs e)
