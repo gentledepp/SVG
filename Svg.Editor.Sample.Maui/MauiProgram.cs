@@ -3,6 +3,7 @@ using Microsoft.Maui.Controls.Compatibility.Hosting;
 using SkiaSharp.Views.Forms;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 using Svg.Editor.Forms;
+using Svg.Editor.Interfaces;
 
 namespace Svg.Editor.Sample.Maui
 {
@@ -27,6 +28,7 @@ namespace Svg.Editor.Sample.Maui
                     handlers.AddHandler(typeof(SvgCanvasEditorView), typeof(DroidCanvasViewHandlerBase));
 #elif IOS
                     handlers.AddHandler(typeof(SvgCanvasEditorView), typeof(TouchCanvasViewHandlerBase));
+                    SvgEngine.RegisterSingleton<IToolbarIconSizeProvider>(() => new Svg.Editor.Views.iOS.TouchToolbarIconSizeProvider());
 #else
                     handlers.AddHandler(typeof(SvgCanvasEditorView), typeof(UwpCanvasViewHandlerBase));
 #endif

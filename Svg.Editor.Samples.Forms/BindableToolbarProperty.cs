@@ -19,32 +19,37 @@
             if (otbi is null && ntbi is null)
                 return;
 
+            if (ntbi is null)
+            {
+                page.ToolbarItems.Clear();
+                return;
+            }
+
+            string Identify(ToolbarItem tbi) => $"{tbi.Text}_{tbi.IconImageSource}_{tbi.Order}";
 
             try
             {
                 if (otbi != null)
                 {
-                    if (otbi.Select(o => o.Text).SequenceEqual(ntbi.Select(n => n.Text)))
+                    if (otbi.Select(Identify).SequenceEqual(ntbi.Select(Identify)))
                         return;
 
-                    foreach (var toDelete in otbi.Where(o => ntbi.All(n => n.Text != o.Text)))
+                    foreach (var toDelete in otbi.Where(o => ntbi.All(n => Identify(n) != Identify(o))).ToList())
                         page.ToolbarItems.Remove(toDelete);
                     
-                    var toAdd = ntbi.Where(n => otbi.All(o => o.Text != n.Text)).ToHashSet();
+                    foreach(var toAdd in ntbi.Where(n => otbi.All(o => Identify(n) != Identify(o))))
+                        page.ToolbarItems.Add(toAdd);
 
-                    for (int i = 0; i < ntbi.Count; i++)
+                    // re-sort items
+                    var index = 0;
+                    foreach (var tbi in ntbi)
                     {
-                        if (toAdd.Contains(ntbi[i]))
-                            page.ToolbarItems.Insert(i, ntbi[i]);
-                        // item exists and must be moved
-                        else if (otbi.Count > i && otbi[i].Text != ntbi[i].Text)
-                            continue;
-                        else
-                        {
-                            var old = otbi.Single(o => o.Text == ntbi[i].Text);
-                            page.ToolbarItems.Remove(old);
-                            page.ToolbarItems.Insert(i, old);
-                        }
+                        var existing = page.ToolbarItems.Single(o => Identify(o) == Identify(tbi));
+                        // toolbaritems are sorted by "priority" - this seems to speed up the sorting process (as opposed to removing and inserting at the new index)
+                        existing.Priority = index++;
+                        
+                        existing.Order = tbi.Order;
+                        existing.IsEnabled = tbi.Command.CanExecute(null);
                     }
                 }
                 else {
@@ -52,8 +57,9 @@
                         page.ToolbarItems.Add(item);
                 }
             }
-            catch (Exception x)
+            catch (Exception)
             {
+                // here we just clear the ToolbarItems - if we have an error, we just get an empty toolbar
                 page.ToolbarItems.Clear();
             }
         }

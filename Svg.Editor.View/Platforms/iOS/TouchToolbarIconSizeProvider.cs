@@ -6,7 +6,7 @@ using SizeF = Svg.Interfaces.SizeF;
 
 namespace Svg.Editor.Views.iOS
 {
-    internal class TouchToolbarIconSizeProvider : IToolbarIconSizeProvider
+    public class TouchToolbarIconSizeProvider : IToolbarIconSizeProvider
     {
         private static readonly Lazy<SizeF> _size = new Lazy<SizeF>(() =>
         {
