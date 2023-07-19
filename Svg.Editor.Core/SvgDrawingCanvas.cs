@@ -814,11 +814,14 @@ namespace Svg.Editor
 		public void FireToolCommandsChanged()
 		{
 			ResetToolCommands();
-
-			_propertyChangedSubject.OnNext(nameof(ToolCommands));
-			// remain backwards compatible
-			ToolCommandsChanged?.Invoke(this, EventArgs.Empty);
-		}
+            _schedulerProvider.MainScheduer.Schedule(this, (s, st) =>
+            {
+                _propertyChangedSubject.OnNext(nameof(ToolCommands));
+                // remain backwards compatible
+                ToolCommandsChanged?.Invoke(this, EventArgs.Empty);
+                return null;
+            });
+        }
 
 		public void Dispose()
 		{

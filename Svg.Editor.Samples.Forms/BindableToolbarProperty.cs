@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-
-namespace Svg.Editor.Samples.Forms
+﻿namespace Svg.Editor.Samples.Forms
 {
     public static class BindableToolbarProperty
     {
@@ -15,45 +11,50 @@ namespace Svg.Editor.Samples.Forms
         private static void ToolbarItemsChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var page = bindable as Page;
-
             if (page == null) return;
 
-            if (oldValue != null)
+            var otbi = page.ToolbarItems;
+            var ntbi = newValue as IList<ToolbarItem>;
+
+            if (otbi is null && ntbi is null)
+                return;
+
+
+            try
             {
-                var otbi = oldValue as IEnumerable<ToolbarItem>;
-                var ntbi = newValue as IEnumerable<ToolbarItem>;
-                if (otbi?.Count() == ntbi?.Count())
+                if (otbi != null)
                 {
-                    var ots = otbi.ToArray();
-                    var nts = ntbi.ToArray();
-                    var differ = false;
-                    for (int i = 0; i < ots.Length; i++)
-                    {
-                        var ot = ots[i];
-                        var nt = nts[i];
-
-                        differ = !string.Equals(ot.Text, nt.Text) ||
-                                     ot.Command.CanExecute(null) != nt.Command.CanExecute(null) ||
-                                     !string.Equals(ot.IconImageSource, nt.IconImageSource);
-
-                        if (differ)
-                            break;
-                    }
-
-                    if (!differ)
+                    if (otbi.Select(o => o.Text).SequenceEqual(ntbi.Select(n => n.Text)))
                         return;
+
+                    foreach (var toDelete in otbi.Where(o => ntbi.All(n => n.Text != o.Text)))
+                        page.ToolbarItems.Remove(toDelete);
+                    
+                    var toAdd = ntbi.Where(n => otbi.All(o => o.Text != n.Text)).ToHashSet();
+
+                    for (int i = 0; i < ntbi.Count; i++)
+                    {
+                        if (toAdd.Contains(ntbi[i]))
+                            page.ToolbarItems.Insert(i, ntbi[i]);
+                        // item exists and must be moved
+                        else if (otbi.Count > i && otbi[i].Text != ntbi[i].Text)
+                            continue;
+                        else
+                        {
+                            var old = otbi.Single(o => o.Text == ntbi[i].Text);
+                            page.ToolbarItems.Remove(old);
+                            page.ToolbarItems.Insert(i, old);
+                        }
+                    }
                 }
-
-                page.ToolbarItems.Clear();
+                else {
+                    foreach (var item in ntbi)
+                        page.ToolbarItems.Add(item);
+                }
             }
-
-
-
-            var items = newValue as IEnumerable<ToolbarItem>;
-            if (items != null)
+            catch (Exception x)
             {
-                foreach (var item in items)
-                    page.ToolbarItems.Add(item);
+                page.ToolbarItems.Clear();
             }
         }
 

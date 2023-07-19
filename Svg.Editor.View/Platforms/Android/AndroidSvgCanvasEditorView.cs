@@ -67,8 +67,6 @@ namespace Svg.Editor.Views.Droid
             {
                 _drawingCanvas.CanvasInvalidated -= OnCanvasInvalidated;
                 _drawingCanvas.CanvasInvalidated += OnCanvasInvalidated;
-                _drawingCanvas.ToolCommandsChanged -= OnToolCommandsChanged;
-                _drawingCanvas.ToolCommandsChanged += OnToolCommandsChanged;
             }
         }
 
@@ -77,7 +75,6 @@ namespace Svg.Editor.Views.Droid
             if(_drawingCanvas != null)
             { 
                 _drawingCanvas.CanvasInvalidated -= OnCanvasInvalidated;
-                _drawingCanvas.ToolCommandsChanged -= OnToolCommandsChanged;
             }
             base.OnDetachedFromWindow();
         }
@@ -86,15 +83,7 @@ namespace Svg.Editor.Views.Droid
         {
             Invalidate();
         }
-
-        private void OnToolCommandsChanged(object sender, EventArgs e)
-        {
-            var a = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
-            if (a is null)
-                throw new InvalidOperationException("Activity must not be null");
-            a.InvalidateOptionsMenu();
-        }
-
+        
         protected override void Dispose(bool disposing)
         {
             if (disposing)
