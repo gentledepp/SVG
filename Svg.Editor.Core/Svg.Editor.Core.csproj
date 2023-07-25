@@ -100,9 +100,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+		<PackageReference Include="Svg" Version="3.0.0-maui2" />
 		<PackageReference Include="System.Reactive" Version="4.0.0" />
-	</ItemGroup>
-	<ItemGroup>
-	  <ProjectReference Include="..\Svg\Svg.csproj" />
 	</ItemGroup>
 </Project>

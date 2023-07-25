@@ -62,6 +62,7 @@
 	  <PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="2.88.3" />
 	  <PackageReference Include="SkiaSharp.Views.Maui.Controls.Compatibility" Version="2.88.3" />
 	  <PackageReference Include="SkiaSharp.Views.Maui.Core" Version="2.88.3" />
+	  <PackageReference Include="Svg" Version="3.0.0-maui2" />
 	</ItemGroup>
 
 	<ItemGroup>

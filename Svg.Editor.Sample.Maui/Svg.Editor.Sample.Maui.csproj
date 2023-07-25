@@ -54,6 +54,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
+		<PackageReference Include="Svg" Version="3.0.0-maui2" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -61,7 +62,6 @@
 		<ProjectReference Include="..\Svg.Editor.Forms\Svg.Editor.Forms.csproj" />
 		<ProjectReference Include="..\Svg.Editor.Samples.Forms\Svg.Editor.Samples.Forms.csproj" />
 		<ProjectReference Include="..\Svg.Editor.View\Svg.Editor.View.csproj" />
-		<ProjectReference Include="..\Svg\Svg.csproj" />
 	</ItemGroup>
 
 </Project>
