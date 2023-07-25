@@ -28,7 +28,7 @@ namespace Svg.Editor.Sample.Maui
                     handlers.AddHandler(typeof(SvgCanvasEditorView), typeof(DroidCanvasViewHandlerBase));
 #elif IOS
                     handlers.AddHandler(typeof(SvgCanvasEditorView), typeof(TouchCanvasViewHandlerBase));
-                    SvgEngine.RegisterSingleton<IToolbarIconSizeProvider>(() => new Svg.Editor.Views.iOS.TouchToolbarIconSizeProvider());
+                    SvgEngine.RegisterSingleton<IToolbarIconSizeProvider>(() => new Views.iOS.TouchToolbarIconSizeProvider());
 #else
                     handlers.AddHandler(typeof(SvgCanvasEditorView), typeof(UwpCanvasViewHandlerBase));
 #endif
