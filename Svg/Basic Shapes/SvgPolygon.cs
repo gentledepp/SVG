@@ -1,6 +1,7 @@
-using System;
 using Svg.Interfaces;
-using Svg.Pathing;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Svg
 {
@@ -11,15 +12,23 @@ namespace Svg
     public class SvgPolygon : SvgVisualElement
     {
         private GraphicsPath _path;
-        
+        private SvgAttributeCollection.InheritedAttribute<object> _points;
+        private SvgAttributeCollection.Attribute<Uri> _markerEnd;
+        private SvgAttributeCollection.Attribute<Uri> _markerMid;
+        private SvgAttributeCollection.Attribute<Uri> _markerStart;
+
         /// <summary>
         /// The points that make up the SvgPolygon
         /// </summary>
         [SvgAttribute("points")]
         public SvgPointCollection Points
         {
-            get { return this.Attributes["points"] as SvgPointCollection; }
-            set { this.Attributes["points"] = value; this.IsPathDirty = true; }
+            get { return (_points??=this.Attributes.GetInheritedAttribute<object>("points")).GetValue() as SvgPointCollection; }
+            set
+            {
+                this.Attributes["points"] = value;
+                this.IsPathDirty = true;
+            }
         }
 
         /// <summary>
@@ -28,7 +37,7 @@ namespace Svg
         [SvgAttribute("marker-end")]
         public Uri MarkerEnd
         {
-            get { return this.Attributes.GetAttribute<Uri>("marker-end"); }
+            get { return (_markerEnd ??= this.Attributes.GetAttribute<Uri>("marker-end")).GetValue(); }
             set { this.Attributes["marker-end"] = value; }
         }
 
@@ -39,7 +48,7 @@ namespace Svg
         [SvgAttribute("marker-mid")]
         public Uri MarkerMid
         {
-            get { return this.Attributes.GetAttribute<Uri>("marker-mid"); }
+            get { return (_markerMid ??= this.Attributes.GetAttribute<Uri>("marker-mid")).GetValue(); }
             set { this.Attributes["marker-mid"] = value; }
         }
 
@@ -50,7 +59,7 @@ namespace Svg
         [SvgAttribute("marker-start")]
         public Uri MarkerStart
         {
-            get { return this.Attributes.GetAttribute<Uri>("marker-start"); }
+            get { return (_markerStart ??= this.Attributes.GetAttribute<Uri>("marker-start")).GetValue(); }
             set { this.Attributes["marker-start"] = value; }
         }
 
@@ -63,6 +72,7 @@ namespace Svg
         {
             if (this._path == null || this.IsPathDirty)
             {
+                _path?.Dispose();
                 this._path = SvgEngine.Factory.CreateGraphicsPath();
                 this._path.StartFigure();
 
@@ -76,7 +86,8 @@ namespace Svg
                         //first line
                         if (_path.PointCount == 0)
                         {
-                            _path.AddLine(SvgUnit.GetDevicePoint(points[i - 2], points[i - 1], renderer, this), endPoint);
+                            _path.AddLine(SvgUnit.GetDevicePoint(points[i - 2], points[i - 1], renderer, this),
+                                endPoint);
                         }
                         else
                         {
@@ -92,6 +103,7 @@ namespace Svg
                 this._path.CloseFigure();
                 this.IsPathDirty = false;
             }
+
             return this._path;
         }
 
@@ -99,9 +111,9 @@ namespace Svg
         /// Renders the stroke of the <see cref="SvgVisualElement"/> to the specified <see cref="ISvgRenderer"/>
         /// </summary>
         /// <param name="renderer">The <see cref="ISvgRenderer"/> object to render to.</param>
-        protected internal override bool RenderStroke(ISvgRenderer renderer)
+        protected override bool RenderStroke(ISvgRenderer renderer, RenderCacheEntry cacheEntry)
         {
-            var result = base.RenderStroke(renderer);
+            var result = base.RenderStroke(renderer, cacheEntry);
             var path = this.Path(renderer);
 
             if (this.MarkerStart != null)
@@ -114,39 +126,61 @@ namespace Svg
             {
                 SvgMarker marker = this.OwnerDocument.GetElementById<SvgMarker>(this.MarkerMid.ToString());
                 for (int i = 1; i <= path.PathPoints.Length - 2; i++)
-                    marker.RenderMarker(renderer, this, path.PathPoints[i], path.PathPoints[i - 1], path.PathPoints[i], path.PathPoints[i + 1]);
+                    marker.RenderMarker(renderer, this, path.PathPoints[i], path.PathPoints[i - 1], path.PathPoints[i],
+                        path.PathPoints[i + 1]);
             }
 
             if (this.MarkerEnd != null)
             {
                 SvgMarker marker = this.OwnerDocument.GetElementById<SvgMarker>(this.MarkerEnd.ToString());
-                marker.RenderMarker(renderer, this, path.PathPoints[path.PathPoints.Length - 1], path.PathPoints[path.PathPoints.Length - 2], path.PathPoints[path.PathPoints.Length - 1]);
+                marker.RenderMarker(renderer, this, path.PathPoints[path.PathPoints.Length - 1],
+                    path.PathPoints[path.PathPoints.Length - 2], path.PathPoints[path.PathPoints.Length - 1]);
             }
 
             return result;
         }
 
-        public override RectangleF Bounds
+        public override RectangleF GetBounds()
         {
-            get
-            {
-                return this.Path(null).GetBounds();
-            }
+            return this.Path(null).GetBounds();
+        }
+        
+        public override SvgElement DeepCopy()
+        {
+            return DeepCopy<SvgPolygon>();
         }
 
+        public override SvgElement DeepCopy<T>()
+        {
+            var newObj = base.DeepCopy<T>() as SvgPolygon;
+            newObj.Points = new SvgPointCollection();
+            foreach (var pt in this.Points)
+                newObj.Points.Add(pt);
+            return newObj;
+        }
 
-		public override SvgElement DeepCopy()
-		{
-			return DeepCopy<SvgPolygon>();
-		}
+        protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
+        {
+            if (this.HasFill())
+                return true;
 
-		public override SvgElement DeepCopy<T>()
-		{
-			var newObj = base.DeepCopy<T>() as SvgPolygon;
-			newObj.Points = new SvgPointCollection();
-			foreach (var pt in this.Points)
-				newObj.Points.Add(pt);
-			return newObj;
-		}
+            var units = Points.ToList();
+
+            var lineSegments = new List<(PointF from, PointF to)>();
+            for (var i = 0; i < units.Count - 3; i += 2)
+            {
+                lineSegments.Add((
+                    PointF.Create(units[i].Value, units[i + 1].Value),
+                    PointF.Create(units[i + 2].Value, units[i + 3].Value)
+                ));
+            }
+            // finally, add last line segment that connects the last with the first point of the polygon...
+            lineSegments.Add((
+                PointF.Create(units[units.Count-2].Value, units[units.Count-1].Value),
+                PointF.Create(units[0].Value, units[1].Value))
+                );
+
+            return lineSegments.IsIntersectingWithLine(transform, rectangle);
+        }
     }
 }

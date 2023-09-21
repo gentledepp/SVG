@@ -1,33 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Svg
+﻿namespace Svg
 {
     [SvgElement("font-face")]
     public class SvgFontFace : SvgElement
     {
+        private SvgAttributeCollection.InheritedAttribute<object> _alphabetic;
+        private SvgAttributeCollection.InheritedAttribute<object> _ascent;
+        private SvgAttributeCollection.InheritedAttribute<object> _ascentHeight;
+        private SvgAttributeCollection.InheritedAttribute<object> _descent;
+        private SvgAttributeCollection.InheritedAttribute<object> _panose1;
+        private SvgAttributeCollection.InheritedAttribute<object> _unitsPerEm;
+        private SvgAttributeCollection.InheritedAttribute<object> _xHeight;
+
         [SvgAttribute("alphabetic")]
         public float Alphabetic
         {
-            get { return (this.Attributes["alphabetic"] == null ? 0 : (float)this.Attributes["alphabetic"]); }
+            get { return (_alphabetic ??= this.Attributes.GetInheritedAttribute<object>("alphabetic")).GetValue() is { } val ? (float)val: 0; }
             set { this.Attributes["alphabetic"] = value; }
         }
 
         [SvgAttribute("ascent")]
         public float Ascent
         {
-            get 
-            { 
-                if (this.Attributes["ascent"] == null) 
+            get
+            {
+                var val = (_ascent ??= this.Attributes.GetInheritedAttribute<object>("ascent")).GetValue();
+                if (val == null) 
                 {
                     var font = this.Parent as SvgFont;
                     return (font == null ? 0 : this.UnitsPerEm - font.VertOriginY);
                 }
                 else
                 {
-                    return (float)this.Attributes["ascent"];
+                    return (float)val;
                 }
             }
             set { this.Attributes["ascent"] = value; }
@@ -36,16 +40,17 @@ namespace Svg
         [SvgAttribute("ascent-height")]
         public float AscentHeight
         {
-            get { return (this.Attributes["ascent-height"] == null ? this.Ascent : (float)this.Attributes["ascent-height"]); }
+            get { return (_ascentHeight ??= this.Attributes.GetInheritedAttribute<object>("ascent-height")).GetValue() is { } val ? (float)val: this.Ascent; }
             set { this.Attributes["ascent-height"] = value; }
         }
 
         [SvgAttribute("descent")]
         public float Descent
         {
-            get 
-            { 
-                if (this.Attributes["descent"] == null) 
+            get
+            {
+                var val = (_descent ??= this.Attributes.GetInheritedAttribute<object>("descent")).GetValue();
+                if (val == null) 
                 {
                     var font = this.Parent as SvgFont;
                     return (font == null ? 0 : font.VertOriginY);
@@ -64,7 +69,7 @@ namespace Svg
         [SvgAttribute("font-family")]
         public virtual string FontFamily
         {
-            get { return this.Attributes["font-family"] as string; }
+            get { return (_fontFamily ??= this.Attributes.GetInheritedAttribute<object>("font-family")).GetValue() as string; }
             set { this.Attributes["font-family"] = value; }
         }
 
@@ -74,7 +79,7 @@ namespace Svg
         [SvgAttribute("font-size")]
         public virtual SvgUnit FontSize
         {
-            get { return (this.Attributes["font-size"] == null) ? SvgUnit.Empty : (SvgUnit)this.Attributes["font-size"]; }
+            get { return (_fontSize ??= this.Attributes.GetInheritedAttribute<object>("font-size")).GetValue() is { } val ? (SvgUnit)val: SvgUnit.Empty; }
             set { this.Attributes["font-size"] = value; }
         }
 
@@ -84,7 +89,7 @@ namespace Svg
         [SvgAttribute("font-style")]
         public virtual SvgFontStyle FontStyle
         {
-            get { return (this.Attributes["font-style"] == null) ? SvgFontStyle.All : (SvgFontStyle)this.Attributes["font-style"]; }
+            get { return (_fontStyle ??= this.Attributes.GetInheritedAttribute<object>("font-style")).GetValue() is { } val ? (SvgFontStyle)val: SvgFontStyle.All; }
             set { this.Attributes["font-style"] = value; }
         }
 
@@ -94,7 +99,7 @@ namespace Svg
         [SvgAttribute("font-variant")]
         public virtual SvgFontVariant FontVariant
         {
-            get { return (this.Attributes["font-variant"] == null) ? SvgFontVariant.Inherit : (SvgFontVariant)this.Attributes["font-variant"]; }
+            get { return (_fontVariant ??= this.Attributes.GetInheritedAttribute<object>("font-variant")).GetValue() is { } val ? (SvgFontVariant)val: SvgFontVariant.Inherit; }
             set { this.Attributes["font-variant"] = value; }
         }
 
@@ -104,28 +109,28 @@ namespace Svg
         [SvgAttribute("font-weight")]
         public virtual SvgFontWeight FontWeight
         {
-            get { return (this.Attributes["font-weight"] == null) ? SvgFontWeight.Inherit : (SvgFontWeight)this.Attributes["font-weight"]; }
+            get { return (_fontWeight ??= this.Attributes.GetInheritedAttribute<object>("font-weight")).GetValue() is { } val ? (SvgFontWeight)val: SvgFontWeight.Inherit; }
             set { this.Attributes["font-weight"] = value; }
         }
 
         [SvgAttribute("panose-1")]
         public string Panose1
         {
-            get { return this.Attributes["panose-1"] as string; }
+            get { return (_panose1 ??= this.Attributes.GetInheritedAttribute<object>("panose-1")).GetValue() as string; }
             set { this.Attributes["panose-1"] = value; }
         }
 
         [SvgAttribute("units-per-em")]
         public float UnitsPerEm
         {
-            get { return (this.Attributes["units-per-em"] == null ? 1000 : (float)this.Attributes["units-per-em"]); }
+            get { return (_unitsPerEm ??= this.Attributes.GetInheritedAttribute<object>("units-per-em")).GetValue() is { } val ? (float)val: 1000; }
             set { this.Attributes["units-per-em"] = value; }
         }
 
         [SvgAttribute("x-height")]
         public float XHeight
         {
-            get { return (this.Attributes["x-height"] == null ? float.MinValue : (float)this.Attributes["x-height"]); }
+            get { return (_xHeight ??= this.Attributes.GetInheritedAttribute<object>("x-height")).GetValue() is { } val ? (float)val: float.MinValue; }
             set { this.Attributes["x-height"] = value; }
         }
 

@@ -13,6 +13,8 @@ namespace Svg.Document_Structure
     [SvgElement("symbol")]
     public class SvgSymbol : SvgVisualElement
     {
+        private SvgAttributeCollection.Attribute<SvgViewBox> _viewBox;
+        private SvgAttributeCollection.Attribute<SvgAspectRatio> _preserveAspectRatio;
 
         /// <summary>
         /// Gets or sets the viewport of the element.
@@ -21,7 +23,7 @@ namespace Svg.Document_Structure
         [SvgAttribute("viewBox")]
         public SvgViewBox ViewBox
         {
-            get { return this.Attributes.GetAttribute<SvgViewBox>("viewBox"); }
+            get { return (_viewBox ??= this.Attributes.GetAttribute<SvgViewBox>("viewBox")).GetValue(); }
             set { this.Attributes["viewBox"] = value; }
         }
 
@@ -32,7 +34,7 @@ namespace Svg.Document_Structure
         [SvgAttribute("preserveAspectRatio")]
         public SvgAspectRatio AspectRatio
         {
-            get { return this.Attributes.GetAttribute<SvgAspectRatio>("preserveAspectRatio"); }
+            get { return (_preserveAspectRatio ??= this.Attributes.GetAttribute<SvgAspectRatio>("preserveAspectRatio")).GetValue(); }
             set { this.Attributes["preserveAspectRatio"] = value; }
         }
 
@@ -45,14 +47,8 @@ namespace Svg.Document_Structure
             return GetPaths(this, renderer);
         }
 
-        /// <summary>
-        /// Gets the bounds of the element.
-        /// </summary>
-        /// <value>The bounds.</value>
-        public override RectangleF Bounds
+        public override RectangleF GetBounds()
         {
-            get
-            {
                 var r = RectangleF.Create();
                 foreach (var c in this.Children)
                 {
@@ -76,10 +72,9 @@ namespace Svg.Document_Structure
                 }
 
                 return r;
-            }
         }
 
-        protected override bool Renderable { get { return false; } }
+        protected internal override bool Renderable { get { return false; } }
 
         /// <summary>
         /// Applies the required transforms to <see cref="ISvgRenderer"/>.
@@ -88,8 +83,15 @@ namespace Svg.Document_Structure
         protected internal override bool PushTransforms(ISvgRenderer renderer)
         {
             if (!base.PushTransforms(renderer)) return false;
-            this.ViewBox.AddViewBoxTransform(this.AspectRatio, renderer);
+            renderer.Graphics.Save();
+            this.ViewBox.AddViewBoxTransform(this.AspectRatio, renderer, Bounds);
             return true;
+        }
+
+        protected internal override void PopTransforms(ISvgRenderer renderer)
+        {
+            renderer.Graphics.Restore();
+            base.PopTransforms(renderer);
         }
 
         // Only render if the parent is set to a Use element

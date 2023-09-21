@@ -1,49 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 
 namespace Svg
 {
     [SvgElement("font")]
     public class SvgFont : SvgElement
     {
+        private SvgAttributeCollection.InheritedAttribute<object> _horizAdvX;
+        private SvgAttributeCollection.InheritedAttribute<object> _horizOriginX;
+        private SvgAttributeCollection.InheritedAttribute<object> _horizOriginY;
+        private SvgAttributeCollection.InheritedAttribute<object> _vertAdvY;
+        private SvgAttributeCollection.InheritedAttribute<object> _vertOriginX;
+        private SvgAttributeCollection.InheritedAttribute<object> _vertOriginY;
+
         [SvgAttribute("horiz-adv-x")]
         public float HorizAdvX
         {
-            get { return (this.Attributes["horiz-adv-x"] == null ? 0 : (float)this.Attributes["horiz-adv-x"]); }
+            get { return (_horizAdvX ??= this.Attributes.GetInheritedAttribute<object>("horiz-adv-x")).GetValue() is { } val ? (float)val: 0; }
             set { this.Attributes["horiz-adv-x"] = value; }
         }
         [SvgAttribute("horiz-origin-x")]
         public float HorizOriginX
         {
-            get { return (this.Attributes["horiz-origin-x"] == null ? 0 : (float)this.Attributes["horiz-origin-x"]); }
+            get { return (_horizOriginX ??= this.Attributes.GetInheritedAttribute<object>("horiz-origin-x")).GetValue() is { } val ? (float)val: 0; }
             set { this.Attributes["horiz-origin-x"] = value; }
         }
         [SvgAttribute("horiz-origin-y")]
         public float HorizOriginY
         {
-            get { return (this.Attributes["horiz-origin-y"] == null ? 0 : (float)this.Attributes["horiz-origin-y"]); }
+            get { return (_horizOriginY ??= this.Attributes.GetInheritedAttribute<object>("horiz-origin-y")).GetValue() is { } val ? (float)val: 0; }
             set { this.Attributes["horiz-origin-y"] = value; }
         }
         [SvgAttribute("vert-adv-y")]
         public float VertAdvY
         {
-            get { return (this.Attributes["vert-adv-y"] == null ? this.Children.OfType<SvgFontFace>().First().UnitsPerEm : (float)this.Attributes["vert-adv-y"]); }
+            get { return (_vertAdvY ??= this.Attributes.GetInheritedAttribute<object>("vert-adv-y")).GetValue()is { } val ? (float)val: this.Children.OfType<SvgFontFace>().First().UnitsPerEm; }
             set { this.Attributes["vert-adv-y"] = value; }
         }
         [SvgAttribute("vert-origin-x")]
         public float VertOriginX
         {
-            get { return (this.Attributes["vert-origin-x"] == null ? this.HorizAdvX / 2 : (float)this.Attributes["vert-origin-x"]); }
+            get { return (_vertOriginX ??= this.Attributes.GetInheritedAttribute<object>("vert-origin-x")).GetValue() is { } val ? (float)val: this.HorizAdvX / 2; }
             set { this.Attributes["vert-origin-x"] = value; }
         }
         [SvgAttribute("vert-origin-y")]
         public float VertOriginY
         {
-            get { return (this.Attributes["vert-origin-y"] == null ? 
-                          (this.Children.OfType<SvgFontFace>().First().Attributes["ascent"] == null ? 0 : this.Children.OfType<SvgFontFace>().First().Ascent) : 
-                          (float)this.Attributes["vert-origin-y"]); }
+            get { return (_vertOriginY ??= this.Attributes.GetInheritedAttribute<object>("vert-origin-y")).GetValue() is { } val 
+                ? (float)val 
+                : (this.Children.OfType<SvgFontFace>().First().Attributes["ascent"] == null ? 0 : this.Children.OfType<SvgFontFace>().First().Ascent); }
             set { this.Attributes["vert-origin-y"] = value; }
         }
 

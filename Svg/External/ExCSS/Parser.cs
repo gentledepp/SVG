@@ -47,8 +47,13 @@ namespace ExCSS
         private StringBuilder _buffer;
         private ParsingContext _parsingContext;
 
+        private Dictionary<string, StyleSheet> _styleCache = new Dictionary<string, StyleSheet>();
+
         public StyleSheet Parse(string css)
         {
+            if (_styleCache.TryGetValue(css, out var styles))
+                return styles;
+
             _selectorFactory = new SelectorFactory();
             _functionBuffers = new Stack<FunctionBuffer>();
             _styleSheet = new StyleSheet();
@@ -73,6 +78,8 @@ namespace ExCSS
             {
                 ParseTokenBlock(SpecialCharacter.Semicolon);
             }
+
+            _styleCache.Add(css, _styleSheet);
 
             return _styleSheet;
         }

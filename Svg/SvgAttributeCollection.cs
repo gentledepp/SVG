@@ -26,32 +26,33 @@ namespace Svg
         /// <typeparam name="TAttributeType">The type of the attribute value.</typeparam>
         /// <param name="attributeName">A <see cref="string"/> containing the name of the attribute.</param>
         /// <returns>The attribute value if available; otherwise the default value of <typeparamref name="TAttributeType"/>.</returns>
-        public TAttributeType GetAttribute<TAttributeType>(string attributeName)
+        public Attribute<TAttributeType> GetAttribute<TAttributeType>(string attributeName)
         {
-            if (this.ContainsKey(attributeName) && base[attributeName] != null)
-            {
-                return (TAttributeType)base[attributeName];
-            }
-
             return this.GetAttribute<TAttributeType>(attributeName, default(TAttributeType));
         }
 
         /// <summary>
         /// Gets the attribute with the specified name.
         /// </summary>
-        /// <typeparam name="T">The type of the attribute value.</typeparam>
+        /// <typeparam name="TAttributeType">The type of the attribute value.</typeparam>
         /// <param name="attributeName">A <see cref="string"/> containing the name of the attribute.</param>
         /// <param name="defaultValue">The value to return if a value hasn't already been specified.</param>
         /// <returns>The attribute value if available; otherwise the default value of <typeparamref name="T"/>.</returns>
-        public T GetAttribute<T>(string attributeName, T defaultValue)
+        public Attribute<TAttributeType> GetAttribute<TAttributeType>(string attributeName, TAttributeType defaultValue)
+            => new Attribute<TAttributeType>(attributeName, defaultValue, this);
+
+        private TAttributeType GetAttributeValue<TAttributeType>(string attributeName, TAttributeType defaultValue)
         {
-            if (this.ContainsKey(attributeName) && base[attributeName] != null)
+            if (this.TryGetValue(attributeName, out var value) && value != null)
             {
-                return (T)base[attributeName];
+                return (TAttributeType)value;
             }
 
             return defaultValue;
         }
+
+        public InheritedAttribute<TAttributeType> GetInheritedAttribute<TAttributeType>(string attributeName) =>
+            new(attributeName, this);
 
         /// <summary>
         /// Gets the attribute with the specified name and inherits from ancestors if there is no attribute set.
@@ -59,19 +60,18 @@ namespace Svg
         /// <typeparam name="TAttributeType">The type of the attribute value.</typeparam>
         /// <param name="attributeName">A <see cref="string"/> containing the name of the attribute.</param>
         /// <returns>The attribute value if available; otherwise the ancestors value for the same attribute; otherwise the default value of <typeparamref name="TAttributeType"/>.</returns>
-        public TAttributeType GetInheritedAttribute<TAttributeType>(string attributeName)
+        private TAttributeType GetInheritedAttributeValue<TAttributeType>(string attributeName)
         {
-            if (ContainsKey(attributeName) && !IsInheritValue(base[attributeName]))
+            if (base.TryGetValue(attributeName, out var result) && !IsInheritValue(result))
             {
-                var result = (TAttributeType)base[attributeName];
                 var deferred = result as SvgDeferredPaintServer;
                 deferred?.EnsureServer(_owner);
-                return result;
+                return (TAttributeType)result;
             }
 
             if (_owner.Parent != null)
             {
-                return _owner.Parent.Attributes.GetInheritedAttribute<TAttributeType>(attributeName);
+                return _owner.Parent.Attributes.GetInheritedAttributeValue<TAttributeType>(attributeName);
             }
 
             return default(TAttributeType);
@@ -99,12 +99,11 @@ namespace Svg
         /// <returns>The attribute value associated with the specified name; If there is no attribute the parent's value will be inherited.</returns>
         public new object this[string attributeName]
         {
-            get { return this.GetInheritedAttribute<object>(attributeName); }
+            get { return this.GetInheritedAttributeValue<object>(attributeName); }
             set
             {
-                if (base.ContainsKey(attributeName))
+                if (base.TryGetValue(attributeName, out var oldVal))
                 {
-                    var oldVal = base[attributeName];
                     if (TryUnboxedCheck(oldVal, value))
                     {
                         base[attributeName] = value;
@@ -165,6 +164,88 @@ namespace Svg
                 handler(this._owner, new AttributeEventArgs(attribute, value, oldValue));
             }
         }
+
+        /// <summary>
+        /// To avoid unnecessary recursive dictionary.get[string key] calls when rendering, this class allows to lazily load and cache an inheritable attribute and resets it when appropriate
+        /// </summary>
+        /// <typeparam name="TAttributeType"></typeparam>
+        public sealed class InheritedAttribute<TAttributeType>
+        {
+            private readonly SvgAttributeCollection _owner;
+            private readonly string _attributeName;
+            private TAttributeType _value;
+            private bool _initialized;
+
+            public InheritedAttribute(string attributeName, SvgAttributeCollection owner)
+            {
+                _owner = owner;
+                _attributeName = attributeName;
+                _owner._owner.ParentAttributeChanged += (_, __) => Reset();
+                _owner.AttributeChanged += (_, args) =>
+                {
+                    if (args.Attribute == attributeName)
+                        Reset();
+                };
+
+            }
+
+            public TAttributeType GetValue()
+            {
+                if (_initialized)
+                    return _value;
+
+                _value = _owner.GetInheritedAttributeValue<TAttributeType>(_attributeName);
+                _initialized = true;
+                return _value;
+            }
+
+            public void Reset()
+            {
+                _value = default(TAttributeType);
+                _initialized = false;
+            }
+        }
+
+        /// <summary>
+        /// To avoid unnecessary dictionary.get[string key] calls when rendering, this class allows to lazily load and cache a non-inheritable attribute and resets it when appropriate
+        /// </summary>
+        public sealed class Attribute<TAttributeType>
+        {
+            private readonly SvgAttributeCollection _owner;
+            private readonly string _attributeName;
+            private readonly TAttributeType _defaultValue;
+            private TAttributeType _value;
+            private bool _initialized;
+
+            public Attribute(string attributeName, TAttributeType defaultValue, SvgAttributeCollection owner)
+            {
+                _owner = owner;
+                _attributeName = attributeName;
+                _defaultValue = defaultValue;
+                _owner.AttributeChanged += (_, args) =>
+                {
+                    if (args.Attribute == attributeName)
+                        Reset();
+                };
+
+            }
+
+            public TAttributeType GetValue()
+            {
+                if (_initialized)
+                    return _value;
+
+                _value = _owner.GetAttributeValue<TAttributeType>(_attributeName, _defaultValue);
+                _initialized = true;
+                return _value;
+            }
+
+            public void Reset()
+            {
+                _value = default(TAttributeType);
+                _initialized = false;
+            }
+        }
     }
 
 
@@ -194,9 +275,8 @@ namespace Svg
             get { return base[attributeName]; }
             set
             {
-                if (base.ContainsKey(attributeName))
+                if (base.TryGetValue(attributeName, out var oldVal))
                 {
-                    var oldVal = base[attributeName];
                     base[attributeName] = value;
                     if (oldVal != value) OnAttributeChanged(attributeName, value, oldVal);
                 }

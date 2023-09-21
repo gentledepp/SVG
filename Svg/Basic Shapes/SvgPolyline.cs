@@ -1,6 +1,7 @@
 using System;
-
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Svg.Interfaces;
 
 namespace Svg
@@ -11,43 +12,13 @@ namespace Svg
     [SvgElement("polyline")]
     public class SvgPolyline : SvgPolygon
     {
-        /// <summary>
-        /// Gets or sets the marker (end cap) of the path.
-        /// </summary>
-        [SvgAttribute("marker-end")]
-        public Uri MarkerEnd
-        {
-            get { return this.Attributes.GetAttribute<Uri>("marker-end"); }
-            set { this.Attributes["marker-end"] = value; }
-        }
-
-
-        /// <summary>
-        /// Gets or sets the marker (start cap) of the path.
-        /// </summary>
-        [SvgAttribute("marker-mid")]
-        public Uri MarkerMid
-        {
-            get { return this.Attributes.GetAttribute<Uri>("marker-mid"); }
-            set { this.Attributes["marker-mid"] = value; }
-        }
-
-
-        /// <summary>
-        /// Gets or sets the marker (start cap) of the path.
-        /// </summary>
-        [SvgAttribute("marker-start")]
-        public Uri MarkerStart
-        {
-            get { return this.Attributes.GetAttribute<Uri>("marker-start"); }
-            set { this.Attributes["marker-start"] = value; }
-        }
-
+       
         private GraphicsPath _Path;
         public override GraphicsPath Path(ISvgRenderer renderer)
         {
             if (_Path == null || this.IsPathDirty)
             {
+                _Path?.Dispose();
                 _Path = SvgEngine.Factory.CreateGraphicsPath();
 
                 try
@@ -81,9 +52,9 @@ namespace Svg
         /// Renders the stroke of the <see cref="SvgVisualElement"/> to the specified <see cref="ISvgRenderer"/>
         /// </summary>
         /// <param name="renderer">The <see cref="ISvgRenderer"/> object to render to.</param>
-        protected internal override bool RenderStroke(ISvgRenderer renderer)
+        protected override bool RenderStroke(ISvgRenderer renderer, RenderCacheEntry cacheEntry)
         {
-            var result = base.RenderStroke(renderer);
+            var result = base.RenderStroke(renderer, cacheEntry);
             var path = this.Path(renderer);
 
             if (this.MarkerStart != null)
@@ -106,6 +77,27 @@ namespace Svg
             }
 
             return result;
+        }
+
+        protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
+        {
+            if (this.HasFill())
+                return true;
+
+            var units = Points.ToList();
+
+            var lineSegments = new List<(PointF from, PointF to)>();
+            for (var i = 0; i < units.Count - 3; i += 2)
+            {
+                lineSegments.Add((
+                    PointF.Create(units[i].Value, units[i + 1].Value),
+                    PointF.Create(units[i + 2].Value, units[i + 3].Value)
+                ));
+            }
+            // does not add last line which connects last point to first point as this would be a polygon
+            // see: https://www.w3schools.com/graphics/svg_polyline.asp
+
+            return lineSegments.IsIntersectingWithLine(transform, rectangle);
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿
 
+using Svg.Interfaces;
+
 namespace Svg
 {
     /// <summary>
@@ -31,6 +33,11 @@ namespace Svg
         public override bool ShouldWriteElement()
         {
             return (!string.IsNullOrEmpty(this.Text)) || base.ShouldWriteElement();
+        }
+
+        protected override void RenderChildren(ISvgRenderer renderer)
+        {
+            base.RenderChildren(renderer);
         }
 
         public override SvgElement DeepCopy<T>()

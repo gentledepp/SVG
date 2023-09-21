@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Reactive.Testing;
 using NUnit.Framework;
@@ -59,19 +60,190 @@ namespace Svg.Editor.Core.Test
         }
 
         [Test]
-        public async Task WhenUserTapsOnExistingText_EditsText()
+        public async Task WhenUserTapsToBlankArea_CreatesTextWithBreakLine()
         {
             // Arrange
+            await Canvas.EnsureInitialized();
+            var txtTool = Canvas.Tools.OfType<TextTool>().Single();
+            Canvas.ActiveTool = txtTool;
+            _textMock.F = (x, y) => new TextTool.TextProperties { Text = string.Join(Environment.NewLine, new[]{"hello","break"}), FontSizeIndex = 0 };
+
+            // Act
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            ((TestScheduler) SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert
+            var texts = Canvas.Document.Children.OfType<SvgTextBase>().ToList();
+            Assert.AreEqual(1, texts.Count);
+            var txt = texts.First();
+
+            Assert.AreEqual("hello", (txt.Children[0] as SvgTextSpan)?.Text);
+            Assert.AreEqual("break", (txt.Children[1] as SvgTextSpan)?.Text);
+            Assert.AreEqual(txtTool.FontSizes.First(), txt.FontSize.Value);
+            Assert.AreEqual(SvgUnitType.Pixel, txt.FontSize.Type);
+        }
+
+        [Test]
+        public async Task WhenUserTapsToDeleteOneBreak_AndOnlyOneLineRemains_UpdateTextWithBreakLine()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var txtTool = Canvas.Tools.OfType<TextTool>().Single();
+            Canvas.ActiveTool = txtTool;
+            _textMock.F = (x, y) => new TextTool.TextProperties { Text = string.Join(Environment.NewLine, new[]{"hello","break1"}), FontSizeIndex = 0 };
+
+            // Act
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            ((TestScheduler) SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+            
+            Thread.Sleep(500);
+            
+            _textMock.F = (x, y) => new TextTool.TextProperties { Text = "hello", FontSizeIndex = 0 };
+
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            ((TestScheduler) SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert
+            var texts = Canvas.Document.Children.OfType<SvgTextBase>().ToList();
+            Assert.AreEqual(1, texts.Count);
+            var txt = texts.First();
+
+            Assert.AreEqual(1, txt.Children.Count);
+            Assert.AreEqual("hello", (txt.Children[0] as SvgTextSpan)?.Text);
+            Assert.AreEqual(txtTool.FontSizes.First(), txt.FontSize.Value);
+            Assert.AreEqual(SvgUnitType.Pixel, txt.FontSize.Type);
+        }
+
+        [Test]
+        public async Task WhenUserTapsToDeleteOneBreak_AndMoreLinesRemains_UpdateTextWithBreakLine()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var txtTool = Canvas.Tools.OfType<TextTool>().Single();
+            Canvas.ActiveTool = txtTool;
+            _textMock.F = (x, y) => new TextTool.TextProperties { Text = string.Join(Environment.NewLine, new[]{"hello","break1","break2","break3"}), FontSizeIndex = 0 };
+
+            // Act
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            ((TestScheduler) SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+            
+            Thread.Sleep(500);
+            
+            _textMock.F = (x, y) => new TextTool.TextProperties { Text = "hello\nbreak1\nbreak2", FontSizeIndex = 0 };
+
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            ((TestScheduler) SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert
+            var texts = Canvas.Document.Children.OfType<SvgTextBase>().ToList();
+            Assert.AreEqual(1, texts.Count);
+            var txt = texts.First();
+
+            Assert.AreEqual(3, txt.Children.Count);
+            Assert.AreEqual("hello", (txt.Children[0] as SvgTextSpan)?.Text);
+            Assert.AreEqual("break1", (txt.Children[1] as SvgTextSpan)?.Text);
+            Assert.AreEqual("break2", (txt.Children[2] as SvgTextSpan)?.Text);
+            Assert.AreEqual(txtTool.FontSizes.First(), txt.FontSize.Value);
+            Assert.AreEqual(SvgUnitType.Pixel, txt.FontSize.Type);
+        }
+
+        [Test]
+        public async Task WhenUserTapsOnExistingText_UpdatesText()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var txtTool = Canvas.Tools.OfType<TextTool>().Single();
+            Canvas.ActiveTool = txtTool;
+            _textMock.F = (x, y) => new TextTool.TextProperties { Text = "hello", FontSizeIndex = 0 };
+
+            // Act
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            ((TestScheduler) SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            Thread.Sleep(500);
+
+            _textMock.F = (x, y) => new TextTool.TextProperties { Text = string.Join(Environment.NewLine, new[] { "hello", "break" }), FontSizeIndex = 0 };
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            ((TestScheduler)SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert
+            var texts = Canvas.Document.Children.OfType<SvgTextBase>().ToList();
+            Assert.AreEqual(1, texts.Count);
+            var txt = texts.First();
+
+            Assert.AreEqual(2, txt.Children.Count);
+            Assert.AreEqual("hello", (txt.Children[0] as SvgTextSpan)?.Text);
+            Assert.AreEqual("break", (txt.Children[1] as SvgTextSpan)?.Text);
+            Assert.AreEqual(txtTool.FontSizes.First(), txt.FontSize.Value);
+            Assert.AreEqual(SvgUnitType.Pixel, txt.FontSize.Type);
+        }
+
+
+
+        [Test]
+        public async Task WhenUserTapsToTextWithBreakLineArea_EditsTextWithBreakLine()
+        {
+            // Arrange
+            var fontSize = 12;
+            var lineHeight = 1.25;
             await Canvas.EnsureInitialized();
             var txtTool = Canvas.Tools.OfType<TextTool>().Single();
             Canvas.ActiveTool = txtTool;
             Canvas.Document.Children.Add(new SvgText()
             {
                 Text = "this is a test",
-                X = new SvgUnitCollection() { new SvgUnit(SvgUnitType.Pixel, 5) },
-                Y = new SvgUnitCollection() { new SvgUnit(SvgUnitType.Pixel, 5) },
-                FontSize = new SvgUnit(SvgUnitType.Pixel, 20),
+                X = new SvgUnitCollection() { new SvgUnit(SvgUnitType.Pixel, 0) },
+                Y = new SvgUnitCollection() { new SvgUnit(SvgUnitType.Pixel, 0) },
             });
+
+            // Act
+            _textMock.F = (x, y) => new TextTool.TextProperties { Text = "edited\rhello\rbreak", FontSizeIndex = 0 };
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, PointF.Create(10, 10), PointF.Create(10, 10), PointF.Create(10, 10), 1));
+            ((TestScheduler)SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert
+            var texts = Canvas.Document.Children.OfType<SvgTextBase>().ToList();
+            Assert.AreEqual(1, texts.Count);
+            var txt = texts.First();
+
+            Assert.AreEqual("edited", (txt.Children[0] as SvgTextSpan)?.Text);
+            Assert.AreEqual(new SvgUnitCollection
+            {
+                0
+            }, (txt.Children[0] as SvgTextSpan)?.Y);
+
+            Assert.AreEqual("hello", (txt.Children[1] as SvgTextSpan)?.Text);
+            Assert.AreEqual(new SvgUnitCollection
+            {
+                (SvgUnit)(fontSize * lineHeight) * 1
+            }, (txt.Children[1] as SvgTextSpan)?.Y);
+
+
+            Assert.AreEqual("break", (txt.Children[2] as SvgTextSpan)?.Text);
+            Assert.AreEqual(new SvgUnitCollection
+            {
+                (SvgUnit)(fontSize * lineHeight) * 2
+
+            }, (txt.Children[2] as SvgTextSpan)?.Y);
+            Assert.AreEqual(txtTool.FontSizes.First(), txt.FontSize.Value);
+            Assert.AreEqual(SvgUnitType.Pixel, txt.FontSize.Type);
+        }
+
+        [Test]
+        public async Task WhenUserTapsOnExistingText_EditsText()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var txtTool = Canvas.Tools.OfType<TextTool>().Single();
+            Canvas.ActiveTool = txtTool;
 
             _textMock.F = (x, y) => new TextTool.TextProperties { Text = "hello", FontSizeIndex = 0 };
 

@@ -48,6 +48,11 @@ namespace Svg
 			return SvgEngine.TypeDescriptor.GetConverter(typeof(SvgPreserveAspectRatio)).ConvertToString(this.Align) + (Slice ? " slice" : "");
 		}
 
+        public SvgAspectRatio DeepCopy()
+        {
+            return new SvgAspectRatio(Align, Slice) { Defer = Defer };
+        }
+
 	}
 	
     //[TypeConverter(typeof(SvgPreserveAspectRatioConverter))]

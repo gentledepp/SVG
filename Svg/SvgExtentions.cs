@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-
 using System.IO;
-using System.Xml;
-using System.Threading;
 using System.Globalization;
 using Svg.Interfaces;
 using Svg.Interfaces.Xml;
@@ -22,6 +18,11 @@ namespace Svg
             r.Y = bounds.Y;
             r.Width = bounds.Width;
             r.Height = bounds.Height;
+        }
+
+        public static PointF GetCenterPoint(this RectangleF r)
+        {
+            return PointF.Create(r.X + (r.Width / 2f), r.Y + (r.Height / 2f));
         }
 
         public static RectangleF GetRectangle(this SvgRectangle r)
@@ -65,7 +66,7 @@ namespace Svg
 
         public static bool HasNonEmptyCustomAttribute(this SvgElement element, string name)
         {
-            return element.CustomAttributes.ContainsKey(name) && !string.IsNullOrEmpty(element.CustomAttributes[name]);
+            return element.CustomAttributes.TryGetValue(name, out var value) && !string.IsNullOrEmpty(value);
         }
 
         public static void ApplyRecursive(this SvgElement elem, Action<SvgElement> action)
@@ -140,5 +141,21 @@ namespace Svg
                     yield return grandChild;
             }
         }
+
+        public static bool IsColourSet(this SvgPaintServer colour)
+        {
+            return colour != null && colour != SvgColourServer.None && colour != SvgColourServer.NotSet;
+        }
+        public static bool HasStroke(this SvgVisualElement element)
+        {
+            return element.Stroke.IsColourSet();
+        }
+
+        public static bool HasFill(this SvgVisualElement element)
+        {
+            return element.Fill.IsColourSet();
+        }
+
+        
     }
 }

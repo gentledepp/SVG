@@ -22,11 +22,13 @@ namespace Svg
         private SvgCoordinateUnits _patternUnits = SvgCoordinateUnits.Inherit;
         private SvgCoordinateUnits _patternContentUnits = SvgCoordinateUnits.Inherit;
         private SvgAspectRatio _aspectRatio;
+        private SvgAttributeCollection.Attribute<SvgOverflow> _overflow;
+        private SvgAttributeCollection.Attribute<SvgTransformCollection> _gradientTransform;
 
         [SvgAttribute("overflow")]
 		public SvgOverflow Overflow
 		{
-			get { return this.Attributes.GetAttribute<SvgOverflow>("overflow"); }
+			get { return (_overflow ??= this.Attributes.GetAttribute<SvgOverflow>("overflow")).GetValue(); }
 			set { this.Attributes["overflow"] = value; }
 		}
 
@@ -162,7 +164,7 @@ namespace Svg
         [SvgAttribute("patternTransform")]
         public SvgTransformCollection PatternTransform
         {
-            get { return (this.Attributes.GetAttribute<SvgTransformCollection>("gradientTransform")); }
+            get { return ((_gradientTransform ??= this.Attributes.GetAttribute<SvgTransformCollection>("gradientTransform")).GetValue()); }
             set { this.Attributes["gradientTransform"] = value; }
         }
 

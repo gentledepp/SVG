@@ -116,27 +116,7 @@ namespace Svg.Editor.Tools
 
             Commands = new[]
             {
-                new ToolCommand(this, "Show all", x =>
-                {
-                    var worldBounds = Canvas.Document.CalculateDocumentBounds();
-                    if (worldBounds.IsEmpty)
-                    {
-                        Canvas.ZoomFactor = 1;
-                        Canvas.ZoomFocus = PointF.Create(0, 0);
-                        Canvas.Translate = PointF.Create(0, 0);
-                        Canvas.FireInvalidateCanvas();
-                        return;
-                    }
-                    Canvas.ZoomFactor = Math.Min(Canvas.ScreenWidth / worldBounds.Width,
-                        Canvas.ScreenHeight / worldBounds.Height);
-                    Canvas.ZoomFocus = PointF.Create(0, 0);
-                    var offsetX = -worldBounds.Left * Canvas.ZoomFactor;
-                    var marginX = (Canvas.ScreenWidth - worldBounds.Width * Canvas.ZoomFactor) / 2;
-                    var offsetY = -worldBounds.Top*Canvas.ZoomFactor;
-                    var marginY = (Canvas.ScreenHeight - worldBounds.Height * Canvas.ZoomFactor) / 2;
-                    Canvas.Translate = PointF.Create(offsetX + marginX, offsetY + marginY);
-                    Canvas.FireInvalidateCanvas();
-                }, iconName:"ic_aspect_ratio.svg", sortFunc:x => 1450),
+                new ToolCommand(this, "Show all", x => { ShowAll(); }, iconName:"ic_aspect_ratio.svg", sortFunc:x => 1450),
                 new ToolCommand(this, "Zoom in +", x =>
                 {
                     var f = Canvas.ZoomFactor + 0.25f;
@@ -162,6 +142,29 @@ namespace Svg.Editor.Tools
             };
         }
 
+        public void ShowAll()
+        {
+            var worldBounds = Canvas.Document.CalculateDocumentBounds();
+            if (worldBounds.IsEmpty)
+            {
+                Canvas.ZoomFactor = 1;
+                Canvas.ZoomFocus = PointF.Create(0, 0);
+                Canvas.Translate = PointF.Create(0, 0);
+                Canvas.FireInvalidateCanvas();
+                return;
+            }
+
+            Canvas.ZoomFactor = Math.Min(Canvas.ScreenWidth / worldBounds.Width,
+                Canvas.ScreenHeight / worldBounds.Height);
+            Canvas.ZoomFocus = PointF.Create(0, 0);
+            var offsetX = -worldBounds.Left * Canvas.ZoomFactor;
+            var marginX = (Canvas.ScreenWidth - worldBounds.Width * Canvas.ZoomFactor) / 2;
+            var offsetY = -worldBounds.Top * Canvas.ZoomFactor;
+            var marginY = (Canvas.ScreenHeight - worldBounds.Height * Canvas.ZoomFactor) / 2;
+            Canvas.Translate = PointF.Create(offsetX + marginX, offsetY + marginY);
+            Canvas.FireInvalidateCanvas();
+        }
+
         public override Task OnUserInput(UserInputEvent @event, ISvgDrawingCanvas ws)
         {
             if (!IsActive)
@@ -178,7 +181,7 @@ namespace Svg.Editor.Tools
                     CurrentFocusY = se.FocusY;
                     var zoomFactor = GetBoundedZoomFactor(se, ws);
                     // jusst set focal point if not focused and zoom factor actually changed
-                    if (!_focused && Math.Abs(zoomFactor - ws.ZoomFactor) > 0.01f)
+                    if ((!_focused || se.ChangeFocus) && Math.Abs(zoomFactor - ws.ZoomFactor) > 0.01f)
                     {
                         /*
                          * A zoom with a focal point is a mix of scaling and translation. When the user zooms in, we will place the focal point on the canvas
@@ -255,6 +258,7 @@ namespace Svg.Editor.Tools
                          * 
                          */
                         var canvasFocus = ws.ScreenToCanvas(CurrentFocusX, CurrentFocusY);
+                        System.Diagnostics.Debug.WriteLine($"CanvasFocus x: {canvasFocus.X}| y: {canvasFocus.Y}");
                         // save translate from previous zoom
                         ws.Translate -= (ws.ZoomFocus - canvasFocus) * (ws.ZoomFactor - 1);
                         ws.ZoomFocus = canvasFocus;

@@ -38,7 +38,7 @@ namespace SvgW3CTestSuite
         {
             SvgPlatform.Init();
 
-            var svgFiles = AssetHelper.GetAllSvgFiles().Take(400)/*.Where(s => !s.StartsWith("struct-image"))*/;
+            var svgFiles = AssetHelper.GetAllSvgFiles()/*.Where(s => !s.StartsWith("struct-image"))*/;
 
             SvgTestCases = svgFiles.Select(path => new object[]
                                                     {
@@ -78,7 +78,7 @@ namespace SvgW3CTestSuite
                             Assert.True(c.Similarity >= 90, $"{svgPath}");
 #else
                             if (c.Similarity < 90)
-                                Assert.Inconclusive($"not done yet {svgPath}");
+                                Assert.Inconclusive($"not done yet '{svgPath}' {c.Similarity}%");
 
                             //Assert.GreaterOrEqual(c.Similarity, 90, $"{svgPath}");
 #endif

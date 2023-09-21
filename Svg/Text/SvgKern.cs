@@ -7,34 +7,40 @@ namespace Svg
 {
     public abstract class SvgKern : SvgElement
     {
+        private SvgAttributeCollection.InheritedAttribute<object> _g1;
+        private SvgAttributeCollection.InheritedAttribute<object> _g2;
+        private SvgAttributeCollection.InheritedAttribute<object> _u1;
+        private SvgAttributeCollection.InheritedAttribute<object> _u2;
+        private SvgAttributeCollection.InheritedAttribute<object> _k;
+
         [SvgAttribute("g1")]
         public string Glyph1
         {
-            get { return this.Attributes["g1"] as string; }
+            get { return (_g1 ??= this.Attributes.GetInheritedAttribute<object>("g1")).GetValue() as string; }
             set { this.Attributes["g1"] = value; }
         }
         [SvgAttribute("g2")]
         public string Glyph2
         {
-            get { return this.Attributes["g2"] as string; }
+            get { return (_g2 ??= this.Attributes.GetInheritedAttribute<object>("g2")).GetValue() as string; }
             set { this.Attributes["g2"] = value; }
         }
         [SvgAttribute("u1")]
         public string Unicode1
         {
-            get { return this.Attributes["u1"] as string; }
+            get { return (_u1 ??= this.Attributes.GetInheritedAttribute<object>("u1")).GetValue() as string; }
             set { this.Attributes["u1"] = value; }
         }
         [SvgAttribute("u2")]
         public string Unicode2
         {
-            get { return this.Attributes["u2"] as string; }
+            get { return (_u2 ??= this.Attributes.GetInheritedAttribute<object>("u2")).GetValue() as string; }
             set { this.Attributes["u2"] = value; }
         }
         [SvgAttribute("k")]
         public float Kerning
         {
-            get { return (this.Attributes["k"] == null ? 0 : (float)this.Attributes["k"]); }
+            get { return (_k ??= this.Attributes.GetInheritedAttribute<object>("k")).GetValue() is { } val ? (float)val: 0; }
             set { this.Attributes["k"] = value; }
         }
     }

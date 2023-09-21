@@ -32,6 +32,7 @@ namespace Svg.Editor.Core.Test
                 Y = new SvgUnit(SvgUnitType.Pixel, 200),
                 Width = new SvgUnit(SvgUnitType.Pixel, 30),
                 Height = new SvgUnit(SvgUnitType.Pixel, 20),
+                Fill = new SvgColourServer(Color.Create(255, 0, 0))
             };
             Canvas.Document.Children.Add(element1);
             var matrix = element1.Transforms.GetMatrix();
@@ -60,6 +61,7 @@ namespace Svg.Editor.Core.Test
                 Y = new SvgUnit(SvgUnitType.Pixel, 200),
                 Width = new SvgUnit(SvgUnitType.Pixel, 30),
                 Height = new SvgUnit(SvgUnitType.Pixel, 20),
+                Fill = new SvgColourServer(Color.Create(255, 0, 0))
             };
             Canvas.Document.Children.Add(element1);
             var matrix1 = element1.Transforms.GetMatrix();
@@ -70,6 +72,7 @@ namespace Svg.Editor.Core.Test
                 Y = new SvgUnit(SvgUnitType.Pixel, 300),
                 Width = new SvgUnit(SvgUnitType.Pixel, 30),
                 Height = new SvgUnit(SvgUnitType.Pixel, 20),
+                Fill = new SvgColourServer(Color.Create(255, 0, 0))
             };
             Canvas.Document.Children.Add(element2);
             var matrix2 = element2.Transforms.GetMatrix();
@@ -94,6 +97,7 @@ namespace Svg.Editor.Core.Test
                 Y = new SvgUnit(SvgUnitType.Pixel, 0),
                 Width = new SvgUnit(SvgUnitType.Pixel, 30),
                 Height = new SvgUnit(SvgUnitType.Pixel, 20),
+                Fill = new SvgColourServer(Color.Create(255, 0, 0))
             };
             Canvas.Document.Children.Add(element1);
             Canvas.SelectedElements.Add(element1);
@@ -127,6 +131,7 @@ namespace Svg.Editor.Core.Test
                 Y = new SvgUnit(SvgUnitType.Pixel, 0),
                 Width = new SvgUnit(SvgUnitType.Pixel, 30),
                 Height = new SvgUnit(SvgUnitType.Pixel, 30),
+                Fill = new SvgColourServer(Color.Create(255, 0, 0))
             };
             Canvas.Document.Children.Add(element1);
             Canvas.SelectedElements.Add(element1);
@@ -164,6 +169,7 @@ namespace Svg.Editor.Core.Test
                 Y = new SvgUnit(SvgUnitType.Pixel, 0),
                 Width = new SvgUnit(SvgUnitType.Pixel, 30),
                 Height = new SvgUnit(SvgUnitType.Pixel, 30),
+                Fill = new SvgColourServer(Color.Create(255, 0, 0))
             };
             Canvas.Document.Children.Add(element1);
             Canvas.SelectedElements.Add(element1);
@@ -204,6 +210,7 @@ namespace Svg.Editor.Core.Test
                 Y = new SvgUnit(SvgUnitType.Pixel, 0),
                 Width = new SvgUnit(SvgUnitType.Pixel, 30),
                 Height = new SvgUnit(SvgUnitType.Pixel, 30),
+                Fill = new SvgColourServer(Color.Create(255, 0, 0))
             };
             Canvas.Document.Children.Add(element1);
             Canvas.SelectedElements.Add(element1);
@@ -238,6 +245,7 @@ namespace Svg.Editor.Core.Test
                 Y = new SvgUnit(SvgUnitType.Pixel, 0),
                 Width = new SvgUnit(SvgUnitType.Pixel, 30),
                 Height = new SvgUnit(SvgUnitType.Pixel, 30),
+                Fill = new SvgColourServer(Color.Create(255, 0, 0))
             };
             Canvas.Document.Children.Add(element1);
             Canvas.SelectedElements.Add(element1);

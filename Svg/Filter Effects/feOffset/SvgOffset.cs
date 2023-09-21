@@ -11,9 +11,11 @@ namespace Svg.FilterEffects
     [SvgElement("feOffset")]
 	public class SvgOffset : SvgFilterPrimitive
     {
+        private SvgAttributeCollection.Attribute<SvgUnit> _dx;
+        private SvgAttributeCollection.Attribute<SvgUnit> _dy;
 
 
-		/// <summary>
+        /// <summary>
 		/// The amount to offset the input graphic along the x-axis. The offset amount is expressed in the coordinate system established by attribute ‘primitiveUnits’ on the ‘filter’ element.
 		/// If the attribute is not specified, then the effect is as if a value of 0 were specified.
 		/// Note: this is not used in calculations to bitmap - used only to allow for svg xml output
@@ -21,7 +23,7 @@ namespace Svg.FilterEffects
 		[SvgAttribute("dx")]
 		public SvgUnit Dx
         {
-            get { return this.Attributes.GetAttribute<SvgUnit>("dx"); }
+            get { return (_dx ??= this.Attributes.GetAttribute<SvgUnit>("dx")).GetValue(); }
             set { this.Attributes["dx"] = value; }
         }
 
@@ -34,7 +36,7 @@ namespace Svg.FilterEffects
         [SvgAttribute("dy")]
         public SvgUnit Dy
         {
-            get { return this.Attributes.GetAttribute<SvgUnit>("dy"); }
+            get { return (_dy ??= this.Attributes.GetAttribute<SvgUnit>("dy")).GetValue(); }
             set { this.Attributes["dy"] = value; }
         }
 

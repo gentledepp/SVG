@@ -256,13 +256,6 @@ namespace Svg.Editor.Tools
             DrawCurrentShape(renderer, ws);
         }
 
-        public override async Task Initialize(ISvgDrawingCanvas ws)
-        {
-            await base.Initialize(ws);
-
-            IsActive = false;
-        }
-
         private void UnWatchDocument(SvgDocument svgDocument)
         {
             svgDocument.ChildRemoved -= SvgDocumentOnChildRemoved;

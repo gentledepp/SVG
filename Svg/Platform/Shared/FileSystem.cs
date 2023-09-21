@@ -28,10 +28,10 @@ namespace Svg
 
         public string GetFullPath(string path)
         {
-            return path;
+            return Path.GetFullPath(path);
         }
 
-        public string GetDefaultStoragePath()
+        public virtual string GetDefaultStoragePath()
         {
 #if WINDOWS_UWP
             return Windows.Storage.ApplicationData.Current.LocalFolder.Path;

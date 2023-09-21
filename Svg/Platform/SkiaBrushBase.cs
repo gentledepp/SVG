@@ -21,6 +21,12 @@ namespace Svg.Platform
         }
         protected abstract SKPaint CreatePaint();
 
+        public void SetFontFamily(FontFamily fontFamily)
+        {
+            if (fontFamily is SkiaFontFamily ffm && ffm.Typeface is { } typeface)
+                Paint.Typeface = typeface;
+        }
+
         protected void Reset()
         {
             _paint?.Dispose();

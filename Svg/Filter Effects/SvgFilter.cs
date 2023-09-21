@@ -15,15 +15,20 @@ namespace Svg.FilterEffects
     {
         private Bitmap sourceGraphic;
         private Bitmap sourceAlpha;
+        private SvgAttributeCollection.Attribute<SvgUnit> _x;
+        private SvgAttributeCollection.Attribute<SvgUnit> _y;
+        private SvgAttributeCollection.Attribute<SvgUnit> _width;
+        private SvgAttributeCollection.Attribute<SvgUnit> _height;
+        private SvgAttributeCollection.Attribute<SvgColourInterpolation> _colorInterpolationFiters;
 
-	
-		/// <summary>
+
+        /// <summary>
 		/// Gets or sets the position where the left point of the filter.
 		/// </summary>
 		[SvgAttribute("x")]
 		public SvgUnit X
         {
-            get { return this.Attributes.GetAttribute<SvgUnit>("x"); }
+            get { return (_x ??= this.Attributes.GetAttribute<SvgUnit>("x")).GetValue(); }
             set { this.Attributes["x"] = value; }
         }
 
@@ -33,7 +38,7 @@ namespace Svg.FilterEffects
 		[SvgAttribute("y")]
 		public SvgUnit Y 
         {
-            get { return this.Attributes.GetAttribute<SvgUnit>("y"); }
+            get { return (_y ??= this.Attributes.GetAttribute<SvgUnit>("y")).GetValue(); }
             set { this.Attributes["y"] = value; }
         }
 
@@ -44,7 +49,7 @@ namespace Svg.FilterEffects
         [SvgAttribute("width")]
         public SvgUnit Width
         {
-            get { return this.Attributes.GetAttribute<SvgUnit>("width"); }
+            get { return (_width ??= this.Attributes.GetAttribute<SvgUnit>("width")).GetValue(); }
             set { this.Attributes["width"] = value; }
         }
 
@@ -54,7 +59,7 @@ namespace Svg.FilterEffects
         [SvgAttribute("height")]
         public SvgUnit Height
         {
-            get { return this.Attributes.GetAttribute<SvgUnit>("height"); }
+            get { return (_height ??= this.Attributes.GetAttribute<SvgUnit>("height")).GetValue(); }
             set { this.Attributes["height"] = value; }
         }
 
@@ -66,7 +71,7 @@ namespace Svg.FilterEffects
         [SvgAttribute("color-interpolation-filters")]
         public SvgColourInterpolation ColorInterpolationFilters
         {
-            get { return this.Attributes.GetAttribute<SvgColourInterpolation>("color-interpolation-filters"); }
+            get { return (_colorInterpolationFiters ??= this.Attributes.GetAttribute<SvgColourInterpolation>("color-interpolation-filters")).GetValue(); }
             set { this.Attributes["color-interpolation-filters"] = value; }
         }
 

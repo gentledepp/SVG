@@ -14,6 +14,7 @@ namespace Svg
         private SvgGradientSpreadMethod _spreadMethod;
         private SvgPaintServer _inheritGradient;
         private List<SvgGradientStop> _stops;
+        private SvgAttributeCollection.Attribute<SvgTransformCollection> _gradientTransform;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SvgGradientServer"/> class.
@@ -109,7 +110,7 @@ namespace Svg
         [SvgAttribute("gradientTransform")]
         public SvgTransformCollection GradientTransform
         {
-            get { return (this.Attributes.GetAttribute<SvgTransformCollection>("gradientTransform")); }
+            get { return ((_gradientTransform ??= this.Attributes.GetAttribute<SvgTransformCollection>("gradientTransform")).GetValue()); }
             set { this.Attributes["gradientTransform"] = value; }
         }
 

@@ -10,14 +10,7 @@ namespace Svg.Editor.Sample.Forms.Tools
 		public AddItemTool() : base("Add item", null)
 		{
 		}
-
-        public override async Task Initialize(ISvgDrawingCanvas ws)
-        {
-            await base.Initialize(ws);
-
-            IsActive = false;
-        }
-
+		
 		protected override async Task OnLongPress(LongPressGesture longPress)
 		{
 			await base.OnLongPress(longPress);

@@ -3,6 +3,8 @@ namespace Svg.FilterEffects
 {
     public abstract class SvgFilterPrimitive : SvgElement
     {
+        private SvgAttributeCollection.Attribute<string> _in;
+        private SvgAttributeCollection.Attribute<string> _result;
         public const string SourceGraphic = "SourceGraphic";
         public const string SourceAlpha = "SourceAlpha";
         public const string BackgroundImage = "BackgroundImage";
@@ -13,14 +15,14 @@ namespace Svg.FilterEffects
         [SvgAttribute("in")]
         public string Input
         {
-            get { return this.Attributes.GetAttribute<string>("in"); }
+            get { return (_in ??= this.Attributes.GetAttribute<string>("in")).GetValue(); }
             set { this.Attributes["in"] = value; }
         }
 
         [SvgAttribute("result")]
         public string Result
         {
-            get { return this.Attributes.GetAttribute<string>("result"); }
+            get { return (_result ??= this.Attributes.GetAttribute<string>("result")).GetValue(); }
             set { this.Attributes["result"] = value; }
         }
 

@@ -8,12 +8,18 @@ namespace Svg
     [SvgElement("radialGradient")]
     public sealed class SvgRadialGradientServer : SvgGradientServer
     {
+        private SvgAttributeCollection.Attribute<SvgUnit> _cx;
+        private SvgAttributeCollection.Attribute<SvgUnit> _cy;
+        private SvgAttributeCollection.Attribute<SvgUnit> _r;
+        private SvgAttributeCollection.Attribute<SvgUnit> _fx;
+        private SvgAttributeCollection.Attribute<SvgUnit> _fy;
+
         [SvgAttribute("cx")]
         public SvgUnit CenterX
         {
             get
             {
-                return this.Attributes.GetAttribute<SvgUnit>("cx");
+                return (_cx ??= this.Attributes.GetAttribute<SvgUnit>("cx")).GetValue();
             }
             set
             {
@@ -26,7 +32,7 @@ namespace Svg
         {
             get
             {
-                return this.Attributes.GetAttribute<SvgUnit>("cy");
+                return (_cy ??= this.Attributes.GetAttribute<SvgUnit>("cy")).GetValue();
             }
             set
             {
@@ -39,7 +45,7 @@ namespace Svg
         {
             get
             {
-                return this.Attributes.GetAttribute<SvgUnit>("r");
+                return (_r ??= this.Attributes.GetAttribute<SvgUnit>("r")).GetValue();
             }
             set
             {
@@ -52,7 +58,7 @@ namespace Svg
         {
             get
             {
-                var value = this.Attributes.GetAttribute<SvgUnit>("fx");
+                var value = (_fx ??= this.Attributes.GetAttribute<SvgUnit>("fx")).GetValue();
 
                 if (value.IsEmpty || value.IsNone)
                 {
@@ -72,7 +78,7 @@ namespace Svg
         {
             get
             {
-                var value = this.Attributes.GetAttribute<SvgUnit>("fy");
+                var value = (_fy ??= this.Attributes.GetAttribute<SvgUnit>("fy")).GetValue();
 
                 if (value.IsEmpty || value.IsNone)
                 {
@@ -94,7 +100,6 @@ namespace Svg
             Radius = new SvgUnit(SvgUnitType.Percentage, 50F);
         }
 
-        private object _lockObj = new Object();
 
         private SvgUnit NormalizeUnit(SvgUnit orig)
         {

@@ -60,13 +60,6 @@ namespace Svg.Editor.Tools
 
         #region Overrides
 
-        public override async Task Initialize(ISvgDrawingCanvas ws)
-        {
-            await base.Initialize(ws);
-
-            IsActive = false;
-        }
-
         public override void OnDocumentChanged(SvgDocument oldDocument, SvgDocument newDocument)
         {
             if (oldDocument != null) UnWatchDocument(oldDocument);
@@ -103,7 +96,7 @@ namespace Svg.Editor.Tools
                     FillOpacity = 0
                 };
 
-                _currentPath.AddConstraints(NoSnappingConstraint);
+                _currentPath.AddConstraints(NoSnappingConstraint, NoFillConstraint);
 
                 var capturedCurrentPath = _currentPath;
                 UndoRedoService.ExecuteCommand(new UndoableActionCommand("Add new freedrawing path", o =>

@@ -11,7 +11,7 @@ namespace Svg
         [SvgAttribute("glyph-name")]
         public override string GlyphName
         {
-            get { return this.Attributes["glyph-name"] as string ?? "__MISSING_GLYPH__"; }
+            get { return (_glyphName ??= this.Attributes.GetInheritedAttribute<object>("glyph-name")).GetValue() as string ?? "__MISSING_GLYPH__"; }
             set { this.Attributes["glyph-name"] = value; }
         }
     }

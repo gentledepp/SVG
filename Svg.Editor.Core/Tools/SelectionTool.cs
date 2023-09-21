@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Svg.Editor.Extensions;
 using Svg.Editor.Gestures;
 using Svg.Editor.Interfaces;
 using Svg.Editor.UndoRedo;
 using Svg.Interfaces;
+
 
 namespace Svg.Editor.Tools
 {
@@ -14,6 +14,7 @@ namespace Svg.Editor.Tools
     {
         #region Private fields
 
+        private RectangleF _selectionPoint;
         private RectangleF _selectionRectangle;
         private Brush _brush;
         private Pen _pen;
@@ -42,6 +43,8 @@ namespace Svg.Editor.Tools
                 Reset();
             }
         }
+
+        public bool ShowHitTestMarker { get; set; } = false;
 
         #endregion
 
@@ -95,9 +98,12 @@ namespace Svg.Editor.Tools
 
             // select elements under pointer
             var pointerRect = Canvas.GetPointerRectangle(tap.Position);
-            SelectElementsUnder(pointerRect, Canvas, SelectionType.Intersect, 1);
+            _selectionPoint = pointerRect;
+            _selectionRectangle = null;
 
-            Reset();
+            SelectElementsUnderPoint(pointerRect, Canvas, SelectionType.Intersect);
+
+
             Canvas.FireInvalidateCanvas();
         }
 
@@ -107,13 +113,15 @@ namespace Svg.Editor.Tools
 
             if (!IsActive) return;
 
+            _selectionPoint = null;
+
             System.Diagnostics.Debug.WriteLine(drag.Start);
 
             if (drag.State == DragState.Exit)
             {
                 // select elements under rectangle
                 if (_selectionRectangle != null)
-                    SelectElementsUnder(_selectionRectangle, Canvas, SelectionType.Contain);
+                    SelectElementsUnderArea(_selectionRectangle, Canvas, SelectionType.Contain);
 
                 Reset();
                 Canvas.FireInvalidateCanvas();
@@ -179,39 +187,70 @@ namespace Svg.Editor.Tools
                 renderer.Graphics.Restore();
             }
 
+            // if enabled, draw a click/tap indicator
+            if (ShowHitTestMarker && _selectionPoint != null)
+            {
+                renderer.Graphics.Save();
+                var m = renderer.Graphics.Transform.Clone();
+                m.Invert();
+                renderer.Graphics.Concat(m);
+                
+                var center = _selectionPoint.GetCenterPoint();
+                renderer.DrawCircle(center.X, center.Y, _selectionPoint.Width/2, BluePen);
+
+                renderer.Graphics.Restore();
+            }
+
             return Task.FromResult(true);
         }
 
         public override void OnDocumentChanged(SvgDocument oldDocument, SvgDocument newDocument)
         {
             _selectionRectangle = null;
+            _selectionPoint = null;
         }
 
         public override void Reset()
         {
             _selectionRectangle = null;
+            _selectionPoint = null;
         }
 
         #endregion
 
         #region Private helpers
 
-        private static void SelectElementsUnder(RectangleF selectionRectangle, ISvgDrawingCanvas ws, SelectionType selectionType, int maxItems = int.MaxValue)
+        private void SelectElementsUnderArea(RectangleF selectionRectangle, ISvgDrawingCanvas ws, SelectionType selectionType, int maxItems = int.MaxValue)
         {
+            // When an area is drawn, we do not want an element that is NOT contained to be selected, just because some child element IS contained in the selection rectangle
+            // therefore we MUST specify "recursionLevel = 1"!
+            SelectElementsUnder(selectionRectangle, ws, selectionType, maxItems, 1);
+        }
+
+        private void SelectElementsUnderPoint(RectangleF selectionRectangle, ISvgDrawingCanvas ws, SelectionType selectionType, int maxItems = int.MaxValue)
+        {
+            // when selecting by tapping a point, we do want an element to be selected, if the point intersects with ANY child element of it
+            // therefore we need "recursionLevel=max"!
+            SelectElementsUnder(selectionRectangle, ws, selectionType, maxItems, int.MaxValue);
+        }
+
+        private void SelectElementsUnder(RectangleF selectionRectangle, ISvgDrawingCanvas ws, SelectionType selectionType, int maxItems = int.MaxValue, int recursionLevel = int.MaxValue)
+        {
+
             ws.SelectedElements.Clear();
 
             // the canvas has not been scaled and translated yet
             // we need to compare our rectangle to the translated boundingboxes of the svg elements
-            var selected = ws.GetElementsUnder<SvgVisualElement>(selectionRectangle, selectionType, maxItems);
+            var selected = ws.GetElementsUnder<SvgVisualElement>(selectionRectangle, selectionType, HitTestResultMode.ReturnRootElementOnly, maxItems, recursionLevel: recursionLevel);
 
             foreach (var element in selected)
             {
-                if (element.CustomAttributes.ContainsKey(BackgroundCustomAttributeKey)) continue;
-                if (element.CustomAttributes.ContainsKey(HittestInvisibleAttributeKey)) continue;
                 ws.SelectedElements.Add(element);
             }
         }
-
-        #endregion
+        
     }
+
+    #endregion
+    
 }

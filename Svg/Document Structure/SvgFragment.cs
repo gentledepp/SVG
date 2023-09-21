@@ -45,6 +45,13 @@ namespace Svg
 
         private SvgUnit _x;
         private SvgUnit _y;
+        private SvgAttributeCollection.InheritedAttribute<float?> _fontSize;
+        private SvgAttributeCollection.InheritedAttribute<string> _fontFamily;
+        private SvgAttributeCollection.Attribute<SvgUnit> _width;
+        private SvgAttributeCollection.Attribute<SvgOverflow> _overflow;
+        private SvgAttributeCollection.Attribute<SvgUnit> _height;
+        private SvgAttributeCollection.Attribute<SvgViewBox> _viewBox;
+        private SvgAttributeCollection.Attribute<SvgAspectRatio> _preserveAspectRatio;
 
         /// <summary>
         /// Gets or sets the position where the left point of the svg should start.
@@ -91,7 +98,7 @@ namespace Svg
         [SvgAttribute("width")]
         public SvgUnit Width
         {
-            get { return this.Attributes.GetAttribute<SvgUnit>("width"); }
+            get { return (_width ??= this.Attributes.GetAttribute<SvgUnit>("width")).GetValue(); }
             set { this.Attributes["width"] = value; }
         }
 
@@ -102,14 +109,14 @@ namespace Svg
         [SvgAttribute("height")]
         public SvgUnit Height
         {
-            get { return this.Attributes.GetAttribute<SvgUnit>("height"); }
+            get { return (_height ??= this.Attributes.GetAttribute<SvgUnit>("height")).GetValue(); }
             set { this.Attributes["height"] = value; }
         }
 
         [SvgAttribute("overflow")]
         public virtual SvgOverflow Overflow
         {
-            get { return this.Attributes.GetAttribute<SvgOverflow>("overflow"); }
+            get { return (_overflow ??= this.Attributes.GetAttribute<SvgOverflow>("overflow")).GetValue(); }
             set { this.Attributes["overflow"] = value; }
         }
 
@@ -120,7 +127,7 @@ namespace Svg
         [SvgAttribute("viewBox")]
         public SvgViewBox ViewBox
         {
-            get { return this.Attributes.GetAttribute<SvgViewBox>("viewBox"); }
+            get { return (_viewBox ??= this.Attributes.GetAttribute<SvgViewBox>("viewBox")).GetValue(); }
             set { this.Attributes["viewBox"] = value; }
         }
 
@@ -131,7 +138,7 @@ namespace Svg
         [SvgAttribute("preserveAspectRatio")]
         public SvgAspectRatio AspectRatio
         {
-            get { return this.Attributes.GetAttribute<SvgAspectRatio>("preserveAspectRatio"); }
+            get { return (_preserveAspectRatio ??= this.Attributes.GetAttribute<SvgAspectRatio>("preserveAspectRatio")).GetValue(); }
             set { this.Attributes["preserveAspectRatio"] = value; }
         }
 
@@ -139,9 +146,14 @@ namespace Svg
         /// Refers to the size of the font from baseline to baseline when multiple lines of text are set solid in a multiline layout environment.
         /// </summary>
         [SvgAttribute("font-size")]
-        public virtual SvgUnit FontSize
+        public override SvgUnit FontSize
         {
-            get { return (this.Attributes["font-size"] == null) ? SvgUnit.Empty : (SvgUnit)this.Attributes["font-size"]; }
+            get
+            {
+                _fontSize ??= this.Attributes.GetInheritedAttribute<float?>("font-size");
+                var v = _fontSize.GetValue();
+                return (v == null) ? SvgUnit.Empty : (SvgUnit)v;
+            }
             set { this.Attributes["font-size"] = value; }
         }
 
@@ -149,9 +161,9 @@ namespace Svg
         /// Indicates which font family is to be used to render the text.
         /// </summary>
         [SvgAttribute("font-family")]
-        public virtual string FontFamily
+        public override string FontFamily
         {
-            get { return this.Attributes["font-family"] as string; }
+            get { return (_fontFamily ??=this.Attributes.GetInheritedAttribute<string>("font-family")).GetValue(); }
             set { this.Attributes["font-family"] = value; }
         }
 
@@ -321,8 +333,8 @@ namespace Svg
             newObj.Height = this.Height;
             newObj.Width = this.Width;
             newObj.Overflow = this.Overflow;
-            newObj.ViewBox = this.ViewBox;
-            newObj.AspectRatio = this.AspectRatio;
+            newObj.ViewBox = this.ViewBox.DeepCopy();
+            newObj.AspectRatio = this.AspectRatio.DeepCopy();
             return newObj;
         }
 

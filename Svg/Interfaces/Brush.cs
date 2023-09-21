@@ -6,5 +6,6 @@ namespace Svg
 {
     public interface Brush : IDisposable
     {
+        void SetFontFamily(FontFamily fontFamily);
     }
 }

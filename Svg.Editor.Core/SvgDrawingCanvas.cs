@@ -19,6 +19,9 @@ using Svg.Editor.Properties;
 using Svg.Editor.Tools;
 using Svg.Editor.UndoRedo;
 using Svg.Interfaces;
+using Xamarin.Forms;
+using Color = Svg.Interfaces.Color;
+using IGestureRecognizer = Svg.Editor.Interfaces.IGestureRecognizer;
 
 namespace Svg.Editor
 {
@@ -42,8 +45,9 @@ namespace Svg.Editor
 		private Subject<string> _propertyChangedSubject = new Subject<string>();
 		private readonly ISchedulerProvider _schedulerProvider;
 		private readonly object _lockObject = new object();
+        private ISvgRenderer _svgRenderer;
 
-		private IUndoRedoService UndoRedoService { get; }
+        private IUndoRedoService UndoRedoService { get; }
 
 		#endregion
 
@@ -99,9 +103,9 @@ namespace Svg.Editor
 
 		public List<Func<SvgVisualElement, Task>> DefaultEditors { get; } = new List<Func<SvgVisualElement, Task>>();
 
-		public PointF Translate { get; set; }
+        public PointF Translate { get; set; } = PointF.Create(0, 0);
 
-		public float ZoomFactor { get; set; }
+        public float ZoomFactor { get; set; } = 1f;
 
 		public PointF ZoomFocus
 		{
@@ -164,6 +168,13 @@ namespace Svg.Editor
 		}
 
 		public Color BackgroundColor { get; set; }
+
+		/// <summary>
+		/// Allows to specify the default filter used to determine whether some SvgVisualElement takes part in a hit-test or not
+		/// </summary>
+		public Func<SvgVisualElement, bool> DefaultHitTestFilter { get; set; } = element =>
+                            !element.CustomAttributes.ContainsKey(ToolBase.BackgroundCustomAttributeKey) &&
+                            !element.CustomAttributes.ContainsKey(ToolBase.HittestInvisibleAttributeKey);
 
 		public IGestureRecognizer GestureRecognizer
 		{
@@ -302,17 +313,28 @@ namespace Svg.Editor
 			}
 		}
 
-		/// <summary>
-		/// Called by platform specific implementation to allow tools to draw something onto the canvas
-		/// </summary>
-		/// <param name="renderer"></param>
-		public async Task OnDraw(IRenderer renderer)
+
+        public delegate void ScreenSetEventHandler(object source, EventArgs args);
+
+        public event ScreenSetEventHandler ScreenSet ;
+
+        private void OnScreenSet(IRenderer renderer)
+        {
+            ScreenSet?.Invoke(this, EventArgs.Empty);
+        }
+        /// <summary>
+        /// Called by platform specific implementation to allow tools to draw something onto the canvas
+        /// </summary>
+        /// <param name="renderer"></param>
+        public async Task OnDraw(IRenderer renderer)
 		{
             // make sure all tools have been initialized successfully
 			await EnsureInitialized();
 
             ScreenWidth = renderer.Width;
             ScreenHeight = renderer.Height;
+
+			OnScreenSet(renderer);
 
 			SetInitialTransformation();
 
@@ -351,7 +373,9 @@ namespace Svg.Editor
 			}
         }
 
-		private void ApplyConstraintsFillUniform()
+
+
+        private void ApplyConstraintsFillUniform()
 		{
 			if (Constraints == null || Constraints == RectangleF.Empty) return;
 
@@ -448,10 +472,13 @@ namespace Svg.Editor
 				foreach (var tool in Tools)
 					await tool.Initialize(this);
 
-                ActiveTool = Tools.FirstOrDefault(t => t.ToolUsage == ToolUsage.Explicit
-                                                       && t.Properties.ContainsKey("isselectedtool")
-                                                       && t.Properties["isselectedtool"] is true)
-                             ?? Tools.First(t => t.ToolUsage == ToolUsage.Explicit);
+				if(ActiveTool is null)
+                {
+                    ActiveTool = Tools.FirstOrDefault(t => t.ToolUsage == ToolUsage.Explicit
+                                                          && t.Properties.ContainsKey("isselectedtool")
+                                                          && t.Properties["isselectedtool"] is true)
+                                ?? Tools.FirstOrDefault(t => t.ToolUsage == ToolUsage.Explicit);
+                }
 
 				_initialized = true;
 
@@ -460,8 +487,13 @@ namespace Svg.Editor
 		}
 
 		private ISvgRenderer GetOrCreateRenderer(Graphics graphics)
-		{
-			return SvgRenderer.FromGraphics(graphics);
+        {
+            if (_svgRenderer is null)
+            {
+                _svgRenderer = SvgRenderer.FromGraphics(graphics);
+                return _svgRenderer;
+            }
+            return _svgRenderer.UseGraphics(graphics);
 		}
 
 		public Bitmap CreateBitmap(int width, int height)
@@ -476,11 +508,32 @@ namespace Svg.Editor
 		/// <returns></returns>
 		public RectangleF GetPointerRectangle(PointF p)
         {
-            var halfFingerThickness = 10; // "10 pixel fat finger"
+            // "10 pixel fat finger" - but take ZoomFactor into account, as the more you zoom, the larger your finger area on the drawing canvas!
+            var halfFingerThickness = 10 * ZoomFactor; 
             var location = PointF.Create(p.X - halfFingerThickness, p.Y - halfFingerThickness);
             var size = SizeF.Create(halfFingerThickness * 2, halfFingerThickness * 2);
             return RectangleF.Create(location, size);
 		}
+
+        /// <summary>
+        /// the selection rectangle must be in absolute screen coordinates (so not transformed by canvas.Translate or canvas.ZoomFactor)
+        /// </summary>
+        /// <param name="selectionRectangle"></param>
+        /// <param name="selectionType"></param>
+        /// <param name="maxItems"></param>
+        /// <param name="recursionLevel"></param>
+        /// <returns></returns>
+        public IList<TElement> GetElementsUnder<TElement>(
+            RectangleF selectionRectangle,
+            SelectionType selectionType,
+			HitTestResultMode resultMode = HitTestResultMode.ReturnRootElementOnly,
+            int maxItems = int.MaxValue,
+            int recursionLevel = 1)
+            where TElement : SvgVisualElement
+        {
+
+			return GetElementsUnder<TElement>(selectionRectangle,selectionType, resultMode, DefaultHitTestFilter, maxItems,recursionLevel);
+        }
 
 		/// <summary>
 		/// the selection rectangle must be in absolute screen coordinates (so not transformed by canvas.Translate or canvas.ZoomFactor)
@@ -493,36 +546,35 @@ namespace Svg.Editor
 		public IList<TElement> GetElementsUnder<TElement>(
 			RectangleF selectionRectangle,
 			SelectionType selectionType,
+            HitTestResultMode resultMode,
+            Func<SvgVisualElement, bool> filter,
 			int maxItems = int.MaxValue,
-			int recursionLevel = 1)
+			int recursionLevel = int.MaxValue)
 			where TElement : SvgVisualElement
 		{
 			if (selectionRectangle == null)
 				return new List<TElement>();
-
-			// to speed up selection, this only takes first-level children into account!
-			var children = Document?.Children.OfType<SvgVisualElement>() ?? Enumerable.Empty<SvgVisualElement>();
-
-			return
-				children.Reverse()
-					.SelectMany(
-						ch =>
-							ch.HitTest<TElement>(selectionRectangle, selectionType,
-								GetCanvasTransformationMatrix(), recursionLevel))
+			
+			return Document.HitTest<TElement>(selectionRectangle,selectionType,resultMode, GetCanvasTransformationMatrix(),recursionLevel)
+                    .Where(c => filter(c))
 					.Take(maxItems)
 					.ToList();
 		}
 
-		/// <summary>
-		/// gets all visual elements under the given pointer (a 20px rectangle surrounding the given point to simulate thick finger)
-		/// </summary>
-		/// <param name="pointer1Position"></param>
-		/// <param name="recursionLevel"></param>
-		/// <returns></returns>
-		public IList<TElement> GetElementsUnderPointer<TElement>(PointF pointer1Position, int recursionLevel = 1)
+        /// <summary>
+        /// gets all visual elements under the given pointer (a 20px rectangle surrounding the given point to simulate thick finger)
+        /// </summary>
+        /// <param name="pointer1Position"></param>
+        /// <param name="selectionType"></param>
+        /// <param name="recursionLevel"></param>
+        /// <returns></returns>
+        public IList<TElement> GetElementsUnderPointer<TElement>(PointF pointer1Position, 
+            SelectionType selectionType = SelectionType.Intersect, 
+            int recursionLevel = 1)
 			where TElement : SvgVisualElement
-		{
-			return GetElementsUnder<TElement>(GetPointerRectangle(pointer1Position), SelectionType.Intersect,
+        {
+            return GetElementsUnder<TElement>(GetPointerRectangle(pointer1Position), selectionType,
+                HitTestResultMode.ReturnAllMatchingDescendants,
 				recursionLevel: recursionLevel);
 		}
 
@@ -686,7 +738,7 @@ namespace Svg.Editor
 			try
 			{
 				var documentSize = Document.CalculateDocumentBounds();
-				Document.SetDocumentViewbox(documentSize);
+                Document.SetDocumentViewbox(documentSize, Constraints);
 				Document.Write(stream);
 
 				FireToolCommandsChanged();
@@ -716,7 +768,7 @@ namespace Svg.Editor
 
 			try
 			{
-                Document.SetDocumentViewbox(drawingClip);
+                Document.SetDocumentViewbox(drawingClip, Constraints);
 				Document.Write(stream);
 
 				FireToolCommandsChanged();
@@ -735,8 +787,7 @@ namespace Svg.Editor
         {
             return Document.CaptureDocumentBitmap(Constraints, maxSize, backgroundColor);
         }
-
-		public Bitmap CaptureScreenBitmap(Color backgroundColor = null)
+        public Bitmap CaptureScreenBitmap(Color backgroundColor = null)
 		{
 			if (ScreenWidth == 0 || ScreenHeight == 0)
 				throw new InvalidOperationException(
@@ -747,7 +798,7 @@ namespace Svg.Editor
 			var drawingClip = RectangleF.Create(ScreenToCanvas(0, 0), SizeF.Create(drawingWidth, drawingHeight));
 			var bitmap = Bitmap.Create(drawingWidth, drawingHeight);
 
-			return Document.RenderBitmap(bitmap, backgroundColor, drawingClip);
+			return Document.RenderBitmap(bitmap, backgroundColor, drawingClip, Constraints);
 		}
 		
 		public void FireInvalidateCanvas()
@@ -776,6 +827,7 @@ namespace Svg.Editor
 
 			_onGestureToken?.Dispose();
 			_document?.Dispose();
+            _svgRenderer?.Dispose();
 
             UndoRedoService.CanRedoChanged -= UndoRedoServiceOnCanRedoChanged;
             UndoRedoService.CanUndoChanged -= UndoRedoServiceOnCanRedoChanged;
@@ -826,42 +878,88 @@ namespace Svg.Editor
 			// selection is not valid anymore
 			SelectedElements.Clear();
 
-			// check if the document has a viewBox and set translate and zoom accordingly
-			if (newDocument == null || newDocument.ViewBox.Equals(SvgViewBox.Empty))
-			{
-				Translate = PointF.Create(0f, 0f);
-				ZoomFactor = 1f;
-			}
-			else
-			{
-				CalculateInitialTransformation = true;
-            }
+			// reset canvas properties
+            Translate = PointF.Create(0, 0);
+            ZoomFocus = PointF.Create(0, 0);
+            ZoomFactor = 1f;
 
-			// re-render
-			FireInvalidateCanvas();
+            // check if the document has a viewBox and set translate and zoom accordingly
+            CalculateInitialTransformation = true;
+
+            // re-render
+            FireInvalidateCanvas();
 		}
 
 		private bool CalculateInitialTransformation { get; set; }
+
+		public bool ZoomOutOnInitialRenderpass { get; set; }
 
 		private void SetInitialTransformation()
 		{
 			if (!CalculateInitialTransformation) return;
 
-			float scaleX;
-			float scaleY;
-			float minX;
-			float minY;
-			Document.ViewBox.CalculateTransform(Document.AspectRatio, ScreenWidth, ScreenHeight,
-				out scaleX, out scaleY, out minX, out minY);
 
-			ZoomFactor = Math.Min(1 / scaleX, 1 / scaleY);
-			ZoomFocus = PointF.Empty;
-			Translate = PointF.Create(-Document.ViewBox.MinX * ZoomFactor, -Document.ViewBox.MinY * ZoomFactor);
+            // check if canvas is pristine.
+            // If not, we want to keep the transform and zoom
+            var canvasIsPristine = ZoomFactor == 1f
+                                   && ZoomFocus.X == 0 && ZoomFocus.Y == 0
+                                   && Translate.X == 0 && Translate.Y == 0;
 
-			// we need to reset the viewBox for correct rendering afterwards
-			Document.ViewBox = SvgViewBox.Empty;
+            if (!canvasIsPristine)
+            {
+                // we need to reset the viewBox for correct rendering afterwards
+                if (Document != null)
+                    Document.ViewBox = SvgViewBox.Empty;
+                CalculateInitialTransformation = false;
+                return;
+            }
 
-			CalculateInitialTransformation = false;
+            if (ZoomOutOnInitialRenderpass && Document != null)
+            {
+                var worldBounds = Document.CalculateDocumentBounds();
+                if (worldBounds.IsEmpty)
+                {
+                    ZoomFactor = 1;
+                    ZoomFocus = PointF.Create(0, 0);
+                    Translate = PointF.Create(0, 0);
+                }
+                else
+                {
+                    ZoomFactor = Math.Min(ScreenWidth / worldBounds.Width,
+                        ScreenHeight / worldBounds.Height);
+                    ZoomFocus = PointF.Create(0, 0);
+                    var offsetX = -worldBounds.Left * ZoomFactor;
+                    var marginX = (ScreenWidth - worldBounds.Width * ZoomFactor) / 2;
+                    var offsetY = -worldBounds.Top * ZoomFactor;
+                    var marginY = (ScreenHeight - worldBounds.Height * ZoomFactor) / 2;
+                    Translate = PointF.Create(offsetX + marginX, offsetY + marginY);
+                }
+            }
+            else if (Document is null || Document.ViewBox.Equals(SvgViewBox.Empty))
+            {
+                Translate = PointF.Create(0f, 0f);
+                ZoomFactor = 1f;
+            }
+            else if(Document != null)
+            {
+
+                float scaleX;
+                float scaleY;
+                float minX;
+                float minY;
+                Document.ViewBox.CalculateTransform(Document.AspectRatio, ScreenWidth, ScreenHeight,
+                    out scaleX, out scaleY, out minX, out minY);
+
+                ZoomFactor = Math.Min(1 / scaleX, 1 / scaleY);
+                ZoomFocus = PointF.Empty;
+                Translate = PointF.Create(-Document.ViewBox.MinX * ZoomFactor, -Document.ViewBox.MinY * ZoomFactor);
+
+            }
+
+            // we need to reset the viewBox for correct rendering afterwards
+            if(Document != null)
+                Document.ViewBox = SvgViewBox.Empty;
+            CalculateInitialTransformation = false;
         }
 
 		private void OnDocumentContentModified(object sender, SvgElement e)
@@ -956,4 +1054,5 @@ namespace Svg.Editor
 		FitUniform,
 		FillUniform
 	}
+
 }

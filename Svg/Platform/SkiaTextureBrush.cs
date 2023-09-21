@@ -36,6 +36,7 @@ namespace Svg.Platform
             _shader = SKShader.CreateBitmap(_image.Image, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp);
             
             paint.Shader = _shader;
+            paint.IsAntialias = true;
             return paint;
         }
     }

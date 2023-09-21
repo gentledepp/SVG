@@ -1,5 +1,5 @@
 using System;
-
+using System.Collections.Generic;
 using Svg.Interfaces;
 
 namespace Svg
@@ -171,16 +171,9 @@ namespace Svg
             get { return (CornerRadiusX.Value > 0 || CornerRadiusY.Value > 0); }
         }
 
-        /// <summary>
-        /// Gets the bounds of the element.
-        /// </summary>
-        /// <value>The bounds.</value>
-        public override RectangleF Bounds
+        public override RectangleF GetBounds()
         {
-            get
-            {
                 return Path(null).GetBounds();
-            }
         }
 
         /// <summary>
@@ -195,7 +188,8 @@ namespace Svg
                 {
                     var rectangle = RectangleF.Create(Location.ToDeviceValue(renderer, this),
                         SvgUnit.GetDeviceSize(this.Width, this.Height, renderer, this));
-
+                    
+                    _path?.Dispose();
                     _path = SvgEngine.Factory.CreateGraphicsPath();
                     _path.StartFigure();
                     _path.AddRectangle(rectangle);
@@ -203,6 +197,7 @@ namespace Svg
                 }
                 else
                 {
+                    _path?.Dispose();
                     _path = SvgEngine.Factory.CreateGraphicsPath();
                     var arcBounds = RectangleF.Create();
                     var lineStart = PointF.Create(0f,0f);
@@ -281,8 +276,26 @@ namespace Svg
             }
         }
 
+        protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
+        {
+            if (this.HasFill())
+                return true;
+            
+            var leftTop = PointF.Create(this.X, this.Y);
+            var rightTop = PointF.Create(this.X + this.Width, this.Y);
+            var rightBottom = PointF.Create(this.X + this.Width, this.Y + this.Height);
+            var leftBottom = PointF.Create(this.X, this.Y + this.Height);
 
-		public override SvgElement DeepCopy()
+            var lineSegments = new List<(PointF from, PointF to)>();
+            lineSegments.Add((leftTop.Clone(), rightTop.Clone()));
+            lineSegments.Add((rightTop.Clone(),rightBottom.Clone()));
+            lineSegments.Add((rightBottom.Clone(),leftBottom.Clone()));
+            lineSegments.Add((leftBottom.Clone(), leftTop.Clone()));
+
+            return lineSegments.IsIntersectingWithLine(transform, rectangle);
+        }
+
+        public override SvgElement DeepCopy()
 		{
 			return DeepCopy<SvgRectangle>();
 		}

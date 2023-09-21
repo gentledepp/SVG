@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg height="90" width="200">
+	<text font-family="Segoe UI" x="10" y="20" style="fill:red;">
+		Several lines:
+		<tspan x="10" y="45">First line.</tspan>
+		<tspan dx="10" dy="5">Second line.</tspan>
+	</text>
+	Sorry, your browser does not support inline SVG.
+</svg>

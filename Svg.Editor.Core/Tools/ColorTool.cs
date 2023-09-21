@@ -161,8 +161,8 @@ namespace Svg.Editor.Tools
 
 		private void ColorizeElement(SvgElement element, int colorIndex)
 		{
-			var noFill = element.HasConstraints(NoFillConstraint);
-			var noStroke = element.HasConstraints(NoStrokeConstraint);
+			var noFill = element.Fill == null ||element.Fill == SvgPaintServer.None || element.Fill == SvgColourServer.NotSet || element.HasConstraints(NoFillConstraint);
+			var noStroke = element.Stroke == null || element.Stroke == SvgPaintServer.None || element.Stroke == SvgColourServer.NotSet || element.HasConstraints(NoStrokeConstraint);
 
 			// only colorize visual elements
 			if (!(element is SvgVisualElement) || noFill && noStroke) return;

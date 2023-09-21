@@ -101,6 +101,11 @@ namespace Svg.Editor.Sample.Forms
                 {"pinsizenames", new[] {"Small", "Medium", "Large", "ExtraLarge" } }
             };
 
+            var polygonProperties = new Dictionary<string, object>
+            {
+                {"submit", false }
+            };
+
             #endregion
 
             DrawingCanvas = new SvgDrawingCanvas();
@@ -123,6 +128,7 @@ namespace Svg.Editor.Sample.Forms
 		        () => new SaveTool(false),
 		        () => new PlaceAsBackgroundTool(placeAsBackgroundToolProperties, undoRedoService),
 		        () => new AddItemTool(),
+		        () => new PolygonTool(polygonProperties, undoRedoService),
                 () => new PinTool(pinToolProperties, undoRedoService));
         }
 

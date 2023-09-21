@@ -372,9 +372,7 @@ namespace Svg.Editor.Tools
 		public override async Task Initialize(ISvgDrawingCanvas ws)
 		{
 			await base.Initialize(ws);
-
-			IsActive = false;
-
+			
 			Commands = new List<IToolCommand>
 			{
 				new ChangeLineStyleCommand(ws, this, "Line endings")
@@ -423,11 +421,12 @@ namespace Svg.Editor.Tools
 		}
 
 		private SvgLine CreateLine(PointF relativeStart)
-		{
-			var line = new SvgLine
+        {
+            var color = new SvgColourServer(SvgEngine.Factory.CreateColorFromArgb(255, 0, 0, 0));
+            var line = new SvgLine
 			{
-				Stroke = new SvgColourServer(SvgEngine.Factory.CreateColorFromArgb(255, 0, 0, 0)),
-				Fill = SvgPaintServer.None,
+				Stroke = color,
+				Fill = color,
 				StrokeWidth = new SvgUnit(SvgUnitType.Pixel, DefaultStrokeWidth),
 				StartX = new SvgUnit(SvgUnitType.Pixel, relativeStart.X),
 				StartY = new SvgUnit(SvgUnitType.Pixel, relativeStart.Y),

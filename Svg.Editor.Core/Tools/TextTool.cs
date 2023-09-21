@@ -77,9 +77,7 @@ namespace Svg.Editor.Tools
 		public override async Task Initialize(ISvgDrawingCanvas ws)
 		{
 			await base.Initialize(ws);
-
-			IsActive = false;
-
+			
 			Canvas.DefaultEditors.Add(async element =>
 			{
 				var svgText = element as SvgTextBase ?? element.Descendants().OfType<SvgTextBase>().FirstOrDefault();
@@ -105,7 +103,7 @@ namespace Svg.Editor.Tools
 			if (!IsActive) return;
 
 			// if there is text below the pointer, edit it
-			var svgText = Canvas.GetElementsUnderPointer<SvgTextBase>(tap.Position, 20).FirstOrDefault();
+			var svgText = Canvas.GetElementsUnderPointer<SvgTextBase>(tap.Position, SelectionType.IntersectBoundingBoxes).FirstOrDefault();
 
 			if (svgText != null)
 			{
@@ -137,7 +135,7 @@ namespace Svg.Editor.Tools
 			if (Canvas.ActiveTool.ToolType != ToolType.Select) return;
 
 			// determine if pointer was put down on a text
-			var svgText = Canvas.GetElementsUnderPointer<SvgTextBase>(doubleTap.Position, 20).FirstOrDefault();
+			var svgText = Canvas.GetElementsUnderPointer<SvgTextBase>(doubleTap.Position, SelectionType.IntersectBoundingBoxes).FirstOrDefault();
 
 			if (svgText == null
 			    || svgText.HasConstraints(ImmutableTextConstraint)
@@ -193,10 +191,11 @@ namespace Svg.Editor.Tools
 			var lines = txt.Split('\n', '\r');
 			if (lines.Length > 1)
 			{
-				var spans = lines.Select(
+				var spans = lines.Where(s => !string.IsNullOrEmpty(s)).Select(
 					(t, i) =>
 						new SvgTextSpan
 						{
+							Text = t,
 							Nodes = {new SvgContentNode {Content = t}},
 							X = new SvgUnitCollection {0},
 							Y = new SvgUnitCollection {fontSize * lineHeight * i}
@@ -224,7 +223,7 @@ namespace Svg.Editor.Tools
 			{
 				Canvas.Document.Children.Add(svgText);
 				Canvas.FireInvalidateCanvas();
-			}, o =>
+            }, o =>
 			{
 				Canvas.Document.Children.Remove(svgText);
 				Canvas.FireInvalidateCanvas();
@@ -275,7 +274,7 @@ namespace Svg.Editor.Tools
 				return;
 			}
 
-			if ((text == svgText.Text || text == svgText.Children.OfType<SvgTextSpan>().FirstOrDefault()?.Text) &&
+			if ((text == svgText.Text || text == svgText.Children.OfType<SvgTextSpan>().FirstOrDefault()?.Text && svgText.Children.OfType<SvgTextSpan>().Count()<=1) &&
 			    Math.Abs(svgText.FontSize.Value - fontSize) < 0.1f) return;
 
 			var formerText = svgText.Text;
@@ -283,7 +282,7 @@ namespace Svg.Editor.Tools
 				.Select(span =>
 					new SvgTextSpan
 					{
-						Nodes = {new SvgContentNode {Content = span.Text}},
+                        Nodes = {new SvgContentNode {Content = span.Text}},
 						X = span.X,
 						Y = span.Y,
 						TextAnchor = span.TextAnchor,
@@ -299,15 +298,18 @@ namespace Svg.Editor.Tools
 				{
 					svgText.Text = null;
 					var origin = svgText.Children.OfType<SvgTextSpan>().FirstOrDefault() ?? svgText;
-					var spans = lines.Select((t, i) =>
+					var spans = lines.Where(s => !string.IsNullOrEmpty(s)).Select((t, i) =>
 						new SvgTextSpan
 						{
-							Nodes = {new SvgContentNode {Content = t}},
-							X = origin.X,
+							Text = t,
+                            Nodes = {new SvgContentNode {Content = t}},
+							X = new SvgUnitCollection(){
+                                0
+								},
 							Y =
 								new SvgUnitCollection
 								{
-									origin.Y.FirstOrDefault() + fontSize * lineHeight * i
+                                    origin.Y.FirstOrDefault() + fontSize * lineHeight * i
 								},
 							TextAnchor = origin.TextAnchor,
 							SpaceHandling = origin.SpaceHandling

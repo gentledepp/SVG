@@ -1,18 +1,10 @@
+using Svg.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using Svg.Interfaces;
-using Svg.Transforms;
 
 namespace Svg
 {
-    public enum SelectionType
-    {
-        Intersect,
-        Contain
-    }
-
     /// <summary>
     /// The class that all SVG elements should derive from when they are to be rendered.
     /// </summary>
@@ -22,7 +14,7 @@ namespace Svg
         private Region _previousClip;
         public const string CONTEXT_STROKE = "context-stroke";
         public const string CONTEXT_FILL = "context-fill";
-
+        
         /// <summary>
         /// Gets the <see cref="GraphicsPath"/> for this element.
         /// </summary>
@@ -44,14 +36,8 @@ namespace Svg
             }
         }
 
-        /// <summary>
-        /// Gets the bounds of the element.
-        /// </summary>
-        /// <value>The bounds.</value>
-        public virtual RectangleF Bounds
+        public virtual RectangleF GetBounds()
         {
-            get
-            {
                 if (Renderable)
                 {
                     return this.Path(null).GetBounds();
@@ -79,9 +65,34 @@ namespace Svg
 
                     return r;
                 }
+
+        }
+
+        private RectangleF _bounds;
+        /// <summary>
+        /// Gets the bounds of the element.
+        /// </summary>
+        /// <value>The bounds.</value>
+        public RectangleF Bounds
+        {
+            get
+            {
+                return _bounds ??= GetBounds();
             }
         }
-        
+
+        private void ResetBounds()
+        {
+            _bounds = null;
+        }
+
+        protected override void OnSubTreeChanged(SvgElement svgElement)
+        {
+            ResetBounds();
+
+            base.OnSubTreeChanged(svgElement);
+        }
+
         public PointF[] GetTransformedPoints(Matrix transform = null)
         {
             if (transform == null)
@@ -91,11 +102,11 @@ namespace Svg
             
             if (Renderable)
             {
-                return GetTransformedElementPoints(transform);
+                return this.GetTransformedElementPoints(transform);
             }
             else
             {
-                return GetTransformedChildPoints(transform);
+                return this.GetTransformedChildPoints(transform);
             }
         }
 
@@ -105,107 +116,34 @@ namespace Svg
             
             return RectangleF.FromPoints(pts);
         }
-
-        public IEnumerable<TElement> HitTest<TElement>(RectangleF rectangle, SelectionType selectionType = SelectionType.Intersect,
-            Matrix transform = null, int maxRecursion = int.MaxValue) where TElement : SvgVisualElement
+        
+        [Obsolete("Use the overload with selectionMode")]
+        public IEnumerable<TElement> HitTest<TElement>(RectangleF rectangle,
+            SelectionType selectionType = SelectionType.Intersect,
+            Matrix transform = null, 
+            int maxRecursion = int.MaxValue) where TElement : SvgVisualElement
         {
-            return HitTestInternal<TElement>(rectangle, selectionType, transform ?? Matrix.Create(), maxRecursion);
+            return this.HitTest<TElement>(rectangle, selectionType, HitTestResultMode.ReturnAllMatchingDescendants, transform ?? Matrix.Create(), maxRecursion);
+        }
+        
+        /// <summary>
+        /// This method gives a specific shape the chance to add additional hit testing logic.
+        /// In case the elements bounding box is found during hit-testing, this method will be called, so that the element can still refuse to be hit
+        /// This is useful, if e.g. a polygon without fill color should only be considered hit, if its border/line was hit
+        /// </summary>
+        /// <param name="rectangle"></param>
+        /// <param name="transform"></param>
+        /// <param name="maxRecursion"></param>
+        /// <returns></returns>
+        protected internal virtual bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
+        {
+            return true;
         }
 
-        private IEnumerable<TElement> HitTestInternal<TElement>(RectangleF rectangle, SelectionType selectionType,
-            Matrix transform, int maxRecursion) where TElement : SvgVisualElement
-        {
-            if (transform == null)
-                transform = Matrix.Create();
-            else
-                transform = transform.Clone();
-
-            if (Renderable)
-            {
-                var pts = GetTransformedElementPoints(transform);
-                var box = RectangleF.FromPoints(pts);
-
-                // if this element fits the type filter, check if it fits the hittest rectangle
-                if (this is TElement)
-                {
-                    if ((selectionType == SelectionType.Intersect) && rectangle.IntersectsWith(box))
-                        yield return (TElement)this;
-                    else if ((selectionType == SelectionType.Contain) && rectangle.Contains(box))
-                        yield return (TElement)this;
-                }
-            }
-            else
-            {
-                // recurse the hittest to the inner levels
-                var recurs = maxRecursion - 1;
-                if (recurs > 0)
-                {
-                    var t2 = transform.Clone();
-                    foreach (SvgTransform transformation in this.Transforms)
-                    {
-                        transformation.ApplyTo(t2);
-                    }
-
-                    // reverse children because of z-index
-                    foreach (var hit in this.Children.Reverse().OfType<SvgVisualElement>()
-                            .SelectMany(child => child.HitTestInternal<TElement>(rectangle, selectionType, t2, recurs)))
-                    {
-                        yield return hit;
-                    }
-                }
-
-                // if this element fits the type filter, check if it fits the hittest rectangle
-                if (this is TElement)
-                {
-                    var points = GetTransformedChildPoints(transform);
-                    var box = RectangleF.FromPoints(points);
-
-                    if ((selectionType == SelectionType.Intersect) && rectangle.IntersectsWith(box))
-                        yield return (TElement) this;
-                    else if ((selectionType == SelectionType.Contain) && rectangle.Contains(box))
-                        yield return (TElement) this;
-                }
-            }
-        }
-
-        private PointF[] GetTransformedElementPoints(Matrix transform)
-        {
-            var b = Bounds;
-            var p1 = PointF.Create(b.Left, b.Top);
-            var p2 = PointF.Create(b.Right, b.Top);
-            var p3 = PointF.Create(b.Right, b.Bottom);
-            var p4 = PointF.Create(b.Left, b.Bottom);
-
-            var pts = new[] {p1, p2, p3, p4};
-
-            foreach (SvgTransform transformation in this.Transforms)
-            {
-                transformation.ApplyTo(transform);
-            }
-
-            transform.TransformPoints(pts);
-            return pts.Select(p => p.Clone()).ToArray();
-        }
-
-        private PointF[] GetTransformedChildPoints(Matrix transform)
-        {
-            var pts = new List<PointF>();
-
-            foreach (SvgTransform transformation in this.Transforms)
-            {
-                transformation.ApplyTo(transform);
-            }
-
-            foreach (var c in this.Children)
-            {
-                if (c is SvgVisualElement)
-                {
-                    var childBounds = ((SvgVisualElement) c).GetTransformedPoints(transform);
-                    pts.AddRange(childBounds);
-                }
-            }
-            return pts.Select(p => p.Clone()).ToArray();
-        }
+        private SvgAttributeCollection.InheritedAttribute<string> _clip;
+        private SvgAttributeCollection.InheritedAttribute<Uri> _clipPath;
+        private SvgAttributeCollection.InheritedAttribute<Uri> _filter;
+        private SvgAttributeCollection.Attribute<SvgClipRule> _clipRule;
 
         /// <summary>
         /// Gets the associated <see cref="SvgClipPath"/> if one has been specified.
@@ -213,7 +151,7 @@ namespace Svg
         [SvgAttribute("clip")]
         public virtual string Clip
         {
-            get { return this.Attributes.GetInheritedAttribute<string>("clip"); }
+            get { return  (_clip ??= this.Attributes.GetInheritedAttribute<string>("clip")).GetValue(); }
             set { this.Attributes["clip"] = value; }
         }
 
@@ -223,7 +161,7 @@ namespace Svg
         [SvgAttribute("clip-path")]
         public virtual Uri ClipPath
         {
-            get { return this.Attributes.GetInheritedAttribute<Uri>("clip-path"); }
+            get { return (_clipPath ??= this.Attributes.GetInheritedAttribute<Uri>("clip-path")).GetValue(); }
             set { this.Attributes["clip-path"] = value; }
         }
 
@@ -233,7 +171,7 @@ namespace Svg
         [SvgAttribute("clip-rule")]
         public SvgClipRule ClipRule
         {
-            get { return this.Attributes.GetAttribute<SvgClipRule>("clip-rule", SvgClipRule.NonZero); }
+            get { return (_clipRule ??= this.Attributes.GetAttribute<SvgClipRule>("clip-rule", SvgClipRule.NonZero)).GetValue(); }
             set { this.Attributes["clip-rule"] = value; }
         }
 
@@ -243,7 +181,7 @@ namespace Svg
         [SvgAttribute("filter")]
         public virtual Uri Filter
         {
-            get { return this.Attributes.GetInheritedAttribute<Uri>("filter"); }
+            get { return (_filter ??= this.Attributes.GetInheritedAttribute<Uri>("filter")).GetValue(); }
             set { this.Attributes["filter"] = value; }
         }
         
@@ -264,18 +202,20 @@ namespace Svg
             this._requiresSmoothRendering = false;
         }
 
-        protected virtual bool Renderable { get { return true; } }
-
+        protected internal virtual bool Renderable { get { return true; } }
+        
         /// <summary>
         /// Renders the <see cref="SvgElement"/> and contents to the specified <see cref="Graphics"/> object.
         /// </summary>
         /// <param name="renderer">The <see cref="ISvgRenderer"/> object to render to.</param>
         protected override void Render(ISvgRenderer renderer)
         {
-            this.Render(renderer, true);
+            var drawingCache = GetOrCreateRenderCacheEntry<RenderCacheEntry>(renderer);
+
+            this.Render(renderer, true, drawingCache);
         }
 
-        private void Render(ISvgRenderer renderer, bool renderFilter)
+        private void Render(ISvgRenderer renderer, bool renderFilter, RenderCacheEntry cacheEntry)
         {
             if (this.Visible && this.Displayable && this.PushTransforms(renderer) &&
                 (!Renderable || this.Path(renderer) != null))
@@ -295,7 +235,7 @@ namespace Svg
                         this.PopTransforms(renderer);
                         try
                         {
-                            filter.ApplyFilter(this, renderer, (r) => this.Render(r, false));
+                            filter.ApplyFilter(this, renderer, (r) => this.Render(r, false, cacheEntry));
                         }
                         catch (Exception ex)
                         {
@@ -304,7 +244,6 @@ namespace Svg
                         renderNormal = false;
                     }
                 }
-
 
                 if (renderNormal)
                 {
@@ -318,8 +257,8 @@ namespace Svg
                             renderer.SmoothingMode = SmoothingMode.AntiAlias;
                         }
 
-                        this.RenderFill(renderer);
-                        this.RenderStroke(renderer);
+                        this.RenderFill(renderer, cacheEntry);
+                        this.RenderStroke(renderer, cacheEntry);
 
                         // Reset the smoothing mode
                         if (this.RequiresSmoothRendering && renderer.SmoothingMode == SmoothingMode.AntiAlias)
@@ -343,27 +282,37 @@ namespace Svg
         /// Renders the fill of the <see cref="SvgVisualElement"/> to the specified <see cref="ISvgRenderer"/>
         /// </summary>
         /// <param name="renderer">The <see cref="ISvgRenderer"/> object to render to.</param>
-        protected internal virtual void RenderFill(ISvgRenderer renderer)
+        protected void RenderFill(ISvgRenderer renderer, RenderCacheEntry cacheEntry)
         {
             object fillTemp;
             var fill = this.Fill;
-            if (fill == SvgColourServer.ContextFill &&
-                renderer.Context.TryGetValue(CONTEXT_FILL, out fillTemp))
+            var isContextFill = fill == SvgColourServer.ContextFill;
+            if (isContextFill && renderer.Context.TryGetValue(CONTEXT_FILL, out fillTemp))
             {
                 fill = (SvgPaintServer)fillTemp;
             }
 
-            if (fill != null)
+            if (this.HasFill())
             {
-                /*using (*/
-                //var brush = GetFillBrush(renderer);/*)*/
-                using(var brush = fill.GetBrush(this, renderer, Math.Min(Math.Max(this.FillOpacity * this.Opacity, 0), 1)))
+                Brush brush;
+
+                // if we get the color from our context (i.e. we are a marker that is re-used by many paths)
+                // we cannot use our own cache entry, as we would overwrite the cache entry of the owner object
+                if (isContextFill)
+                    brush = fill.GetBrush(this, renderer,
+                        Math.Min(Math.Max(this.FillOpacity * this.Opacity, 0), 1));
+                else
                 {
-                    if (brush != null)
-                    {
-                        this.Path(renderer).FillMode = this.FillRule == SvgFillRule.NonZero ? FillMode.Winding : FillMode.Alternate;
-                        renderer.FillPath(brush, this.Path(renderer));
-                    }
+                    cacheEntry.FillBrush ??= fill.GetBrush(this, renderer,
+                        Math.Min(Math.Max(this.FillOpacity * this.Opacity, 0), 1));
+
+                    brush = cacheEntry.FillBrush;
+                }
+
+                if (brush != null)
+                {
+                    this.Path(renderer).FillMode = this.FillRule == SvgFillRule.NonZero ? FillMode.Winding : FillMode.Alternate;
+                    renderer.FillPath(brush, this.Path(renderer));
                 }
             }
         }
@@ -372,97 +321,214 @@ namespace Svg
         /// Renders the stroke of the <see cref="SvgVisualElement"/> to the specified <see cref="ISvgRenderer"/>
         /// </summary>
         /// <param name="renderer">The <see cref="ISvgRenderer"/> object to render to.</param>
-        protected internal virtual bool RenderStroke(ISvgRenderer renderer)
+        protected virtual bool RenderStroke(ISvgRenderer renderer, RenderCacheEntry cacheEntry)
         {
             // allow to override stroke using context variable (used by marker to have same stoke color as owning path)
             object strokeTemp;
             SvgPaintServer stroke = this.Stroke;
-            if (this.Stroke == SvgColourServer.ContextStroke &&
-                renderer.Context.TryGetValue(CONTEXT_STROKE, out strokeTemp))
+            var isContextStroke = stroke == SvgColourServer.ContextStroke;
+            if (isContextStroke && renderer.Context.TryGetValue(CONTEXT_STROKE, out strokeTemp))
             {
                 stroke = (SvgPaintServer)strokeTemp;
             }
 
-            if (stroke != null && stroke != SvgColourServer.None)
+            if (this.HasStroke())
             {
                 float strokeWidth = this.StrokeWidth.ToDeviceValue(renderer, UnitRenderingType.Other, this);
-                //using (var brush = GetStrokeBrush(renderer))
-                using(var brush = stroke.GetBrush(this, renderer, Math.Min(Math.Max(this.StrokeOpacity * this.Opacity, 0), 1), true))
+
+                Brush brush;
+
+                // if we get the color from our context (i.e. we are a marker that is re-used by many paths)
+                // we cannot use our own cache entry, as we would overwrite the cache entry of the owner object
+                if (isContextStroke )
+                    brush = stroke.GetBrush(this, renderer,
+                        Math.Min(Math.Max(this.StrokeOpacity * this.Opacity, 0), 1), true);
+                else
                 {
-                    if (brush != null)
+                    cacheEntry.StrokeBrush ??= stroke.GetBrush(this, renderer,
+                        Math.Min(Math.Max(this.StrokeOpacity * this.Opacity, 0), 1), true);
+                    brush = cacheEntry.StrokeBrush;
+                }
+
+                if (brush != null)
+                {
+                    var path = this.Path(renderer);
+                    var bounds = Bounds;
+                    if (path.PointCount < 1) return false;
+                    if (bounds.Width <= 0 && bounds.Height <= 0)
                     {
-                        var path = this.Path(renderer);
-                        var bounds = path.GetBounds();
-                        if (path.PointCount < 1) return false;
-                        if (bounds.Width <= 0 && bounds.Height <= 0)
+                        switch (this.StrokeLineCap)
                         {
-                            switch (this.StrokeLineCap)
-                            {
-                                case SvgStrokeLineCap.Round:
-                                    using (var capPath = SvgEngine.Factory.CreateGraphicsPath())
-                                    {
-                                        capPath.AddEllipse(path.PathPoints[0].X - strokeWidth / 2, path.PathPoints[0].Y - strokeWidth / 2, strokeWidth, strokeWidth);
-                                        renderer.FillPath(brush, capPath);
-                                    }
-                                    break;
-                                case SvgStrokeLineCap.Square:
-                                    using (var capPath = SvgEngine.Factory.CreateGraphicsPath())
-                                    {
-                                        capPath.AddRectangle(RectangleF.Create(path.PathPoints[0].X - strokeWidth / 2, path.PathPoints[0].Y - strokeWidth / 2, strokeWidth, strokeWidth));
-                                        renderer.FillPath(brush, capPath);
-                                    }
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            using (var pen = SvgEngine.Factory.CreatePen(brush, strokeWidth))
-                            {
-                                var strokeDashArray = StrokeDashArray;
-                                if (!SvgUnitCollection.IsNullOrEmpty(strokeDashArray))
+                            case SvgStrokeLineCap.Round:
+                                using (var capPath = SvgEngine.Factory.CreateGraphicsPath())
                                 {
-                                    var dashPattern = strokeDashArray.ConvertAll(u => u.ToDeviceValue(renderer, UnitRenderingType.Other, this)).ToArray();
-                                    pen.DashPattern = dashPattern.Length % 2 == 0 ? dashPattern : dashPattern.Concat(dashPattern).ToArray();
+                                    capPath.AddEllipse(path.PathPoints[0].X - strokeWidth / 2, path.PathPoints[0].Y - strokeWidth / 2, strokeWidth, strokeWidth);
+                                    renderer.FillPath(brush, capPath);
                                 }
-
-                                pen.DashOffset = StrokeDashOffset;
-
-                                switch (StrokeLineJoin)
+                                break;
+                            case SvgStrokeLineCap.Square:
+                                using (var capPath = SvgEngine.Factory.CreateGraphicsPath())
                                 {
-                                    case SvgStrokeLineJoin.Bevel:
-                                        pen.LineJoin = LineJoin.Bevel;
-                                        break;
-                                    case SvgStrokeLineJoin.Round:
-                                        pen.LineJoin = LineJoin.Round;
-                                        break;
-                                    default:
-                                        pen.LineJoin = LineJoin.Miter;
-                                        break;
+                                    capPath.AddRectangle(RectangleF.Create(path.PathPoints[0].X - strokeWidth / 2, path.PathPoints[0].Y - strokeWidth / 2, strokeWidth, strokeWidth));
+                                    renderer.FillPath(brush, capPath);
                                 }
-                                pen.MiterLimit = StrokeMiterLimit;
-                                switch (StrokeLineCap)
-                                {
-                                    case SvgStrokeLineCap.Round:
-                                        pen.StartCap = LineCap.Round;
-                                        pen.EndCap = LineCap.Round;
-                                        break;
-                                    case SvgStrokeLineCap.Square:
-                                        pen.StartCap = LineCap.Square;
-                                        pen.EndCap = LineCap.Square;
-                                        break;
-                                }
-
-                                renderer.DrawPath(pen, path);
-
-                                return true;
-                            }
+                                break;
                         }
                     }
+                    else
+                    {
+                        Pen pen = null;
+                        if (isContextStroke )
+                            pen = CreatePen(brush, strokeWidth, renderer);
+                        else
+                        {
+                            cacheEntry.StrokePen ??= CreatePen(brush,strokeWidth, renderer);
+                            pen = cacheEntry.StrokePen;
+                        }
+
+                        renderer.DrawPath(pen, path);
+
+                        return true;
+                    }
                 }
+                
             }
 
             return false;
         }
+
+        private Pen CreatePen(Brush brush, float strokeWidth, ISvgRenderer renderer)
+        {
+            var pen = SvgEngine.Factory.CreatePen(brush, strokeWidth);
+            var strokeDashArray = StrokeDashArray;
+            if (!SvgUnitCollection.IsNullOrEmpty(strokeDashArray))
+            {
+                var dashPattern = strokeDashArray.ConvertAll(u => u.ToDeviceValue(renderer, UnitRenderingType.Other, this)).ToArray();
+                pen.DashPattern = dashPattern.Length % 2 == 0 ? dashPattern : dashPattern.Concat(dashPattern).ToArray();
+            }
+
+            pen.DashOffset = StrokeDashOffset;
+
+            switch (StrokeLineJoin)
+            {
+                case SvgStrokeLineJoin.Bevel:
+                    pen.LineJoin = LineJoin.Bevel;
+                    break;
+                case SvgStrokeLineJoin.Round:
+                    pen.LineJoin = LineJoin.Round;
+                    break;
+                default:
+                    pen.LineJoin = LineJoin.Miter;
+                    break;
+            }
+            pen.MiterLimit = StrokeMiterLimit;
+            switch (StrokeLineCap)
+            {
+                case SvgStrokeLineCap.Round:
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+                    break;
+                case SvgStrokeLineCap.Square:
+                    pen.StartCap = LineCap.Square;
+                    pen.EndCap = LineCap.Square;
+                    break;
+            }
+
+            return pen;
+        }
+        
+        #region RenderCache
+
+        public abstract class RenderCacheEntryBase : IDisposable
+        {
+            private Guid _attributeChangeToken = Guid.Empty;
+
+            public virtual void SetAttributeChangeToken(Guid newToken)
+            {
+                // do nothing initially
+                if (_attributeChangeToken == Guid.Empty)
+                    _attributeChangeToken = newToken;
+                // dispose if token changed
+                else if (newToken != _attributeChangeToken)
+                {
+                    Dispose();
+                    _attributeChangeToken = newToken;
+                }
+            }
+
+            public abstract void Dispose();
+        }
+
+        /// <summary>
+        /// Caches pens and brushes for improved performance.
+        /// The cache is set on the ISvgRenderer, so the SvgDocument can be shared by threads
+        /// </summary>
+        public class RenderCacheEntry : RenderCacheEntryBase
+        {
+            public virtual Brush FillBrush { get; set; }
+            public virtual Pen FillPen { get; set; }
+            public virtual Brush StrokeBrush { get; set; }
+            public virtual Pen StrokePen { get; set; }
+            public override void Dispose()
+            {
+                FillBrush?.Dispose();
+                FillBrush = null;
+                FillPen?.Dispose();
+                FillPen = null;
+                StrokeBrush?.Dispose();
+                StrokeBrush = null;
+                StrokePen?.Dispose();
+                StrokePen = null;
+            }
+        }
+
+        protected virtual T CreateRenderCacheEntry<T>() where T : RenderCacheEntryBase, IDisposable, new()
+            => new T();
+
+        protected internal T GetOrCreateRenderCacheEntry<T>(ISvgRenderer renderer) where T : RenderCacheEntryBase, IDisposable, new()
+        {
+            // enable tracking attributes and resetting the rendercache
+            _attributeChangeTokenEnabled = true;
+
+            T cache;
+            if (renderer.DrawingCache.TryGetValue(this, out var dc))
+                cache = (T)dc;
+            else
+            {
+                cache = CreateRenderCacheEntry<T>();
+                renderer.DrawingCache[this] = cache;
+            }
+
+            // update attribute change token
+            cache.SetAttributeChangeToken(_attributeChangeToken);
+
+            return cache;
+        }
+        
+        /// <summary>
+        /// This guid is re-created whenever an attribute changes or a parent attribute changes
+        /// It is used to reset the drawing cache when rendering
+        /// This is necessary, so e.g. a font size change is picked up and the pen and brush are recreated
+        /// </summary>
+        private Guid _attributeChangeToken = Guid.Empty;
+
+        protected Guid AttributeChangeToken => _attributeChangeToken;
+
+        private bool _attributeChangeTokenEnabled = false;
+
+        protected override void OnAttributeChangedOverride(AttributeEventArgs args)
+        {
+            if(_attributeChangeTokenEnabled)
+                _attributeChangeToken = Guid.NewGuid();
+        }
+
+        protected override void OnParentAttributeChangedOverride(SvgElement sender, AttributeEventArgs args)
+        {
+            if(_attributeChangeTokenEnabled)
+                _attributeChangeToken = Guid.NewGuid();
+        }
+
+        #endregion
         
         /// <summary>
         /// Sets the clipping region of the specified <see cref="ISvgRenderer"/>.
@@ -525,7 +591,7 @@ namespace Svg
         {
             this.ResetClip(renderer);
         }
-
+        
         public override SvgElement DeepCopy<T>()
         {
             var newObj = base.DeepCopy<T>() as SvgVisualElement;

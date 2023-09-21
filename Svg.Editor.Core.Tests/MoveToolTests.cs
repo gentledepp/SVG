@@ -51,9 +51,9 @@ namespace Svg.Editor.Core.Test
             var tool = Canvas.Tools.OfType<SelectionTool>().Single();
             Canvas.ActiveTool = tool;
 
-            var child = new SvgRectangle {X = 50, Y = 50, Width = 50, Height = 50};
-            var child1 = new SvgRectangle {X = 250, Y = 150, Width = 100, Height = 25};
-            var child2 = new SvgRectangle {X = 150, Y = 250, Width = 150, Height = 150};
+            var child = new SvgRectangle {X = 50, Y = 50, Width = 50, Height = 50, Fill=new SvgColourServer(Color.Create(255,0,0))};
+            var child1 = new SvgRectangle {X = 250, Y = 150, Width = 100, Height = 25, Fill = new SvgColourServer(Color.Create(255, 0, 0)) };
+            var child2 = new SvgRectangle {X = 150, Y = 250, Width = 150, Height = 150, Fill = new SvgColourServer(Color.Create(255, 0, 0)) };
             Canvas.ScreenWidth = 800;
             Canvas.ScreenHeight = 500;
             Canvas.Document.Children.Add(child);
@@ -86,9 +86,9 @@ namespace Svg.Editor.Core.Test
             var tool = Canvas.Tools.OfType<SelectionTool>().Single();
             Canvas.ActiveTool = tool;
 
-            var child = new SvgRectangle {X = 50, Y = 50, Width = 50, Height = 50};
-            var child1 = new SvgRectangle {X = 250, Y = 150, Width = 100, Height = 25};
-            var child2 = new SvgRectangle {X = 150, Y = 250, Width = 150, Height = 150};
+            var child = new SvgRectangle {X = 50, Y = 50, Width = 50, Height = 50, Fill = new SvgColourServer(Color.Create(255, 0, 0)) };
+            var child1 = new SvgRectangle {X = 250, Y = 150, Width = 100, Height = 25, Fill = new SvgColourServer(Color.Create(255, 0, 0)) };
+            var child2 = new SvgRectangle {X = 150, Y = 250, Width = 150, Height = 150, Fill = new SvgColourServer(Color.Create(255, 0, 0)) };
             Canvas.ScreenWidth = 800;
             Canvas.ScreenHeight = 500;
             Canvas.Document.Children.Add(child);

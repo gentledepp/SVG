@@ -4,9 +4,47 @@
     <AssemblyName>Svg.Editor.Forms</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.17763</TargetFrameworks>
-    <Version>2.4.1</Version>
-    <PackageReleaseNotes>
-    </PackageReleaseNotes>
+	  <Version>2.4.4.6</Version>
+	  <LangVersion>latest</LangVersion>
+	  <PackageReleaseNotes>
+		  #2.4.4.6
+		  - fix: TextTool, when text edit, textspan renders not with bound from last textspan
+		  - fix: TextTool, removing lines until one remains, updates
+		  #2.4.4.5
+		  - fix: TextTool, Works with textspan
+		  #2.4.4.4
+		  - fix: Arrow tips of lines are not filled (transparent)
+		  #2.4.4.2
+		  - on UWP changes zoom focus correctly while zooming with mouse wheel
+		  #2.4.4.1
+		  - major rendering performance improvements
+		  #2.4.3.16
+		  - Render text stroke
+		  #2.4.3.15
+		  - Render tspan in textrenderer
+		  #2.4.3.14
+		  - DrawAllContents with Original SvgDocument size
+		  #2.4.3.13
+		  - Texterendering renders with default size when no size available
+		  #2.4.3.10 - 11
+		  - add OnScreenSet event in SvgDrawingCanvas after Screen properties set in OnDraw method
+		  # 2.4.3.9
+		  - small fixes
+		  # 2.4.3.8
+		  - zoomtool.ShowAll
+		  # 2.4.3.7
+		  - Svg 2.4.5.7
+		  # 2.4.3.6
+		  - bumped version for Svg 2.4.3.5
+		  # 2.4.3.5
+		  - fixed UWP gesture recognizer
+		  # 2.4.3.4
+		  - fixed for plan rendering
+		  - polygon tool improvements (selection rendered on adorner layer)
+		  # 2.4.3.3
+		  - polygon tool
+		  - hit testing basic shapes without fill tests line intersection
+	  </PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(Configuration) == 'Release'">
@@ -44,7 +82,7 @@
   
   <ItemGroup>
     <PackageReference Include="SkiaSharp.Views.Forms" Version="1.68.1" />
-    <PackageReference Include="Svg" Version="2.4.3.1" />
+    <PackageReference Include="Svg" Version="2.4.4.6" />
     <PackageReference Include="System.Reactive" Version="4.0.0" />
     <PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
   </ItemGroup>

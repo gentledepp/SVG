@@ -147,7 +147,7 @@ namespace Svg
                         {
                             if (!Regex.IsMatch(decl.Name, @"^(:|[A-Z]|_|[a-z]|[\u00C0-\u00D6]|[\u00D8-\u00F6]|[\u00F8-\u02FF]|[\u0370-\u037D]|[\u037F-\u1FFF]|[\u200C-\u200D]|[\u2070-\u218F]|[\u2C00-\u2FEF]|[\u3001-\uD7FF]|[\uF900-\uFDCF]|[\uFDF0-\uFFFD])"))
                                 continue;
-                            element.AddStyle(decl.Name, decl.Term.ToString(), SvgElement.StyleSpecificity_InlineStyle);
+                            element.AddStyle(decl.Name, decl.Term?.ToString(), SvgElement.StyleSpecificity_InlineStyle);
                         }
                     }
                 }
@@ -244,13 +244,9 @@ namespace Svg
             List<IPropertyDescriptor> properties;
             lock (syncLock)
             {
-                if (_propertyDescriptors.Keys.Contains(elementType))
+                if (_propertyDescriptors.TryGetValue(elementType, out var p))
                 {
-                    if (_propertyDescriptors[elementType].Keys.Contains(attributeName))
-                    {
-                        properties = _propertyDescriptors[elementType][attributeName];
-                    }
-                    else
+                    if (!p.TryGetValue(attributeName, out properties))
                     {
                         properties = TypeDescriptor.GetProperties(elementType, attributeName);
                         _propertyDescriptors[elementType].Add(attributeName, properties);
@@ -259,9 +255,11 @@ namespace Svg
                 else
                 {
                     properties = TypeDescriptor.GetProperties(elementType, attributeName);
-                    _propertyDescriptors.Add(elementType, new Dictionary<string, List<IPropertyDescriptor>>());
-
-                    _propertyDescriptors[elementType].Add(attributeName, properties);
+                    var p2 = new Dictionary<string, List<IPropertyDescriptor>>
+                    {
+                        {attributeName,properties}
+                    };
+                    _propertyDescriptors.Add(elementType, p2);
                 } 
             }
 
