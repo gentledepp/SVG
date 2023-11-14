@@ -3,10 +3,12 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.18362;net462</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version>2.4.4.6</Version>
+    <Version>2.4.4.7</Version>
     <Authors>gentledpp,bruzkovsky</Authors>
     <Company>Opti-Q GmbH</Company>
     <PackageReleaseNotes>
+        #2.4.4.7
+        - fix: RectangleTool's icon
 	    #2.4.4.6
 	    - fix: TextTool, when text edit, textspan renders not with bound from last textspan
 	    - fix: TextTool, removing lines until one remains, updates 
