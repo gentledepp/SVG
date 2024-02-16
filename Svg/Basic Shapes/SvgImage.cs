@@ -260,8 +260,8 @@ namespace Svg
                         renderer.PopBoundable();
                     }
 
-
-                    ResetClip(renderer);
+                    if (this.ClipPath != null || !string.IsNullOrEmpty(this.Clip))
+                        ResetClip(renderer);
                     PopTransforms(renderer);
                 }
                 // TODO: cache images... will need a shared context for this

@@ -98,7 +98,7 @@ namespace Svg.Platform
             {
                 _canvas.DrawText(text.text, text.location.X, text.location.Y, paint.Paint);
             }
-            Save();
+            //Save();
         }
 
         public void FillPath(Brush brush, GraphicsPath path)
@@ -111,7 +111,7 @@ namespace Svg.Platform
             SetSmoothingMode(b.Paint);
                 
             _canvas.DrawPath(p.Path, b.Paint);
-            Save();
+            //Save();
         }
 
         public void DrawText(string text, float x, float y, Pen pen)
@@ -120,7 +120,7 @@ namespace Svg.Platform
                 return;
             var paint = (SkiaPen)pen;
             _canvas.DrawText(text, x, y, paint.Paint);
-            Save();
+            //Save();
         }
 
         private void SetSmoothingMode(SKPaint paint)
@@ -206,13 +206,10 @@ namespace Svg.Platform
             }
 
             _clip = region;
-            _canvas.Save();
-            if (region != null && op == SKRegionOperation.Intersect)
-            {
-                _canvas.Save();
-                _canvas.ClipRect((SkiaRectangleF)region.Rect, SKClipOperation.Intersect);
-
-            }
+            //if (region != null)
+            //{
+            //    _canvas.ClipRect((SkiaRectangleF)region.Rect, SKClipOperation.Intersect);
+            //}
         }
 
         public Region[] MeasureCharacterRanges(string text, Font font, Interfaces.RectangleF rectangle, StringFormat format)

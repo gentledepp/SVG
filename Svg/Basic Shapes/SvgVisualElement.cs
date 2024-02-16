@@ -247,6 +247,7 @@ namespace Svg
                 if (renderNormal)
                 {
                     this.SetClip(renderer);
+                    
 
                     if (Renderable)
                     {
@@ -258,7 +259,6 @@ namespace Svg
 
                         this.RenderFill(renderer, cacheEntry);
                         this.RenderStroke(renderer, cacheEntry);
-
                         // Reset the smoothing mode
                         if (this.RequiresSmoothRendering && renderer.SmoothingMode == SmoothingMode.AntiAlias)
                         {
@@ -270,7 +270,8 @@ namespace Svg
                         base.RenderChildren(renderer);
                     }
 
-                    this.ResetClip(renderer);
+                    if(this.ClipPath!= null || !string.IsNullOrEmpty(this.Clip))
+                        this.ResetClip(renderer);
                     this.PopTransforms(renderer);
                 }
 
