@@ -1,0 +1,16 @@
+<svg width="500" height="500" preserveAspectRatio="xMidYMid meet" viewBox="0 0 1191 842" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+    <clipPath xmlns="http://www.w3.org/2000/svg" id="clPCLOk">
+<path d="M100 0 L50 100 L225 100 Z" clip-rule="evenodd"/>
+    </clipPath>
+      <clipPath xmlns="http://www.w3.org/2000/svg" id="clPCLOk2">
+<path d="M150 0 L150 100 L225 150 Z" clip-rule="evenodd"/>
+    </clipPath>
+    </defs>
+    <g xmlns="http://www.w3.org/2000/svg" clip-path="url(#clPCLOk)" fill="none">
+    <path d="M0 0 L0 500 L500 500 L500 0 Z" fill-rule="evenodd" fill="#000"/>
+    </g>
+       <g xmlns="http://www.w3.org/2000/svg" clip-path="url(#clPCLOk2)" fill="none">
+    <path d="M0 0 L0 500 L500 500 L500 0 Z" fill-rule="evenodd" fill="#000"/>
+    </g>
+    </svg>

@@ -74,6 +74,7 @@
     <Compile Include="GetSvgPathAsLinesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveDocumentTests.cs" />
+    <Compile Include="SvgClipPathTest.cs" />
     <Compile Include="SvgColorParsingTests.cs" />
     <Compile Include="SvgDocumentTest.cs" />
     <Compile Include="SvgHitTests.cs" />
@@ -98,12 +99,17 @@
     <Content Include="Assets\Bends_01.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\clip_path.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\test_clip_path.png" />
     <Content Include="Assets\Top3_1.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Top3_1.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\Top3_2.png" />
     <Content Include="Assets\tspan_dx.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

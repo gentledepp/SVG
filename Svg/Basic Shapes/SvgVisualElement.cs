@@ -11,7 +11,6 @@ namespace Svg
     public abstract partial class SvgVisualElement : SvgElement, ISvgBoundable, ISvgStylable, ISvgClipable
     {
         private bool _requiresSmoothRendering;
-        private Region _previousClip;
         public const string CONTEXT_STROKE = "context-stroke";
         public const string CONTEXT_FILL = "context-fill";
         
@@ -538,12 +537,13 @@ namespace Svg
         {
             if (this.ClipPath != null || !string.IsNullOrEmpty(this.Clip))
             {
-                this._previousClip = renderer.GetClip();
-
                 if (this.ClipPath != null)
                 {
                     SvgClipPath clipPath = this.OwnerDocument.GetElementById<SvgClipPath>(this.ClipPath.ToString());
-                    if (clipPath != null) renderer.SetClip(clipPath.GetClipRegion(this), CombineMode.Intersect);
+                    if (clipPath != null) 
+                            renderer.SetClip(clipPath.GetClipRegionPath(this), CombineMode.Intersect);
+   
+
                 }
 
                 var clip = this.Clip;
@@ -567,11 +567,7 @@ namespace Svg
         /// <param name="renderer">The <see cref="ISvgRenderer"/> to have its clipping region reset.</param>
         protected internal virtual void ResetClip(ISvgRenderer renderer)
         {
-            if (this._previousClip != null)
-            {
-                renderer.SetClip(this._previousClip);
-                this._previousClip = null;
-            }
+            renderer.CanvasRestore();
         }
 
         /// <summary>
