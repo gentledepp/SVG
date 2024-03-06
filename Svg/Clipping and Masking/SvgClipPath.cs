@@ -39,7 +39,7 @@ namespace Svg
         /// Gets this <see cref="SvgClipPath"/>'s region to be used as a clipping region.
         /// </summary>
         /// <returns>A new <see cref="Region"/> containing the <see cref="Region"/> to be used for clipping.</returns>
-        public Region GetClipRegion(SvgVisualElement owner)
+        public GraphicsPath GetClipRegionPath(SvgVisualElement owner)
         {
             if (cachedClipPath == null || this._pathDirty)
             {
@@ -67,21 +67,28 @@ namespace Svg
                 }
             }
 
-            return new Region(result);
+            return result;
+        }
+
+        public Region GetClipRegion(SvgVisualElement owner)
+        {
+            return new Region(GetClipRegionPath(owner));
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="region"></param>
-        /// <param name="element"></param>
+            /// 
+            /// </summary>
+            /// <param name="region"></param>
+            /// <param name="element"></param>
         private void CombinePaths(GraphicsPath path, SvgElement element)
         {
             var graphicsElement = element as SvgVisualElement;
 
             if (graphicsElement != null && graphicsElement.Path(null) != null)
             {
-                path.FillMode = (graphicsElement.ClipRule == SvgClipRule.NonZero) ? FillMode.Winding : FillMode.Alternate;
+                path.FillMode = (graphicsElement.ClipRule == SvgClipRule.NonZero)
+                    ? FillMode.Winding
+                    : FillMode.Alternate;
 
                 GraphicsPath childPath = graphicsElement.Path(null);
 

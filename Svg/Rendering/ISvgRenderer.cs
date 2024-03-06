@@ -6,6 +6,7 @@ namespace Svg
 {
     public interface ISvgRenderer : IDisposable
     {
+        void CanvasRestore();
         float DpiY { get; }
         void DrawImage(Image image, RectangleF destRect, RectangleF srcRect, GraphicsUnit graphicsUnit);
         void DrawImageUnscaled(Image image, PointF location);
@@ -18,6 +19,7 @@ namespace Svg
         void ScaleTransform(float sx, float sy, MatrixOrder order = MatrixOrder.Append);
         void SetBoundable(ISvgBoundable boundable);
         void SetClip(Region region, CombineMode combineMode = CombineMode.Replace);
+        void SetClip(GraphicsPath region, CombineMode combineMode = CombineMode.Replace);
         SmoothingMode SmoothingMode { get; set; }
         Matrix Transform { get; set; }
         void TranslateTransform(float dx, float dy, MatrixOrder order = MatrixOrder.Append);

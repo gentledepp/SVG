@@ -6,6 +6,7 @@ namespace Svg
 {
     public interface Graphics : IDisposable
     {
+        void CanvasRestore();
         void DrawImage(Bitmap bitmap, RectangleF rectangle, int x, int y, int width, int height, GraphicsUnit pixel);
         void DrawImage(Bitmap bitmap, RectangleF rectangle, int x, int y, int width, int height, GraphicsUnit pixel, ImageAttributes attributes);
         void Flush();
@@ -24,6 +25,7 @@ namespace Svg
         void ScaleTransform(float sx, float sy, MatrixOrder order);
         void DrawImage(Image image, PointF location);
         void SetClip(Region region, CombineMode combineMode);
+        void SetClip(GraphicsPath path, CombineMode combineMode);
         void TranslateTransform(float dx, float dy, MatrixOrder order);
         Region[] MeasureCharacterRanges(string text, Font font, RectangleF rectangle, StringFormat format);
         void DrawText(string text, float x, float y, Pen pen);

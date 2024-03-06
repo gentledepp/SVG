@@ -34,6 +34,11 @@ namespace Svg
             return _boundables.Pop();
         }
 
+        public void CanvasRestore()
+        {
+            _innerGraphics.Restore();
+        }
+
         public float DpiY
         {
             get { return _innerGraphics.DpiY; }
@@ -67,6 +72,7 @@ namespace Svg
         {
             return this._innerGraphics.Clip;
         }
+
         public void RotateTransform(float fAngle, MatrixOrder order = MatrixOrder.Prepend)
         {
             this._innerGraphics.RotateTransform(fAngle, MatrixOrder.Prepend);
@@ -82,6 +88,10 @@ namespace Svg
         public void SetClip(Region region, CombineMode combineMode = CombineMode.Replace)
         {
             this._innerGraphics.SetClip(region, combineMode);
+        }
+        public void SetClip(GraphicsPath path, CombineMode combineMode = CombineMode.Replace)
+        {
+            this._innerGraphics.SetClip(path, combineMode);
         }
 
         public void FillBackground(Color color)

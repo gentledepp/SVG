@@ -10,6 +10,7 @@ namespace Svg.Platform
         private readonly SKCanvas _canvas;
         private SkiaMatrix _matrix;
         private Region _clip;
+        private GraphicsPath _clipPath;
 
         public SkiaGraphics(SkiaBitmap image)
         {
@@ -40,8 +41,13 @@ namespace Svg.Platform
         }
 
         public Region Clip { get { return _clip; } }
-        
+
         public SmoothingMode SmoothingMode { get; set; } = SmoothingMode.AntiAlias | SmoothingMode.HighQuality;
+
+        public void CanvasRestore()
+        {
+            _canvas.Restore();
+        }
 
         public void DrawImage(Bitmap bitmap, Interfaces.RectangleF rectangle, int x, int y, int width, int height, GraphicsUnit pixel)
         {
@@ -92,6 +98,7 @@ namespace Svg.Platform
             {
                 _canvas.DrawText(text.text, text.location.X, text.location.Y, paint.Paint);
             }
+            Save();
         }
 
         public void FillPath(Brush brush, GraphicsPath path)
@@ -104,6 +111,7 @@ namespace Svg.Platform
             SetSmoothingMode(b.Paint);
                 
             _canvas.DrawPath(p.Path, b.Paint);
+            Save();
         }
 
         public void DrawText(string text, float x, float y, Pen pen)
@@ -112,6 +120,7 @@ namespace Svg.Platform
                 return;
             var paint = (SkiaPen)pen;
             _canvas.DrawText(text, x, y, paint.Paint);
+            Save();
         }
 
         private void SetSmoothingMode(SKPaint paint)
@@ -134,6 +143,39 @@ namespace Svg.Platform
                     paint.FilterQuality = SKFilterQuality.Medium;
                     break;
             }
+        }
+
+        public void SetClip(GraphicsPath path, CombineMode combineMode)
+        {
+            var op = SKRegionOperation.Union;
+            switch (combineMode)
+            {
+                case CombineMode.Complement:
+                    op = SKRegionOperation.ReverseDifference;
+                    break;
+                case CombineMode.Exclude:
+                    op = SKRegionOperation.Difference;
+                    break;
+                case CombineMode.Intersect:
+                    op = SKRegionOperation.Intersect;
+                    break;
+                case CombineMode.Replace:
+                    op = SKRegionOperation.Replace;
+                    break;
+                case CombineMode.Union:
+                    op = SKRegionOperation.Union;
+                    break;
+                case CombineMode.Xor:
+                    op = SKRegionOperation.XOR;
+                    break;
+            }
+            _clipPath = path;
+            if (path != null && op == SKRegionOperation.Intersect)
+            {
+                _canvas.Save();
+                _canvas.ClipRegion(new SKRegion(((SkiaGraphicsPath)path).Path), SKClipOperation.Intersect);
+            }
+
         }
 
         public void SetClip(Region region, CombineMode combineMode)
@@ -162,15 +204,15 @@ namespace Svg.Platform
                     op = SKRegionOperation.XOR;
                     break;
             }
+
             _clip = region;
-            //if (region != null)
-            //    _canvas.ClipRect((SkiaRectangleF) region.Rect, op);
-            //else
-            //{
-            //    SKRect r = new SKRect();
-            //    _canvas.GetClipBounds(ref r);
-            //    _canvas.ClipRect(r, SKRegionOperation.Union);
-            //}
+            _canvas.Save();
+            if (region != null && op == SKRegionOperation.Intersect)
+            {
+                _canvas.Save();
+                _canvas.ClipRect((SkiaRectangleF)region.Rect, SKClipOperation.Intersect);
+
+            }
         }
 
         public Region[] MeasureCharacterRanges(string text, Font font, Interfaces.RectangleF rectangle, StringFormat format)

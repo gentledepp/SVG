@@ -239,17 +239,24 @@ namespace Svg.Tests.Win
         [Test]
         public void CanRenderTSpans_WithCssStylingAndEmbeddedFont()
         {
-            var pngPath = "Top3_1.png";
+            var pngPath = "Top3_2.png";
             var svgPath = "Top3_1.svg";
 
             using var pngBitmap = TestHelper.GetBitmap(pngPath);
 
             // Act
+            var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\"+ svgPath);
+
+            var bitMap = svgDoc.DrawDocument();
+            using var file = new FileSystem().OpenWrite("Assets\\test_clip_path.png");
+
+            bitMap.SavePng(file, 100);
+            file.Close();
+
             using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
 
             // Assert
             using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
-
 
             c.AssertAreSimilar(99f, svgPath);
         }
@@ -263,6 +270,14 @@ namespace Svg.Tests.Win
             using var pngBitmap = TestHelper.GetBitmap(pngPath);
 
             // Act
+
+            var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\clip_path.svg");
+
+            var bitMap = svgDoc.DrawDocument();
+            using var file = new FileSystem().OpenWrite("Assets\\test_clip_path.png");
+
+            bitMap.SavePng(file, 100);
+            file.Close();
             using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
 
             // Assert
@@ -281,8 +296,17 @@ namespace Svg.Tests.Win
             using var pngBitmap = TestHelper.GetBitmap(pngPath);
 
             // Act
+            var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\"+svgPath);
+
+            var bitMap = svgDoc.DrawDocument();
+            using var file = new FileSystem().OpenWrite("Assets\\test_use_symbol.png");
+
+            bitMap.SavePng(file, 100);
+            file.Close();
+
             using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
 
+            
             // Assert
             using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
 
