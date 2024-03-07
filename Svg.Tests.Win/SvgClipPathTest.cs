@@ -28,7 +28,7 @@ public class SvgClipPathTest
 
         //var bitMap = svgDoc.DrawDocument();
         //using var file = new FileSystem().OpenWrite("Assets\\test_clip_path.png");
-        
+
         //bitMap.SavePng(file, 100);
         //file.Close();
 

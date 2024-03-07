@@ -117,7 +117,8 @@ namespace Svg
                     element._parent = origParent;
                 }
 
-                this.ResetClip(renderer);
+                if (this.ClipPath != null || !string.IsNullOrEmpty(this.Clip))
+                    this.ResetClip(renderer);
                 this.PopTransforms(renderer);
             }
         }
