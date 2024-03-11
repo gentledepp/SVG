@@ -2,6 +2,7 @@ using Svg.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Svg.Transforms;
 
 namespace Svg
 {
@@ -221,36 +222,35 @@ namespace Svg
             {
                 bool renderNormal = true;
 
-                if (renderFilter && this.Filter != null)
-                {
-                    var filterPath = this.Filter;
-                    if (filterPath.ToString().StartsWith("url("))
+                    if (renderFilter && this.Filter != null)
                     {
-                        filterPath = new Uri(filterPath.ToString().Substring(4, filterPath.ToString().Length - 5), UriKind.RelativeOrAbsolute);
-                    }
-                    var filter = this.OwnerDocument.IdManager.GetElementById(filterPath) as FilterEffects.SvgFilter;
-                    if (filter != null)
-                    {
-                        this.PopTransforms(renderer);
-                        try
+                        var filterPath = this.Filter;
+                        if (filterPath.ToString().StartsWith("url("))
                         {
-                            filter.ApplyFilter(this, renderer, (r) => this.Render(r, false, cacheEntry));
+                            filterPath = new Uri(filterPath.ToString().Substring(4, filterPath.ToString().Length - 5),
+                                UriKind.RelativeOrAbsolute);
                         }
-                        catch (Exception ex)
+                        var filter = this.OwnerDocument.IdManager.GetElementById(filterPath) as FilterEffects.SvgFilter;
+                        if (filter != null)
                         {
-                            SvgEngine.Logger.Info(ex.ToString());
+                            this.PopTransforms(renderer);
+                            try
+                            {
+                                filter.ApplyFilter(this, renderer, (r) => this.Render(r, false, cacheEntry));
+                            }
+                            catch (Exception ex)
+                            {
+                                SvgEngine.Logger.Info(ex.ToString());
+                            }
+                            renderNormal = false;
                         }
-                        renderNormal = false;
                     }
-                }
-
+                    
                 if (renderNormal)
                 {
-                    this.SetClip(renderer);
-                    
-
                     if (Renderable)
                     {
+                        this.SetClip(renderer);
                         // If this element needs smoothing enabled turn anti-aliasing on
                         if (this.RequiresSmoothRendering)
                         {
@@ -264,17 +264,14 @@ namespace Svg
                         {
                             renderer.SmoothingMode = SmoothingMode.Default;
                         }
+                        this.ResetClip(renderer);
                     }
                     else
                     {
                         base.RenderChildren(renderer);
                     }
-
-                    if(this.ClipPath!= null || !string.IsNullOrEmpty(this.Clip))
-                        this.ResetClip(renderer);
                     this.PopTransforms(renderer);
                 }
-
             }
         }
 
@@ -541,22 +538,23 @@ namespace Svg
                 if (this.ClipPath != null)
                 {
                     SvgClipPath clipPath = this.OwnerDocument.GetElementById<SvgClipPath>(this.ClipPath.ToString());
-                    if (clipPath != null) 
-                            renderer.SetClip(clipPath.GetClipRegionPath(this), CombineMode.Intersect);
-   
-
+                    if (clipPath != null)
+                    {
+                        renderer.Graphics.Save();
+                        var path = clipPath.GetClipRegionPath(this);
+                        renderer.SetClip(path, CombineMode.Intersect);
+                    }
                 }
 
                 var clip = this.Clip;
                 if (!string.IsNullOrEmpty(clip) && clip.StartsWith("rect("))
                 {
                     clip = clip.Trim();
-                    var offsets = (from o in clip.Substring(5, clip.Length - 6).Split(',')
-                                   select float.Parse(o.Trim())).ToList();
+                    var offsets = (from o in clip.Substring(5, clip.Length - 6).Split(',') select float.Parse(o.Trim()))
+                        .ToList();
                     var bounds = this.Bounds;
                     var clipRect = RectangleF.Create(bounds.Left + offsets[3], bounds.Top + offsets[0],
-                                                  bounds.Width - (offsets[3] + offsets[1]),
-                                                  bounds.Height - (offsets[2] + offsets[0]));
+                        bounds.Width - (offsets[3] + offsets[1]), bounds.Height - (offsets[2] + offsets[0]));
                     renderer.SetClip(new Region(clipRect), CombineMode.Intersect);
                 }
             }
@@ -568,7 +566,10 @@ namespace Svg
         /// <param name="renderer">The <see cref="ISvgRenderer"/> to have its clipping region reset.</param>
         protected internal virtual void ResetClip(ISvgRenderer renderer)
         {
-            renderer.CanvasRestore();
+            if (this.ClipPath != null)
+            {
+                renderer.Graphics.Restore();
+            }
         }
 
         /// <summary>

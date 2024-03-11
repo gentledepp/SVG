@@ -322,8 +322,7 @@ namespace Svg
                     renderer.SmoothingMode = SmoothingMode.Default;
                 }
 
-                if (this.ClipPath != null || !string.IsNullOrEmpty(this.Clip))
-                    ResetClip(renderer);
+                ResetClip(renderer);
 
                 PopTransforms(renderer);
             }

@@ -34,11 +34,6 @@ namespace Svg
             return _boundables.Pop();
         }
 
-        public void CanvasRestore()
-        {
-            _innerGraphics.Restore();
-        }
-
         public float DpiY
         {
             get { return _innerGraphics.DpiY; }

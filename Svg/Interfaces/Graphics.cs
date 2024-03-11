@@ -6,7 +6,6 @@ namespace Svg
 {
     public interface Graphics : IDisposable
     {
-        void CanvasRestore();
         void DrawImage(Bitmap bitmap, RectangleF rectangle, int x, int y, int width, int height, GraphicsUnit pixel);
         void DrawImage(Bitmap bitmap, RectangleF rectangle, int x, int y, int width, int height, GraphicsUnit pixel, ImageAttributes attributes);
         void Flush();
