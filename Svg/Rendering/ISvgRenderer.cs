@@ -5,8 +5,7 @@ using Svg.Interfaces;
 namespace Svg
 {
     public interface ISvgRenderer : IDisposable
-    {
-        void CanvasRestore();
+    { 
         float DpiY { get; }
         void DrawImage(Image image, RectangleF destRect, RectangleF srcRect, GraphicsUnit graphicsUnit);
         void DrawImageUnscaled(Image image, PointF location);

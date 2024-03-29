@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
 using Svg.Transforms;
 
 namespace Svg
@@ -54,7 +53,7 @@ namespace Svg
                 this._pathDirty = false;
             }
 
-            var result = cachedClipPath;
+            var result = cachedClipPath.Clone();
             if (ClipPathUnits == SvgCoordinateUnits.ObjectBoundingBox)
             {
                 result = (GraphicsPath)cachedClipPath.Clone();
@@ -66,7 +65,6 @@ namespace Svg
                     result.Transform(transform);
                 }
             }
-
             return result;
         }
 

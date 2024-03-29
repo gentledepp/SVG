@@ -111,15 +111,19 @@ namespace Svg
                 var element = this.OwnerDocument.IdManager.GetElementById(this.ReferencedElement) as SvgVisualElement;
                 if (element != null)
                 {
+                    this.ResetClip(renderer);
                     var origParent = element.Parent;
                     element._parent = this;
                     element.RenderElement(renderer);
                     element._parent = origParent;
-                }
+                    this.PopTransforms(renderer);
 
-                if (this.ClipPath != null || !string.IsNullOrEmpty(this.Clip))
+                }
+                else
+                {
                     this.ResetClip(renderer);
-                this.PopTransforms(renderer);
+                    this.PopTransforms(renderer);
+                }
             }
         }
 

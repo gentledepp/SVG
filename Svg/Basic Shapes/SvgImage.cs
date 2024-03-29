@@ -186,7 +186,8 @@ namespace Svg
 
                     PushTransforms(renderer);
                     renderer.SetClip(SvgEngine.Factory.CreateRegion(destClip), CombineMode.Intersect);
-                    SetClip(renderer);
+                    if (Parent is not SvgUse)
+                        SetClip(renderer);
 
                     if (AspectRatio != null && AspectRatio.Align != SvgPreserveAspectRatio.none)
                     {
@@ -260,7 +261,7 @@ namespace Svg
                         renderer.PopBoundable();
                     }
 
-                    if (this.ClipPath != null || !string.IsNullOrEmpty(this.Clip))
+                    if(Parent is not SvgUse)
                         ResetClip(renderer);
                     PopTransforms(renderer);
                 }

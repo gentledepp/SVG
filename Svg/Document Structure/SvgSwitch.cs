@@ -61,8 +61,7 @@ namespace Svg
             this.PushTransforms(renderer);
             this.SetClip(renderer);
             base.RenderChildren(renderer);
-            if (this.ClipPath != null || !string.IsNullOrEmpty(this.Clip))
-                this.ResetClip(renderer);
+            this.ResetClip(renderer);
             this.PopTransforms(renderer);
         }
 
