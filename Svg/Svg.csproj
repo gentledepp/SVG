@@ -3,25 +3,27 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.18362;net462</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version>2.4.4.9</Version>
+    <Version>2.4.4.10</Version>
     <Authors>gentledpp,bruzkovsky</Authors>
     <Company>Opti-Q GmbH</Company>
     <PackageReleaseNotes>
-	    #2.4.4.9
-	    - fix: rendering Drawing Clippaths with canvas transformation
-	    #2.4.4.8
-	    - fix: Drawing Clippaths
-	    #2.4.4.6
-	    - fix: TextTool, when text edit, textspan renders not with bound from last textspan
-	    - fix: TextTool, removing lines until one remains, updates 
-	    #2.4.4.5
+		#2.4.4.10
+		- fix: Svg Plan throws no instance of an object error on drawing pathsegment
+		#2.4.4.9
+		- fix: rendering Drawing Clippaths with canvas transformation
+		#2.4.4.8
+		- fix: Drawing Clippaths
+		#2.4.4.6
+		- fix: TextTool, when text edit, textspan renders not with bound from last textspan
+		- fix: TextTool, removing lines until one remains, updates
+		#2.4.4.5
 		- fix: arrow tips too large
-	    #2.4.4.4.4
+		#2.4.4.4.4
 		- fix: Arrow tips of lines are not filled (transparent)
-	    #2.4.4.3
-	    - fix: can not parse 4-digit color values 
-	    
-	    #2.4.4.2
+		#2.4.4.3
+		- fix: can not parse 4-digit color values
+
+		#2.4.4.2
 		- fix: SvgDocument.DeepCopy&lt;T&gt; also copies stylesheets
 	    
 	    #2.4.4.1
