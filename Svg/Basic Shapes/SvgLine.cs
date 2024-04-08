@@ -1,5 +1,5 @@
 using System;
-
+using Svg.Basic_Shapes;
 using Svg.Interfaces;
 
 namespace Svg
@@ -169,9 +169,9 @@ namespace Svg
 
         public override RectangleF GetBounds()
         {
-                return this.Path(null).GetBounds();
+            return this.GetBoundsWithClipPaths();
         }
-        
+
         protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
         {
             var start = PointF.Create(this.StartX, this.StartY);

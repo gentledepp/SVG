@@ -68,4 +68,18 @@ public class SvgClipPathTest
         c.AssertAreSimilar(97f, svgPath);
 
     }
+
+    [Test]
+    public void WhenGettingCliPathBounds_BasedOnClipPathsChildren_GetBounds()
+    {
+        // Arrange
+        var svgPath = "ClipPathBounds.svg";
+
+        var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\" + svgPath);
+
+        var clip = svgDoc.Children.First().Children.OfType<SvgClipPath>().First();
+
+        Assert.AreEqual(clip.Bounds.Width, 200);
+        Assert.AreEqual(clip.Bounds.Height, 50);
+    }
 }

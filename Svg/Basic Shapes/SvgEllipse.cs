@@ -1,4 +1,5 @@
 
+using Svg.Basic_Shapes;
 using Svg.Interfaces;
 
 namespace Svg
@@ -94,7 +95,7 @@ namespace Svg
 
         public override RectangleF GetBounds()
         {
-                return this.Path(null).GetBounds();
+            return this.GetBoundsWithClipPaths();
         }
 
         /// <summary>

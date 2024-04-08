@@ -49,6 +49,16 @@ namespace Svg
                     {
                         // First it should check if rectangle is empty or it will return the wrong Bounds.
                         // This is because when the Rectangle is Empty, the Union method adds as if the first values where X=0, Y=0
+                        if (this.ClipPath != null)
+                        {
+                            SvgClipPath clipPath =
+                                this.OwnerDocument.GetElementById<SvgClipPath>(this.ClipPath.ToString());
+                            if (clipPath != null){
+                                r = clipPath.Bounds;
+                                return r;
+                            }
+                        }
+
                         if (r.IsEmpty)
                         {
                             r = ((SvgVisualElement)c).Bounds;
@@ -113,7 +123,7 @@ namespace Svg
         public RectangleF GetBoundingBox(Matrix transform = null)
         {
             var pts = GetTransformedPoints(transform);
-            
+
             return RectangleF.FromPoints(pts);
         }
         
