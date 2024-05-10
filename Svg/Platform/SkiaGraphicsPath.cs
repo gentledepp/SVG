@@ -141,7 +141,7 @@ namespace Svg.Platform
                 _pathTypes.Add(0); // start of a figure ??
             }
         }
-        
+
         public void AddLine(PointF start, PointF end)
         {
             _bounds = null;

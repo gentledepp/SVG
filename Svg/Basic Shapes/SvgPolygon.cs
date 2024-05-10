@@ -1,3 +1,4 @@
+using Svg.Basic_Shapes;
 using Svg.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -142,9 +143,9 @@ namespace Svg
 
         public override RectangleF GetBounds()
         {
-            return this.Path(null).GetBounds();
+            return this.GetBoundsWithClipPaths();
         }
-        
+
         public override SvgElement DeepCopy()
         {
             return DeepCopy<SvgPolygon>();

@@ -4,9 +4,11 @@
     <AssemblyName>Svg.Editor</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFramework>netstandard2.0</TargetFramework>
-	  <Version>2.4.4.9</Version>
+	  <Version>2.4.4.10</Version>
 	  <LangVersion>latest</LangVersion>
 	  <PackageReleaseNotes>
+		  #2.4.4.10
+		- fix: Svg Plan throws no instance of an object error on drawing pathsegment
 		  #2.4.4.9
 		  - fix: rendering Drawing Clippaths with canvas transformation
 		  #2.4.4.8
@@ -103,7 +105,7 @@
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 		<PackageReference Include="SkiaSharp" Version="1.68.1" />
-		<PackageReference Include="Svg" Version="2.4.4.9" />
+		<PackageReference Include="Svg" Version="2.4.4.10" />
 		<PackageReference Include="System.Reactive" Version="4.0.0" />
 		<PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
 	</ItemGroup>

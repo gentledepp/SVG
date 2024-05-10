@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Svg.Basic_Shapes;
 using Svg.Interfaces;
 using Svg.Pathing;
 using Svg.Transforms;
@@ -115,7 +116,7 @@ namespace Svg
 
         public override RectangleF GetBounds()
         {
-            return this.Path(null).GetBounds();
+            return this.GetBoundsWithClipPaths();
         }
 
         /// <summary>

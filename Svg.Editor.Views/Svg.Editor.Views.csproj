@@ -2,9 +2,11 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.17763</TargetFrameworks>
-	  <Version>2.4.4.9</Version>
+	  <Version>2.4.4.10</Version>
 	  <LangVersion>latest</LangVersion>
 	  <PackageReleaseNotes>
+		  #2.4.4.10
+		  - fix: Svg Plan throws no instance of an object error on drawing pathsegment
 		  #2.4.4.9
 		  - fix: rendering Drawing Clippaths with canvas transformation
 		  #2.4.4.8

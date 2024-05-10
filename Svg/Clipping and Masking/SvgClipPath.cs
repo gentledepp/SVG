@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Svg.Interfaces;
 using Svg.Transforms;
 
 namespace Svg
@@ -33,6 +35,8 @@ namespace Svg
         {
             this.ClipPathUnits = SvgCoordinateUnits.Inherit;
         }
+
+        public RectangleF Bounds => CalculateClipBounds();
 
         /// <summary>
         /// Gets this <see cref="SvgClipPath"/>'s region to be used as a clipping region.
@@ -71,6 +75,32 @@ namespace Svg
         public Region GetClipRegion(SvgVisualElement owner)
         {
             return new Region(GetClipRegionPath(owner));
+        }
+
+        private RectangleF CalculateClipBounds()
+        {
+            RectangleF documentSize = null;
+
+            foreach (var element in Children.OfType<SvgVisualElement>())
+            {
+                var bounds = element.GetBoundingBox();
+
+                if (documentSize == null)
+                    documentSize = bounds;
+                else
+                    documentSize = documentSize.UnionAndCopy(bounds);
+            }
+
+            documentSize ??= RectangleF.Create();
+
+            if (!Transforms.Any())
+                return documentSize;
+
+            var m = Matrix.Create();
+            foreach (var transform in Transforms)
+                transform.ApplyTo(m);
+
+            return m.TransformRectangle(documentSize);
         }
 
         /// <summary>

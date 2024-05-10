@@ -156,5 +156,17 @@ namespace Svg.Tests.Win
             actualFontFamily[0].Should().Be("sans-serif");
             actualFontFamily[1].Should().Be("");
         }
+
+        [Test]
+        public void WhenGettingDocumentBounds_AndChildrenHaveClipPath_GetBoundsBasedOnChildrenWithClipPath()
+        {
+            // Arrange
+            var svgPath = "ClipPathBounds.svg";
+
+            var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\" + svgPath);
+
+            Assert.AreEqual(200, svgDoc.CalculateDocumentBounds().Width);
+            Assert.AreEqual(50, svgDoc.CalculateDocumentBounds().Height);
+        }
     }
 }

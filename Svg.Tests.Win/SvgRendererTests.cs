@@ -328,5 +328,26 @@ namespace Svg.Tests.Win
 
             public Guid GetAttributeChangeToken() => AttributeChangeToken;
         }
+
+
+        [Test]
+        public void When_PathSegment_Is_After_ClosePathSegmentZ_Render_Svg()
+        {
+            // Arrange
+            var pngPath = "test_iss_plan.png";
+            var svgPath = "plan_iss.svg";
+
+            // Act
+            using var pngBitmap = TestHelper.GetBitmap(pngPath);
+
+            using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
+
+            // Assert
+            using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
+
+
+            c.AssertAreSimilar(97f, svgPath);
+
+        }
     }
 }
