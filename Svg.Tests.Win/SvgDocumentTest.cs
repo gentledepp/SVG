@@ -168,5 +168,29 @@ namespace Svg.Tests.Win
             Assert.AreEqual(200, svgDoc.CalculateDocumentBounds().Width);
             Assert.AreEqual(50, svgDoc.CalculateDocumentBounds().Height);
         }
+        
+        [Test]
+        public void WhenContainsSvgUse_ReferencedElementIsIncludedInCalculatingBounds()
+        {
+            var svgtxt = """"
+                         <?xml version="1.0" encoding="utf-8"?>
+                         <svg width="1191" height="842" preserveAspectRatio="xMidYMid meet" viewBox="0 0 1191 842" xmlns="http://www.w3.org/2000/svg">
+                             <defs>
+                                <rect id="imKXxjs"  width="200" height="100" x="10" y="10" rx="20" ry="20" fill="blue" />
+                             </defs>
+                         <g>
+                             <g>
+                                <use href="#imKXxjs" />
+                             </g>
+                         </g>
+                         </svg>
+                         """";
+            var svg = SvgDocument.FromSvg<SvgDocument>(svgtxt);
+
+            var bounds = svg.CalculateDocumentBounds();
+
+            bounds.Height.Should().Be(100);
+            bounds.Width.Should().Be(200);
+        }
     }
 }
