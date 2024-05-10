@@ -103,7 +103,7 @@ namespace Svg
             base.OnSubTreeChanged(svgElement);
         }
 
-        public PointF[] GetTransformedPoints(Matrix transform = null)
+        public virtual PointF[] GetTransformedPoints(Matrix transform = null)
         {
             if (transform == null)
                 transform = Matrix.Create();

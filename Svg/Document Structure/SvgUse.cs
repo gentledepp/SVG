@@ -127,6 +127,21 @@ namespace Svg
             }
         }
 
+        public override PointF[] GetTransformedPoints(Matrix transform = null)
+        {
+            if (transform == null)
+                transform = Matrix.Create();
+            else
+                transform = transform.Clone();
+            
+            
+            var element = this.OwnerDocument.IdManager.GetElementById(this.ReferencedElement) as SvgVisualElement;
+            
+             if(element is null)
+                return Array.Empty<PointF>();
+            
+            return element.GetTransformedElementPoints(transform);
+        }
 
         public override SvgElement DeepCopy()
         {

@@ -187,6 +187,10 @@ namespace Svg
                     pts.AddRange(childBounds);
                 }
             }
+
+            if (pts.Count == 0)
+                return Array.Empty<PointF>();
+            
             return pts.Select(p => p.Clone()).ToArray();
         }
 
