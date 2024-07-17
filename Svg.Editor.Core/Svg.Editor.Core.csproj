@@ -15,8 +15,8 @@
 		  - fix: rendering Drawing Clippaths with canvas transformation
 		  #2.4.4.8
 		  - fix: Drawing Clippaths
-          #2.4.4.7
-          - fix: RectangleTool's icon
+       #2.4.4.7
+      - fix: RectangleTool's icon
 		  #2.4.4.6
 		  - fix: TextTool, when text edit, textspan renders not with bound from last textspan
 		  - fix: TextTool, removing lines until one remains, updates
