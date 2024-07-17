@@ -111,17 +111,37 @@ namespace Svg
                 var element = this.OwnerDocument.IdManager.GetElementById(this.ReferencedElement) as SvgVisualElement;
                 if (element != null)
                 {
+                    this.ResetClip(renderer);
                     var origParent = element.Parent;
                     element._parent = this;
                     element.RenderElement(renderer);
                     element._parent = origParent;
-                }
+                    this.PopTransforms(renderer);
 
-                this.ResetClip(renderer);
-                this.PopTransforms(renderer);
+                }
+                else
+                {
+                    this.ResetClip(renderer);
+                    this.PopTransforms(renderer);
+                }
             }
         }
 
+        public override PointF[] GetTransformedPoints(Matrix transform = null)
+        {
+            if (transform == null)
+                transform = Matrix.Create();
+            else
+                transform = transform.Clone();
+            
+            
+            var element = this.OwnerDocument.IdManager.GetElementById(this.ReferencedElement) as SvgVisualElement;
+            
+             if(element is null)
+                return Array.Empty<PointF>();
+            
+            return element.GetTransformedElementPoints(transform);
+        }
 
         public override SvgElement DeepCopy()
         {

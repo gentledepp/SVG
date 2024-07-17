@@ -323,6 +323,7 @@ namespace Svg
                 }
 
                 ResetClip(renderer);
+
                 PopTransforms(renderer);
             }
         }

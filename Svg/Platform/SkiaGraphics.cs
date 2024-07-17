@@ -10,6 +10,7 @@ namespace Svg.Platform
         private readonly SKCanvas _canvas;
         private SkiaMatrix _matrix;
         private Region _clip;
+        private SKPath _clipPath;
 
         public SkiaGraphics(SkiaBitmap image)
         {
@@ -40,7 +41,7 @@ namespace Svg.Platform
         }
 
         public Region Clip { get { return _clip; } }
-        
+
         public SmoothingMode SmoothingMode { get; set; } = SmoothingMode.AntiAlias | SmoothingMode.HighQuality;
 
         public void DrawImage(Bitmap bitmap, Interfaces.RectangleF rectangle, int x, int y, int width, int height, GraphicsUnit pixel)
@@ -136,6 +137,17 @@ namespace Svg.Platform
             }
         }
 
+        public void SetClip(GraphicsPath path, CombineMode combineMode)
+        {
+            _clipPath = ((SkiaGraphicsPath)path).Path;
+
+            if (path != null)
+            {
+                _clipPath.Transform(_canvas.TotalMatrix);
+                _canvas.ClipRegion(new SKRegion(_clipPath), SKClipOperation.Intersect);
+            }
+        }
+
         public void SetClip(Region region, CombineMode combineMode)
         {
             var op = SKRegionOperation.Union;
@@ -162,14 +174,11 @@ namespace Svg.Platform
                     op = SKRegionOperation.XOR;
                     break;
             }
+
             _clip = region;
             //if (region != null)
-            //    _canvas.ClipRect((SkiaRectangleF) region.Rect, op);
-            //else
             //{
-            //    SKRect r = new SKRect();
-            //    _canvas.GetClipBounds(ref r);
-            //    _canvas.ClipRect(r, SKRegionOperation.Union);
+            //    _canvas.ClipRect((SkiaRectangleF)region.Rect, SKClipOperation.Intersect);
             //}
         }
 

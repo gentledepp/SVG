@@ -333,7 +333,7 @@ namespace Svg
             {
                 return false;
             }
-
+            
             renderer.Graphics.Save();
             _graphicsMatrix = renderer.Transform;
             _graphicsClip = renderer.GetClip();

@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-
+using Svg.Interfaces;
 using Svg.Transforms;
 
 namespace Svg
@@ -35,11 +36,13 @@ namespace Svg
             this.ClipPathUnits = SvgCoordinateUnits.Inherit;
         }
 
+        public RectangleF Bounds => CalculateClipBounds();
+
         /// <summary>
         /// Gets this <see cref="SvgClipPath"/>'s region to be used as a clipping region.
         /// </summary>
         /// <returns>A new <see cref="Region"/> containing the <see cref="Region"/> to be used for clipping.</returns>
-        public Region GetClipRegion(SvgVisualElement owner)
+        public GraphicsPath GetClipRegionPath(SvgVisualElement owner)
         {
             if (cachedClipPath == null || this._pathDirty)
             {
@@ -54,7 +57,7 @@ namespace Svg
                 this._pathDirty = false;
             }
 
-            var result = cachedClipPath;
+            var result = cachedClipPath.Clone();
             if (ClipPathUnits == SvgCoordinateUnits.ObjectBoundingBox)
             {
                 result = (GraphicsPath)cachedClipPath.Clone();
@@ -66,22 +69,54 @@ namespace Svg
                     result.Transform(transform);
                 }
             }
+            return result;
+        }
 
-            return new Region(result);
+        public Region GetClipRegion(SvgVisualElement owner)
+        {
+            return new Region(GetClipRegionPath(owner));
+        }
+
+        private RectangleF CalculateClipBounds()
+        {
+            RectangleF documentSize = null;
+
+            foreach (var element in Children.OfType<SvgVisualElement>())
+            {
+                var bounds = element.GetBoundingBox();
+
+                if (documentSize == null)
+                    documentSize = bounds;
+                else
+                    documentSize = documentSize.UnionAndCopy(bounds);
+            }
+
+            documentSize ??= RectangleF.Create();
+
+            if (!Transforms.Any())
+                return documentSize;
+
+            var m = Matrix.Create();
+            foreach (var transform in Transforms)
+                transform.ApplyTo(m);
+
+            return m.TransformRectangle(documentSize);
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="region"></param>
-        /// <param name="element"></param>
+            /// 
+            /// </summary>
+            /// <param name="region"></param>
+            /// <param name="element"></param>
         private void CombinePaths(GraphicsPath path, SvgElement element)
         {
             var graphicsElement = element as SvgVisualElement;
 
             if (graphicsElement != null && graphicsElement.Path(null) != null)
             {
-                path.FillMode = (graphicsElement.ClipRule == SvgClipRule.NonZero) ? FillMode.Winding : FillMode.Alternate;
+                path.FillMode = (graphicsElement.ClipRule == SvgClipRule.NonZero)
+                    ? FillMode.Winding
+                    : FillMode.Alternate;
 
                 GraphicsPath childPath = graphicsElement.Path(null);
 

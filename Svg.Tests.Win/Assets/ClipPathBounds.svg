@@ -1,0 +1,13 @@
+﻿<svg width="200" height="100" xmlns="http://www.w3.org/2000/svg">
+	<defs>
+		<clipPath id="cut-bottom">
+			<rect x="0" y="0" width="200" height="50" />
+		</clipPath>
+	</defs>
+	<g clip-path="url(#cut-bottom)" >
+		<rect width="20000" height="100000" x="10" y="10" rx="20" ry="20" fill="blue" />
+	</g>
+	<g clip-path="url(#cut-bottom)" >
+		<rect width="20" height="10" x="10" y="10" rx="20" ry="20" fill="blue" />
+	</g>
+</svg>

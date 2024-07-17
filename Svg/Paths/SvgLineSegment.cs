@@ -16,6 +16,8 @@ namespace Svg.Pathing
 
         public override void AddToPath(GraphicsPath graphicsPath)
         {
+            if (this.Start == null)
+                this.Start = graphicsPath.PathPoints[0];
             graphicsPath.AddLine(this.Start, this.End);
         }
         

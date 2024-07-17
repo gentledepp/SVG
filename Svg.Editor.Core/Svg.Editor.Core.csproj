@@ -4,11 +4,19 @@
     <AssemblyName>Svg.Editor</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFramework>netstandard2.0</TargetFramework>
-	  <Version>2.4.4.7</Version>
+	  <Version>2.4.4.11</Version>
 	  <LangVersion>latest</LangVersion>
 	  <PackageReleaseNotes>
-          #2.4.4.7
-          - fix: RectangleTool's icon
+		  #2.4.4.11
+		  - fix: SvgUse now correctly calculates bounds by forwarding the bounds of its referenced element
+		  #2.4.4.10
+		  - fix: Svg Plan throws no instance of an object error on drawing pathsegment
+		  #2.4.4.9
+		  - fix: rendering Drawing Clippaths with canvas transformation
+		  #2.4.4.8
+		  - fix: Drawing Clippaths
+       #2.4.4.7
+      - fix: RectangleTool's icon
 		  #2.4.4.6
 		  - fix: TextTool, when text edit, textspan renders not with bound from last textspan
 		  - fix: TextTool, removing lines until one remains, updates
@@ -101,7 +109,7 @@
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 		<PackageReference Include="SkiaSharp" Version="1.68.1" />
-		<PackageReference Include="Svg" Version="2.4.4.6" />
+		<PackageReference Include="Svg" Version="2.4.4.11" />
 		<PackageReference Include="System.Reactive" Version="4.0.0" />
 		<PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
 	</ItemGroup>

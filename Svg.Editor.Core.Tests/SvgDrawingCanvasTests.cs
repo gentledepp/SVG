@@ -105,7 +105,7 @@ namespace Svg.Editor.Core.Test
             var child = children.Single();
             var b = child.GetBoundingBox(Canvas.GetCanvasTransformationMatrix());
 
-            var e = RectangleF.Create(365.359f, 224.3942f, 69.28204f, 51.21167f);
+            var e = RectangleF.Create(192.1539f, 224.3942f, 415.6923f, 51.21167f);
             EnsureRectanglesEqual(e, b);
         }
 

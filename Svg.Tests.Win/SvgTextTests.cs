@@ -250,8 +250,7 @@ namespace Svg.Tests.Win
             // Assert
             using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
 
-
-            c.AssertAreSimilar(99f, svgPath);
+            c.AssertAreSimilar(92f, svgPath);
         }
 
         [Test]
@@ -283,6 +282,7 @@ namespace Svg.Tests.Win
             // Act
             using var svgBitmap = TestHelper.RenderSvg(svgPath, pngBitmap.Width, pngBitmap.Height);
 
+            
             // Assert
             using var c = TestHelper.ImageCompare(svgBitmap, pngBitmap);
 

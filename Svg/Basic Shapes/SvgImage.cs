@@ -97,26 +97,37 @@ namespace Svg
 
         public override RectangleF GetBounds()
         {
+            if (this.ClipPath != null)
+            {
+                SvgClipPath clipPath = this.OwnerDocument.GetElementById<SvgClipPath>(this.ClipPath.OriginalString);
+                if (clipPath != null)
+                {
+                    return clipPath.Bounds;
+                }
+            }
+
             // if a width/height is set explicitly, use that
-                if (!Width.IsNone && !Width.IsEmpty && !Height.IsNone && !Height.IsEmpty)
-                    return RectangleF.Create(Location.ToDeviceValue(null, this),
-                        SizeF.Create(Width.ToDeviceValue(null, UnitRenderingType.Horizontal, this),
-                            Height.ToDeviceValue(null, UnitRenderingType.Vertical, this)));
-
-                var bmp = _img as Image;
-                var svg = _img as SvgFragment;
-
-                if (bmp != null)
-                {
-                    return RectangleF.Create(Location.ToDeviceValue(null, this), SizeF.Create(bmp.Width, bmp.Height));
-                }
-                if (svg != null)
-                {
-                    return RectangleF.Create(Location.ToDeviceValue(null, this), svg.Bounds.Size);
-                }
+            if (!Width.IsNone && !Width.IsEmpty && !Height.IsNone && !Height.IsEmpty)
                 return RectangleF.Create(Location.ToDeviceValue(null, this),
-                                        SizeF.Create(Width.ToDeviceValue(null, UnitRenderingType.Horizontal, this),
-                                                  Height.ToDeviceValue(null, UnitRenderingType.Vertical, this)));
+                    SizeF.Create(Width.ToDeviceValue(null, UnitRenderingType.Horizontal, this),
+                        Height.ToDeviceValue(null, UnitRenderingType.Vertical, this)));
+
+            var bmp = _img as Image;
+            var svg = _img as SvgFragment;
+
+            if (bmp != null)
+            {
+                return RectangleF.Create(Location.ToDeviceValue(null, this), SizeF.Create(bmp.Width, bmp.Height));
+            }
+
+            if (svg != null)
+            {
+                return RectangleF.Create(Location.ToDeviceValue(null, this), svg.Bounds.Size);
+            }
+
+            return RectangleF.Create(Location.ToDeviceValue(null, this),
+                SizeF.Create(Width.ToDeviceValue(null, UnitRenderingType.Horizontal, this),
+                    Height.ToDeviceValue(null, UnitRenderingType.Vertical, this)));
         }
 
         /// <summary>
@@ -186,7 +197,8 @@ namespace Svg
 
                     PushTransforms(renderer);
                     renderer.SetClip(SvgEngine.Factory.CreateRegion(destClip), CombineMode.Intersect);
-                    SetClip(renderer);
+                    if (Parent is not SvgUse)
+                        SetClip(renderer);
 
                     if (AspectRatio != null && AspectRatio.Align != SvgPreserveAspectRatio.none)
                     {
@@ -260,8 +272,8 @@ namespace Svg
                         renderer.PopBoundable();
                     }
 
-
-                    ResetClip(renderer);
+                    if(Parent is not SvgUse)
+                        ResetClip(renderer);
                     PopTransforms(renderer);
                 }
                 // TODO: cache images... will need a shared context for this
