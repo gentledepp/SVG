@@ -9,6 +9,7 @@ namespace Svg.Editor.Tools
 {
     public abstract class ToolBase : ITool, ISerializableTool
     {
+        public ILocalizationService LocalizationService { get; private set; } = SvgEngine.Resolve<ILocalizationService>();
         protected ToolBase(string name) : this(name,null)
         {
         }

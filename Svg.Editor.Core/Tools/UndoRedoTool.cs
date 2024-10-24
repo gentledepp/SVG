@@ -17,8 +17,8 @@ namespace Svg.Editor.Tools
             // add tool commands
             Commands = new List<IToolCommand>
             {
-                new ToolCommand(this, "Undo", o => UndoRedoService.Undo(), o => UndoRedoService.CanUndo(), iconName: "ic_undo.svg"),
-                new ToolCommand(this, "Redo", o => UndoRedoService.Redo(), o => UndoRedoService.CanRedo(), iconName: "ic_redo.svg")
+                new ToolCommand(this, "Undo", o => UndoRedoService.Undo(), o => UndoRedoService.CanUndo(), iconName: "ic_undo.svg", description: LocalizationService.GetString("Svg.Editor.Strokes.Undo")),
+                new ToolCommand(this, "Redo", o => UndoRedoService.Redo(), o => UndoRedoService.CanRedo(), iconName: "ic_redo.svg", description: LocalizationService.GetString("Svg.Editor.Strokes.Redo")),
             };
         }
 

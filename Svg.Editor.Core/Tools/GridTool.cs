@@ -134,8 +134,8 @@ namespace Svg.Editor.Tools
             // add tool commands
             Commands = new List<IToolCommand>
             {
-                new ToggleGridCommand(ws, this, "Toggle Grid"),
-                new ToggleSnappingCommand(ws, this, "Toggle Snapping")
+                new ToggleGridCommand(ws, this, "Toggle Grid", description: LocalizationService.GetString("Svg.Editor.GridTool.ToggleGrid.Description")),
+                new ToggleSnappingCommand(ws, this, "Toggle Snapping", description:LocalizationService.GetString("Svg.Editor.GridTool.ToggleSnapping.Description"))
             };
 
             // initialize with callbacks
@@ -604,8 +604,8 @@ namespace Svg.Editor.Tools
         {
             private readonly ISvgDrawingCanvas _canvas;
 
-            public ToggleGridCommand(ISvgDrawingCanvas canvas, GridTool tool, string name)
-                : base(tool, name, (o) => { }, iconName: tool.IconGridOff, sortFunc: (tc) => 2000)
+            public ToggleGridCommand(ISvgDrawingCanvas canvas, GridTool tool, string name, string description = null)
+                : base(tool, name, (o) => { }, iconName: tool.IconGridOff, sortFunc: (tc) => 2000, description:description)
             {
                 _canvas = canvas;
             }
@@ -628,8 +628,8 @@ namespace Svg.Editor.Tools
         {
             private readonly ISvgDrawingCanvas _canvas;
 
-            public ToggleSnappingCommand(ISvgDrawingCanvas canvas, GridTool tool, string name)
-                : base(tool, name, (o) => { }, iconName: tool.IconGridOff, sortFunc: (tc) => 2000)
+            public ToggleSnappingCommand(ISvgDrawingCanvas canvas, GridTool tool, string name, string description = null)
+                : base(tool, name, (o) => { }, iconName: tool.IconGridOff, sortFunc: (tc) => 2000, description:description)
             {
                 _canvas = canvas;
             }

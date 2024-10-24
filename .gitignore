@@ -31,3 +31,8 @@ packages/
 .vs
 /tools
 /build
+/Svg.Tests.Benchmarks/Assets/TilesStream.zip
+/.idea/.idea.Svg.Editor/.idea
+/workload-install.ps1
+/Svg.Editor.Avalon/workload-install.ps1
+/.idea

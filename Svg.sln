@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29519.87
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgW3CTestRunner.Droid", "Tests\SvgW3CTestRunner.Droid\SvgW3CTestRunner.Droid.csproj", "{1BC7BB63-4658-421D-8776-2F94F33186F8}"
 EndProject
@@ -31,17 +31,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svg.Tests.UWP", "Svg.Tests.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Svg", "Svg\Svg.csproj", "{C4DD05D5-AD71-4D37-89E5-0C2ABFA6D77E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Svg.Tests.Benchmarks", "Svg.Tests.Benchmarks\Svg.Tests.Benchmarks.csproj", "{66632CCE-FF04-40B1-8A15-E44E211FB650}"
+EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		SvgW3CTestSuite.Shared\SvgW3CTestSuite.Shared.projitems*{21cffa29-3d29-43e6-8c7b-47f17a900ba6}*SharedItemsImports = 13
-		SvgW3CTestSuite.Shared\SvgW3CTestSuite.Shared.projitems*{4bda58a2-2a71-47bc-be7b-f27d3a2c7913}*SharedItemsImports = 4
-		Svg.Tests\Svg.Tests.projitems*{4c11f294-fc1b-4fa7-8c27-f04f578f5d04}*SharedItemsImports = 4
-		SvgW3CTestSuite.Shared\SvgW3CTestSuite.Shared.projitems*{5ce05f06-cf75-401c-878f-6288655e851c}*SharedItemsImports = 4
-		SvgW3CTestSuite.Shared\SvgW3CTestSuite.Shared.projitems*{6b3fa1e4-09a3-48c0-9fd6-3edee3965400}*SharedItemsImports = 4
-		SvgW3CTestSuite.Shared\SvgW3CTestSuite.Shared.projitems*{8a16ada1-bd9c-4898-9847-67d7667ec0e0}*SharedItemsImports = 4
-		Svg.Tests\Svg.Tests.projitems*{92bce9d4-6968-4533-9785-a240ee123faa}*SharedItemsImports = 13
-		Svg.Tests\Svg.Tests.projitems*{ed6ab6fc-ad44-4dfa-afc4-b0f127b87d5e}*SharedItemsImports = 4
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|ARM = Debug|ARM
@@ -290,6 +282,30 @@ Global
 		{C4DD05D5-AD71-4D37-89E5-0C2ABFA6D77E}.Release|x64.Build.0 = Release|Any CPU
 		{C4DD05D5-AD71-4D37-89E5-0C2ABFA6D77E}.Release|x86.ActiveCfg = Release|Any CPU
 		{C4DD05D5-AD71-4D37-89E5-0C2ABFA6D77E}.Release|x86.Build.0 = Release|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Debug|ARM.Build.0 = Debug|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Debug|x64.Build.0 = Debug|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Debug|x86.Build.0 = Debug|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Release|ARM.ActiveCfg = Release|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Release|ARM.Build.0 = Release|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Release|iPhone.Build.0 = Release|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Release|x64.ActiveCfg = Release|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Release|x64.Build.0 = Release|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Release|x86.ActiveCfg = Release|Any CPU
+		{66632CCE-FF04-40B1-8A15-E44E211FB650}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -306,8 +322,19 @@ Global
 		{4BDA58A2-2A71-47BC-BE7B-F27D3A2C7913} = {BC1B2A3E-7C7C-4E9A-9238-504CDF459385}
 		{4C11F294-FC1B-4FA7-8C27-F04F578F5D04} = {2CE3355A-1A9F-4DAF-8797-25D70D26D9DB}
 		{C4DD05D5-AD71-4D37-89E5-0C2ABFA6D77E} = {88A8760B-A830-4EF1-A4C0-4957F2365FA9}
+		{66632CCE-FF04-40B1-8A15-E44E211FB650} = {2CE3355A-1A9F-4DAF-8797-25D70D26D9DB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5755D712-C143-4CFB-B113-2A3CD5DA43FE}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		SvgW3CTestSuite.Shared\SvgW3CTestSuite.Shared.projitems*{21cffa29-3d29-43e6-8c7b-47f17a900ba6}*SharedItemsImports = 13
+		SvgW3CTestSuite.Shared\SvgW3CTestSuite.Shared.projitems*{4bda58a2-2a71-47bc-be7b-f27d3a2c7913}*SharedItemsImports = 4
+		Svg.Tests\Svg.Tests.projitems*{4c11f294-fc1b-4fa7-8c27-f04f578f5d04}*SharedItemsImports = 4
+		SvgW3CTestSuite.Shared\SvgW3CTestSuite.Shared.projitems*{5ce05f06-cf75-401c-878f-6288655e851c}*SharedItemsImports = 4
+		SvgW3CTestSuite.Shared\SvgW3CTestSuite.Shared.projitems*{6b3fa1e4-09a3-48c0-9fd6-3edee3965400}*SharedItemsImports = 4
+		SvgW3CTestSuite.Shared\SvgW3CTestSuite.Shared.projitems*{8a16ada1-bd9c-4898-9847-67d7667ec0e0}*SharedItemsImports = 4
+		Svg.Tests\Svg.Tests.projitems*{92bce9d4-6968-4533-9785-a240ee123faa}*SharedItemsImports = 13
+		Svg.Tests\Svg.Tests.projitems*{ed6ab6fc-ad44-4dfa-afc4-b0f127b87d5e}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal

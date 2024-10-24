@@ -88,14 +88,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Avalonia.Skia">
+      <Version>11.2.1</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.Reactive.Testing">
       <Version>4.0.0</Version>
     </PackageReference>
     <PackageReference Include="NUnit">
       <Version>3.12.0</Version>
-    </PackageReference>
-    <PackageReference Include="SkiaSharp">
-      <Version>1.68.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -110,6 +110,10 @@
     <ProjectReference Include="..\Svg.Editor.Core\Svg.Editor.Core.csproj">
       <Project>{4cf34d1c-662c-400d-beaf-e87ce1d08fab}</Project>
       <Name>Svg.Editor.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Svg\Svg.csproj">
+      <Project>{2c5671c4-9c70-4d74-80dc-5e0ec17d27b4}</Project>
+      <Name>Svg</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

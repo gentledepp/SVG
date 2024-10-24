@@ -1,7 +1,12 @@
 using System;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Svg.DeepZoom;
 using Svg.Interfaces;
+using Svg.Platform;
 
 namespace Svg
 {
@@ -156,6 +161,7 @@ namespace Svg
             }
         }
 
+
         /// <summary>
         /// Renders the <see cref="SvgElement"/> and contents to the specified <see cref="Graphics"/> object.
         /// </summary>
@@ -164,11 +170,62 @@ namespace Svg
             if (!Visible || !Displayable)
                 return;
 
-            var cache = GetOrCreateRenderCacheEntry<ImageCache>(renderer);
-            cache.Image ??= GetImage(Href);
-
             if (Href != null)
             {
+                if (Href.EndsWith(".zip"))
+                {
+                    PushTransforms(renderer);
+
+                    var fileSystem = SvgEngine.Resolve<IFileSystem>();
+                    var scaleX = renderer.Transform.ScaleX;
+
+                    var xOffset = renderer.Transform.OffsetX;
+                    var yOffset = renderer.Transform.OffsetY;
+
+                    var tileRenderer = SvgEngine.Resolve<ITileRendererManager>().GetOrCreateTileRenderer();
+                    tileRenderer.SetDimensions(renderer.ScreenWidth, renderer.ScreenHeight);
+
+                    using var zipFileStream = fileSystem.OpenRead(Href);
+                    using var zipArchive = new ZipArchive(zipFileStream, ZipArchiveMode.Read);
+                    var tileProvider = (string folderName, string fileName) =>
+                    {
+                        var path = fileSystem.PathCombine(folderName, fileName);
+                        var entry = zipArchive.Entries.FirstOrDefault(archiveEntry =>
+                            archiveEntry.FullName.EndsWith(path));
+
+                        if(entry == null)
+                            return null;
+
+                        return entry.Open();
+                    };
+
+                    using var skImage = tileRenderer.RenderBitmap(tileProvider, xOffset, yOffset,
+                        scaleX);
+
+                    var image = new SkiaBitmap(skImage);
+
+                    if (image != null)
+                    {
+                        var bmp = image as Bitmap;
+                        var rec = new SkiaRectangleF()
+                        {
+                            Height = bmp.Height,
+                            Width = bmp.Width,
+                        };
+
+                        var m = renderer.Transform.Clone();
+                        m.Invert();
+                        var rec2 = m.TransformRectangle(rec);
+
+                        renderer.DrawImage(image as Image, rec2, rec, GraphicsUnit.Pixel);
+                    }
+                    PopTransforms(renderer);
+                    return;
+                }
+
+                var cache = GetOrCreateRenderCacheEntry<ImageCache>(renderer);
+                cache.Image ??= GetImage(Href);
+
                 var img = cache.Image;
                 if (img != null)
                 {
@@ -268,6 +325,7 @@ namespace Svg
                         renderer.ScaleTransform(destRect.Width / srcRect.Width, destRect.Height / srcRect.Height);
                         renderer.TranslateTransform(currOffset.X + destRect.X, currOffset.Y + destRect.Y);
                         renderer.SetBoundable(new GenericBoundable(srcRect));
+                        renderer.FillBackground(Interfaces.Color.Create(155,155,155));
                         svg.RenderElement(renderer);
                         renderer.PopBoundable();
                     }

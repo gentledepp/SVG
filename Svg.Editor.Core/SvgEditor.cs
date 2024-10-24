@@ -2,6 +2,7 @@
 using System.Threading;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Services;
+using Svg.Editor.Services.Localization;
 using Svg.Editor.UndoRedo;
 using Svg.Interfaces;
 
@@ -16,7 +17,6 @@ namespace Svg.Editor
         {
             if (_initialized)
                 return;
-
             try
             {
                 _lock.Wait();
@@ -39,7 +39,7 @@ namespace Svg.Editor
                 SvgEngine.RegisterSingleton<IEmbeddedResourceRegistry>(() => new EmbeddedResourceRegistry());
                 SvgEngine.Register<ISvgSourceFactory>(() => new EmbeddedResourceSvgSourceFactory(SvgEngine.Resolve<IEmbeddedResourceRegistry>()));
                 SvgEngine.RegisterSingleton<IImageSourceProvider>(() => new DefaultImageSourceProvider());
-
+                SvgEngine.Register<ILocalizationService>(() => new LocalizationService());
 
                 _initialized = true;
             }

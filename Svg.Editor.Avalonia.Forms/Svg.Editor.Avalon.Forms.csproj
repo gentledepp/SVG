@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<Version>3.0.0-alpha-avalonia</Version>
+		<PackageReleaseNotes>
+		#3.0.0-alpha-avalonia
+		migrate to avalonia
+		</PackageReleaseNotes>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Avalonia" Version="11.2.1" />
+		<PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.2.1" />
+		<PackageReference Include="Avalonia.Labs.Controls" Version="11.2.0" />
+		<PackageReference Include="Avalonia.Skia" Version="11.2.1" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Svg.Editor.Avalonia.Views\Svg.Editor.Avalon.Views.csproj" />
+		<ProjectReference Include="..\Svg.Editor.Core\Svg.Editor.Core.csproj" />
+	</ItemGroup>
+
+
+</Project>

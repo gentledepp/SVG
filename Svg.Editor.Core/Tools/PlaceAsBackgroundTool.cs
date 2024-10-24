@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using FileSystemHelper.Platforms;
+using Svg.DeepZoom;
 using Svg.Editor.Extensions;
 using Svg.Editor.Interfaces;
 using Svg.Interfaces;
+using Svg.Transforms;
 
 namespace Svg.Editor.Tools
 {
@@ -15,7 +20,6 @@ namespace Svg.Editor.Tools
         {
             IconName = "ic_insert_photo.svg";
         }
-
 	    public override bool CanSerialize => false;
 
 	    public override async Task Initialize(ISvgDrawingCanvas ws)
@@ -32,7 +36,54 @@ namespace Svg.Editor.Tools
                     ImagePath = await imgs.PickImagePathAsync(Canvas.ScreenWidth);
                     if (ImagePath == null) return;
                     PlaceImage(ImagePath);
-                }, o => ChooseBackgroundEnabled, iconName: "ic_insert_photo.svg"),
+                }, o => ChooseBackgroundEnabled, iconName: "ic_insert_photo.svg", description: LocalizationService.GetString("Svg.Editor.BackgroundTool.ChooseBackgroundImage.Description")),
+                new ToolCommand(this, "Choose svg/image to tile render", async ob =>
+                {
+                    var xa = Canvas.ScreenWidth;
+                    var y = Canvas.ScreenHeight;
+                    var imgs = SvgEngine.TryResolve<IPickImageService>();
+                    var fileSystem = SvgEngine.TryResolve<IFileSystem>();
+                    
+
+                    ImagePath = await imgs.PickImagePathAsync(Canvas.ScreenWidth);
+                    if (ImagePath == null) return;
+
+                    using var newBmp = ScaleAndPlaceBackground(ImagePath, 3508, 2480); // A3 example
+                    
+                    if(File.Exists(Path.Combine(fileSystem.GetDefaultStoragePath(),ImagePath)))
+                        File.Delete(Path.Combine(fileSystem.GetDefaultStoragePath(),ImagePath));
+
+                    using (var file = fileSystem.OpenWrite(Path.Combine(fileSystem.GetDefaultStoragePath(),ImagePath)))
+                    {
+                        newBmp.SavePng(file);
+                    }
+
+                    var gen = new TileGenerator();
+                    var outPutZiFile = Path.Combine(fileSystem.GetDefaultStoragePath(), "TilesStream.zip");
+                   if(File.Exists(outPutZiFile))
+                       File.Delete(outPutZiFile);
+                   using (var zipFileStream = fileSystem.OpenWrite(outPutZiFile))
+                   {
+                       using var archive = new ZipArchive(zipFileStream, ZipArchiveMode.Create);
+
+                       var streamProvider = (string folderName, string fileName) =>
+                       {
+                           var entry = archive.CreateEntry(Path.Combine(folderName, fileName));
+                           return Task.FromResult<Stream>(entry.Open());
+                       };
+
+                       await gen.GenerateTilesAsync(Path.Combine(fileSystem.GetDefaultStoragePath(), ImagePath),
+                           streamProvider);
+                   }
+
+                   if (ImagePath == null) return;
+                    //Canvas.Constraints = RectangleF.Create(0, 0, size.Width, size.Height);
+                    var image = Canvas.Document.AddImageInBackground(ImagePath);
+                    image.Href = outPutZiFile;
+                    Canvas.FireInvalidateCanvas();
+                    Canvas.FireToolCommandsChanged();
+
+                }, o => ChooseBackgroundEnabled, iconName: "ic_insert_photo.svg", description: LocalizationService.GetString("Svg.Editor.BackgroundTool.ChooseTileRender.Description")),
                 new ToolCommand(this, "Remove background image", o =>
                 {
                     var children = Canvas.Document.Children;
@@ -49,13 +100,34 @@ namespace Svg.Editor.Tools
                         Canvas.FireInvalidateCanvas();
                         Canvas.FireToolCommandsChanged();
                     }
-                }, o => ChooseBackgroundEnabled && Canvas.Document.Children.Any(x => x.CustomAttributes.ContainsKey(BackgroundCustomAttributeKey)), iconName: "ic_delete.svg")
+                }, o => ChooseBackgroundEnabled && Canvas.Document.Children.Any(x => x.CustomAttributes.ContainsKey(BackgroundCustomAttributeKey)), iconName: "ic_delete.svg", description: LocalizationService.GetString("Svg.Editor.BackgroundTool.Remove.Description"))
             };
 
             if (ImagePath != null)
             {
                 PlaceImage(ImagePath);
             }
+        }
+
+        private Bitmap ScaleAndPlaceBackground(string path, int newWidth, int newHeight)
+        {
+            var doc = SvgDocument
+                .Open(
+                    "C:\\Users\\zepr2\\Desktop\\98fc3a08-8f01-4033-b4f7-fd10264862d3.svg");
+
+            //var bImage = doc.Children.OfType<SvgImage>().FirstOrDefault();
+
+            //// readjust svg doc
+            var docWidth = doc.Width;
+            var docHeight = doc.Height;
+            var scale = Math.Max(newHeight / docHeight, newWidth / docWidth);
+
+            doc.Width = newWidth;
+                doc.Height = newHeight;
+                doc.ViewBox = null;
+                doc.Transforms.Add(new SvgScale(scale));
+
+                return doc.DrawDocument();
         }
 
         private void PlaceImage(string path)
@@ -79,8 +151,7 @@ namespace Svg.Editor.Tools
                 // add constraints to the canvas
                 var size = image.GetImageSize();
 
-                Canvas.Constraints = RectangleF.Create(0, 0, size.Width, size.Height);
-                
+                //Canvas.Constraints = RectangleF.Create(0, 0, size.Width, size.Height);
                 Canvas.FireInvalidateCanvas();
                 Canvas.FireToolCommandsChanged();
             }

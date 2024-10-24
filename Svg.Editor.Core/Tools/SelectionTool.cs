@@ -84,7 +84,7 @@ namespace Svg.Editor.Tools
                         ws.FireInvalidateCanvas();
                 },
                 o => ws.SelectedElements.Any(), iconName:DeleteIconName,
-                sortFunc: t => 550)
+                sortFunc: t => 550, description: LocalizationService.GetString("Svg.Editor.SelectionTool.Delete.Description"))
             };
         }
 
@@ -242,6 +242,8 @@ namespace Svg.Editor.Tools
             // the canvas has not been scaled and translated yet
             // we need to compare our rectangle to the translated boundingboxes of the svg elements
             var selected = ws.GetElementsUnder<SvgVisualElement>(selectionRectangle, selectionType, HitTestResultMode.ReturnRootElementOnly, maxItems, recursionLevel: recursionLevel);
+
+            var x = this.GetHashCode();
 
             foreach (var element in selected)
             {

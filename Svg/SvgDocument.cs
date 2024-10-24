@@ -20,7 +20,8 @@ namespace Svg
     public partial class SvgDocument : SvgFragment //, ITypeDescriptorContext
     {
         public static readonly int PointsPerInch = 96;
-        private SvgElementIdManager _idManager;
+
+    private SvgElementIdManager _idManager;
 
         private Dictionary<string, IEnumerable<SvgFontFace>> _fontDefns = null;
         private IFileSystem _fileSystem;

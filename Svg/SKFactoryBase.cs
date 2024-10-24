@@ -201,14 +201,39 @@ namespace Svg
         public virtual Color CreateColorFromHexString(string hex)
         {
             if (hex == null) throw new ArgumentException("Hex string cannot be null.", nameof(hex));
-
-            if (Regex.IsMatch(hex.ToLowerInvariant(), @"^#[a-f0-9]{8}$"))
+            
+            var isArgb = hex.StartsWith("#ff", StringComparison.InvariantCultureIgnoreCase);
+            var isRgba = hex.EndsWith("#ff", StringComparison.InvariantCultureIgnoreCase);
+            
+            if (Regex.IsMatch(hex.ToLowerInvariant(), @"^#[a-f0-9]{8}$") && isRgba)
             {
                 //RGBA - so the last two digits are the alpha
                 var r = int.Parse(hex.Substring(1, 2), NumberStyles.HexNumber);
                 var g = int.Parse(hex.Substring(3, 2), NumberStyles.HexNumber);
                 var b = int.Parse(hex.Substring(5, 2), NumberStyles.HexNumber);
                 var a = int.Parse(hex.Substring(7, 2), NumberStyles.HexNumber);
+
+                return CreateColorFromArgb(a, r, g, b);
+            } 
+            
+            if (Regex.IsMatch(hex.ToLowerInvariant(), @"^#[a-f0-9]{8}$") && isArgb)
+            {
+                //ARGB - so the first two digits are the alpha
+                var a = int.Parse(hex.Substring(1, 2), NumberStyles.HexNumber);
+                var r = int.Parse(hex.Substring(3, 2), NumberStyles.HexNumber);
+                var g = int.Parse(hex.Substring(5, 2), NumberStyles.HexNumber);
+                var b = int.Parse(hex.Substring(7, 2), NumberStyles.HexNumber);
+
+                return CreateColorFromArgb(a, r, g, b);
+            }
+            
+            if (Regex.IsMatch(hex.ToLowerInvariant(), @"^#[a-f0-9]{8}$"))
+            {
+                //ARGB - so the first two digits are the alpha
+                var a = int.Parse(hex.Substring(1, 2), NumberStyles.HexNumber);
+                var r = int.Parse(hex.Substring(3, 2), NumberStyles.HexNumber);
+                var g = int.Parse(hex.Substring(5, 2), NumberStyles.HexNumber);
+                var b = int.Parse(hex.Substring(7, 2), NumberStyles.HexNumber);
 
                 return CreateColorFromArgb(a, r, g, b);
             }

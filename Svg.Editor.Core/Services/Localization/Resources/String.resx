@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="Svg.Editor.ColorTool.ChangeColor.Description" xml:space="preserve">
+        <value>Open the color picker to select a new color from a palette for drawing.</value>
+    </data>
+    <data name="Svg.Editor.StrokeStyleTool.ChangeStroke.Description" xml:space="preserve">
+        <value>Select options like thick, thin, dotted, dashed patterns to personalize your strokes.</value>
+    </data>
+    <data name="Svg.Editor.BackgroundTool.ChooseBackgroundImage.Description" xml:space="preserve">
+        <value>Pick an image file to set it as background in the canvas.</value>
+    </data>
+    <data name="Svg.Editor.Strokes.Undo" xml:space="preserve">
+        <value>Undo the last action to revert your drawing to its previous state. </value>
+    </data>
+    <data name="Svg.Editor.Strokes.Redo" xml:space="preserve">
+        <value>Redo the last undone action to restore changes or adjustments with ease.</value>
+    </data>
+    <data name="Svg.Editor.ArrangeTool.BringToFront.Description" xml:space="preserve">
+        <value>Move selected item through different layers in the canvas.</value>
+    </data>
+    <data name="Svg.Editor.ShowAll.Description" xml:space="preserve">
+        <value>Enlarges the canvas to the entire sketch.</value>
+    </data>
+    <data name="Svg.Editor.GridTool.ToggleGrid.Description" xml:space="preserve">
+        <value>Show or hide the grid overlay to help align elements on the canvas.</value>
+    </data>
+    <data name="Svg.Editor.SaveTool.Description" xml:space="preserve">
+        <value>Click to save your SVG file and preserve all changes made to your design.</value>
+    </data>
+    <data name="Svg.Editor.PinTool.ChangePinSize.Description" xml:space="preserve">
+        <value>Change the size of the pin.</value>
+    </data>
+    <data name="Svg.Editor.LineTool.LineEndings.Description" xml:space="preserve">
+        <value>Change end and the tip of the line shape.</value>
+    </data>
+</root>

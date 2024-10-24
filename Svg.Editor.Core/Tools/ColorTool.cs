@@ -12,12 +12,12 @@ namespace Svg.Editor.Tools
 {
 	public interface IColorInputService
 	{
-		Task<int> GetIndexFromUserInput(string title, string[] items, string[] colors, int defaultIndex = 0);
+		Task<string> GetHexaColorFromUserInput(string title);
 	}
 
 	public interface ISupportTextColor
 	{
-		int GetDefaultTextColorIndex(int parentColor, string[] selectableColors);
+		string GetDefaultTextColorIndex(string color);
 	}
 
 	public class ColorTool : UndoableToolBase
@@ -37,64 +37,20 @@ namespace Svg.Editor.Tools
 
 		#region Public properties
 
-		public const string SelectedColorIndexKey = "selectedcolorindex";
-		public const string SelectedTextColorIndexKey = "selectedtextcolorindex";
 		public const string SelectableColorsKey = "selectablecolors";
 		public const string SelectableColorNamesKey = "selectablecolornames";
 		public const string IconDimensionsKey = "icondimensions";
 
-		public string[] SelectableColors
-		{
-			get
-			{
-				object selectableColors;
-				if (!Properties.TryGetValue(SelectableColorsKey, out selectableColors))
-					selectableColors = Enumerable.Empty<string>();
-				return (string[]) selectableColors;
-			}
-		}
 
-		public string[] SelectableColorNames
-		{
-			get
-			{
-				object selectableColorNames;
-				if (!Properties.TryGetValue(SelectableColorNamesKey, out selectableColorNames))
-					selectableColorNames = SelectableColors.Clone();
-				return (string[]) selectableColorNames;
-			}
-		}
+        public string HexColor { get; set; } = "#000000";
 
-		public int SelectedColorIndex
-		{
-			get
-			{
-				object index;
-				return Properties.TryGetValue(SelectedColorIndexKey, out index)
-					? Convert.ToInt32(index)
-					: 0;
-			}
-			set { Properties[SelectedColorIndexKey] = value; }
-		}
-
-		public int SelectedTextColorIndex
-		{
-			get
-			{
-				object index;
-				return Properties.TryGetValue(SelectedTextColorIndexKey, out index)
-					? Convert.ToInt32(index)
-					: 7;
-			}
-			set { Properties[SelectedTextColorIndexKey] = value; }
-		}
 
 		#endregion
 
 		public ColorTool(IDictionary<string, object> properties, IUndoRedoService undoRedoService) : base("Color", properties,
 			undoRedoService)
 		{
-			IconName = "Svg.Editor.Resources.svg.ic_format_color_fill.svg";
+			IconName = "ic_format_color_fill";
 			ToolType = ToolType.Modify;
 		}
 
@@ -110,33 +66,11 @@ namespace Svg.Editor.Tools
 				_iconDimensions = iconDimensions as SizeF;
 			}
 
-			// cache icons
-			var cachingService = SvgEngine.TryResolve<ISvgCachingService>();
-			if (cachingService != null)
-			{
-				foreach (var selectableColor in SelectableColors)
-				{
-					var color = Color.Create(selectableColor);
-					var options = new SaveAsPngOptions
-					{
-						PreprocessAction = SvgProcessingUtil.ColorAction(color),
-						CustomPostFix = (key, opt) => StringifyColor(color),
-						ImageDimension = Tbi.Value?.GetSize(),
-					};
-					// global config
-					// local config
-					if (_iconDimensions != null)
-						options.ImageDimension = _iconDimensions;
-
-					cachingService.GetCachedPng(IconName, options);
-				}
-			}
-
 			// add tool commands
 			Commands = new List<IToolCommand>
 			{
-				new ChangeColorCommand(ws, this, "Change color"),
-				new ChangeTextColorCommand(ws, this, "Change text color", _ => Canvas.ActiveTool is ISupportTextColor)
+				new ChangeColorCommand(ws, this, "Change color", description: LocalizationService.GetString("Svg.Editor.ColorTool.ChangeColor.Description")),
+				new ChangeTextColorCommand(ws, this, "Change text color", _ => Canvas.ActiveTool is ISupportTextColor, description: LocalizationService.GetString("Svg.Editor.ColorTool.ChangeTextColor.Description")),
 			};
 
 			// initialize with callbacks
@@ -159,7 +93,7 @@ namespace Svg.Editor.Tools
 			return $"{color.R}_{color.G}_{color.B}";
 		}
 
-		private void ColorizeElement(SvgElement element, int colorIndex)
+		private void ColorizeElement(SvgElement element, string hxColor)
 		{
 			var noFill = element.Fill == null ||element.Fill == SvgPaintServer.None || element.Fill == SvgColourServer.NotSet || element.HasConstraints(NoFillConstraint);
 			var noStroke = element.Stroke == null || element.Stroke == SvgPaintServer.None || element.Stroke == SvgColourServer.NotSet || element.HasConstraints(NoStrokeConstraint);
@@ -174,12 +108,12 @@ namespace Svg.Editor.Tools
 				if (!noStroke)
 				{
 					element.Stroke?.Dispose();
-					element.Stroke = new SvgColourServer(Color.Create(SelectableColors.ElementAtOrDefault(colorIndex) ?? "#000000"));
+					element.Stroke = new SvgColourServer(Color.Create(hxColor));
 				}
 				if (!noFill)
 				{
 					element.Fill?.Dispose();
-					element.Fill = new SvgColourServer(Color.Create(SelectableColors.ElementAtOrDefault(colorIndex) ?? "#000000"));
+					element.Fill = new SvgColourServer(Color.Create(hxColor));
 				}
 				Canvas.FireInvalidateCanvas();
 			}, _ =>
@@ -223,12 +157,12 @@ namespace Svg.Editor.Tools
 		{
 			if (Canvas?.ActiveTool is ISupportTextColor)
 			{
-				ColorizeElement(e.NewChild.Children[0], SelectedColorIndex);
-				ColorizeElement(e.NewChild.Children[1], SelectedTextColorIndex);
+				ColorizeElement(e.NewChild.Children[0], HexColor);
+				ColorizeElement(e.NewChild.Children[1], HexColor);
 			}
 			else
 			{
-				ColorizeElement(e.NewChild, SelectedColorIndex);
+				ColorizeElement(e.NewChild, HexColor);
 			}
 		}
 
@@ -243,8 +177,8 @@ namespace Svg.Editor.Tools
 		{
 			private readonly ISvgDrawingCanvas _canvas;
 
-			public ChangeColorCommand(ISvgDrawingCanvas canvas, ColorTool tool, string name)
-				: base(tool, name, o => { }, iconName: tool.IconName, sortFunc: tc => 500)
+			public ChangeColorCommand(ISvgDrawingCanvas canvas, ColorTool tool, string name, string description = null)
+				: base(tool, name, o => { }, iconName: tool.IconName, sortFunc: tc => 500, description: description)
 			{
 				_canvas = canvas;
 			}
@@ -255,12 +189,12 @@ namespace Svg.Editor.Tools
 			{
 				var t = Tool;
 
-				int selectedColorIndex;
+                string hxColor;
 
 				try
 				{
-					selectedColorIndex =
-						await ColorInputService.GetIndexFromUserInput("Choose color", t.SelectableColorNames, t.SelectableColors);
+					 hxColor =
+						await ColorInputService.GetHexaColorFromUserInput("Choose color");
 				}
 				catch (TaskCanceledException)
 				{
@@ -278,48 +212,35 @@ namespace Svg.Editor.Tools
 							// in this case the selected element is a group
 							// the first child of the group is the shape itself
 							// and the second child is the text contained by the shape
-							t.ColorizeElement(selectedElement.Children[0], selectedColorIndex);
+							t.ColorizeElement(selectedElement.Children[0], hxColor);
 						}
 						else
 						{
-							t.ColorizeElement(selectedElement, selectedColorIndex);
+							t.ColorizeElement(selectedElement, hxColor);
 						}
 					}
 					// don't change the global color when items are selected
 					return;
 				}
 
-				if (t.Canvas.ActiveTool is ISupportTextColor tool)
-				{
-					t.SelectedTextColorIndex = tool.GetDefaultTextColorIndex(selectedColorIndex, t.SelectableColorNames);
-				}
-
-				var formerSelectedColor = t.SelectedColorIndex;
 				t.UndoRedoService.ExecuteCommand(new UndoableActionCommand(Name, o =>
 				{
-					t.SelectedColorIndex = selectedColorIndex;
+					t.HexColor = hxColor;
 					t.Canvas.FireToolCommandsChanged();
 				}, o =>
 				{
-					t.SelectedColorIndex = formerSelectedColor;
+                    t.HexColor = hxColor;
 					t.Canvas.FireToolCommandsChanged();
 				}));
 			}
-
-			public override string IconName => SvgCachingService?.GetCachedPng(Tool.IconName,
-				new SaveAsPngOptions()
-				{
-					CustomPostFix = (key, op) => StringifyColor(Color.Create(Tool.SelectableColors.ElementAtOrDefault(Tool.SelectedColorIndex) ?? "#000000")),
-					ImageDimension = Tbi.Value?.GetSize()
-				});
 		}
 
 		private class ChangeTextColorCommand : ToolCommand
 		{
 			private readonly ISvgDrawingCanvas _canvas;
 
-			public ChangeTextColorCommand(ISvgDrawingCanvas canvas, ColorTool tool, string name, Func<object, bool> canExecute = null)
-				: base(tool, name, o => { }, canExecute, iconName: tool.IconName, sortFunc: tc => 500)
+			public ChangeTextColorCommand(ISvgDrawingCanvas canvas, ColorTool tool, string name, Func<object, bool> canExecute = null, string description = null)
+				: base(tool, name, o => { }, canExecute, iconName: tool.IconName, sortFunc: tc => 500, description:description)
 			{
 				_canvas = canvas;
 			}
@@ -330,12 +251,12 @@ namespace Svg.Editor.Tools
 			{
 				var t = Tool;
 
-				int selectedTextColorIndex;
+				string hxColor;
 
 				try
 				{
-					selectedTextColorIndex =
-						await ColorInputService.GetIndexFromUserInput("Choose color", t.SelectableColorNames, t.SelectableColors, 7);
+                    hxColor =
+						await ColorInputService.GetHexaColorFromUserInput("Choose color");
 				}
 				catch (TaskCanceledException)
 				{
@@ -348,30 +269,24 @@ namespace Svg.Editor.Tools
 					// change the color of all selected items
 					foreach (var selectedElement in _canvas.SelectedElements)
 					{
-						t.ColorizeElement(selectedElement.Children[1], selectedTextColorIndex);
+						t.ColorizeElement(selectedElement.Children[1], hxColor);
 					}
 					// don't change the global color when items are selected
 					return;
 				}
 
-				var formerSelectedColor = t.SelectedTextColorIndex;
+                var formerHxColor = t.HexColor;
 				t.UndoRedoService.ExecuteCommand(new UndoableActionCommand(Name, o =>
-				{
-					t.SelectedTextColorIndex = selectedTextColorIndex;
-					t.Canvas.FireToolCommandsChanged();
+                {
+                    t.HexColor = hxColor;
+                    t.Canvas.FireToolCommandsChanged();
 				}, o =>
 				{
-					t.SelectedTextColorIndex = formerSelectedColor;
+                    t.HexColor = formerHxColor;
 					t.Canvas.FireToolCommandsChanged();
 				}));
 			}
 
-			public override string IconName => SvgCachingService?.GetCachedPng(Tool.IconName,
-				new SaveAsPngOptions()
-				{
-					CustomPostFix = (key, op) => StringifyColor(Color.Create(Tool.SelectableColors.ElementAtOrDefault(Tool.SelectedColorIndex) ?? "#000000")),
-					ImageDimension = Tbi.Value?.GetSize()
-				});
 		}
 
 		#endregion

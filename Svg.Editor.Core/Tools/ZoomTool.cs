@@ -116,7 +116,7 @@ namespace Svg.Editor.Tools
 
             Commands = new[]
             {
-                new ToolCommand(this, "Show all", x => { ShowAll(); }, iconName:"ic_aspect_ratio.svg", sortFunc:x => 1450),
+                new ToolCommand(this, "Show all", x => { ShowAll(); }, iconName:"ic_aspect_ratio.svg", sortFunc:x => 1450, description: LocalizationService.GetString("Svg.Editor.ShowAll.Description")),
                 new ToolCommand(this, "Zoom in +", x =>
                 {
                     var f = Canvas.ZoomFactor + 0.25f;
