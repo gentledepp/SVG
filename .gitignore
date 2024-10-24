@@ -31,3 +31,4 @@ packages/
 .vs
 /tools
 /build
+/Svg.Tests.Benchmarks/Assets/TilesStream.zip

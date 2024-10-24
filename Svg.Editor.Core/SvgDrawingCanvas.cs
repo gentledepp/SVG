@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Svg.DeepZoom;
 using Svg.Editor.Events;
 using Svg.Editor.Extensions;
 using Svg.Editor.Gestures;
@@ -363,7 +364,7 @@ namespace Svg.Editor
 
 			// render svg step
 			renderer.Graphics.Save();
-			Document.Draw(GetOrCreateRenderer(renderer.Graphics));
+			Document.Draw(GetOrCreateRenderer(renderer.Graphics, renderer.Width, renderer.Height));
 			renderer.Graphics.Restore();
 
 			// post render step (e.g. selection borders, etc.)
@@ -486,13 +487,18 @@ namespace Svg.Editor
 			}
 		}
 
-		private ISvgRenderer GetOrCreateRenderer(Graphics graphics)
+		private ISvgRenderer GetOrCreateRenderer(Graphics graphics, int w, int h)
         {
             if (_svgRenderer is null)
             {
                 _svgRenderer = SvgRenderer.FromGraphics(graphics);
+                _svgRenderer.ScreenWidth = w;
+                _svgRenderer.ScreenHeight= h;
+
                 return _svgRenderer;
             }
+            _svgRenderer.ScreenWidth = w;
+            _svgRenderer.ScreenHeight= h;
             return _svgRenderer.UseGraphics(graphics);
 		}
 
@@ -828,6 +834,8 @@ namespace Svg.Editor
 			_onGestureToken?.Dispose();
 			_document?.Dispose();
             _svgRenderer?.Dispose();
+
+			SvgEngine.Resolve<ITileRendererManager>().DisposeTileRenderer();
 
             UndoRedoService.CanRedoChanged -= UndoRedoServiceOnCanRedoChanged;
             UndoRedoService.CanUndoChanged -= UndoRedoServiceOnCanRedoChanged;

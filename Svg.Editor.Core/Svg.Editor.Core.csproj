@@ -107,6 +107,7 @@
 		<EmbeddedResource Include="Resources\svg\ic_crop_square.svg" />
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="FileSystemHelper" Version="1.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 		<PackageReference Include="SkiaSharp" Version="1.68.1" />
 		<PackageReference Include="Svg" Version="2.4.4.11" />

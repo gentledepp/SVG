@@ -1,7 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.18362;net462</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;MonoAndroid12.0;Xamarin.iOS10;uap10.0.18362;net462</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <Version>2.4.4.11</Version>
     <Authors>gentledpp,bruzkovsky</Authors>
@@ -108,6 +108,8 @@
 
   <ItemGroup>
     <PackageReference Include="SkiaSharp" Version="1.68.1" />
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
+    <PackageReference Include="System.IO.Compression.ZipFile" Version="4.3.0" />
   </ItemGroup>
 
 
