@@ -20,7 +20,6 @@ namespace Svg.Editor.Tools
         {
             IconName = "ic_insert_photo.svg";
         }
-
 	    public override bool CanSerialize => false;
 
 	    public override async Task Initialize(ISvgDrawingCanvas ws)
@@ -58,7 +57,6 @@ namespace Svg.Editor.Tools
                     {
                         newBmp.SavePng(file);
                     }
-
 
                     var gen = new TileGenerator();
                     var outPutZiFile = Path.Combine(fileSystem.GetDefaultStoragePath(), "TilesStream.zip");

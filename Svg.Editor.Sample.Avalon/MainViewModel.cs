@@ -1,10 +1,9 @@
 ﻿
 using System;
 using System.Collections.Generic;
-using Svg.Editor.Forms;
 using Svg.Editor.Interfaces;
-using Svg.Editor.Sample.Forms.Resources.svg;
-using Svg.Editor.Sample.Forms.Services;
+using Svg.Editor.Sample.Avalon.Resources.svg;
+using Svg.Editor.Sample.Avalon.Services;
 using Svg.Editor.Sample.Forms.Tools;
 using Svg.Editor.Services;
 using Svg.Editor.Tools;
@@ -12,7 +11,7 @@ using Svg.Interfaces;
 using Svg.Platform;
 using Xamarin.Forms;
 
-namespace Svg.Editor.Sample.Forms
+namespace Svg.Editor.Sample.Avalon
 {
     public class MainViewModel
     {
@@ -20,12 +19,12 @@ namespace Svg.Editor.Sample.Forms
         {
             #region Register services
 
-            SvgEngine.Register<IColorInputService>(() => new ColorInputService());
+            //SvgEngine.Register<IColorInputService>(() => new ColorInputService());
             SvgEngine.Register<IMarkerOptionsInputService>(() => new MarkerOptionsInputService());
-            SvgEngine.Register<IStrokeStyleOptionsInputService>(() => new StrokeStyleOptionsInputService());
-            SvgEngine.Register<ITextInputService>(() => new TextInputService());
-			SvgEngine.Register<IPickImageService>(() => new FormsPickImageService());
-            SvgEngine.Register<IPinInputService>(() => new PinInputService());
+            //SvgEngine.Register<IStrokeStyleOptionsInputService>(() => new StrokeStyleOptionsInputService());
+            //SvgEngine.Register<ITextInputService>(() => new TextInputService());
+            //SvgEngine.Register<IPickImageService>(() => new FormsPickImageService());
+            //SvgEngine.Register<IPinInputService>(() => new PinInputService());
 
             SvgEngine.Resolve<ISvgCachingService>().Clear();
 
@@ -110,27 +109,27 @@ namespace Svg.Editor.Sample.Forms
             #endregion
 
             DrawingCanvas = new SvgDrawingCanvas();
-	        DrawingCanvas.LoadTools(
-		        () => new GridTool(gridToolProperties, undoRedoService),
-		        () => new MoveTool(undoRedoService),
-		        () => new PanTool(panToolProperties),
-		        () => new RotationTool(rotationToolProperties, undoRedoService),
-		        () => new ZoomTool(zoomToolProperties),
-		        () => new SelectionTool(undoRedoService),
-		        () => new TextTool(textToolProperties, undoRedoService),
-		        () => new LineTool(lineToolProperties, undoRedoService),
-		        () => new EllipseTool(null, undoRedoService),
-		        () => new RectangleTool(null, undoRedoService),
-		        () => new FreeDrawingTool(freeDrawToolProperties, undoRedoService),
-		        () => new ColorTool(colorToolProperties, undoRedoService),
-		        () => new StrokeStyleTool(strokeStyleToolProperties, undoRedoService),
-		        () => new UndoRedoTool(undoRedoService),
-		        () => new ArrangeTool(undoRedoService),
-		        () => new SaveTool(false),
-		        () => new PlaceAsBackgroundTool(placeAsBackgroundToolProperties, undoRedoService),
-		        () => new AddItemTool(),
-		        () => new PolygonTool(polygonProperties, undoRedoService),
-                () => new PinTool(pinToolProperties, undoRedoService));;
+            DrawingCanvas.LoadTools(
+                () => new GridTool(gridToolProperties, undoRedoService),
+                () => new MoveTool(undoRedoService),
+                () => new PanTool(panToolProperties),
+                () => new RotationTool(rotationToolProperties, undoRedoService),
+                () => new ZoomTool(zoomToolProperties),
+                () => new SelectionTool(undoRedoService),
+                () => new TextTool(textToolProperties, undoRedoService),
+                () => new LineTool(lineToolProperties, undoRedoService),
+                () => new EllipseTool(null, undoRedoService),
+                () => new RectangleTool(null, undoRedoService),
+                () => new FreeDrawingTool(freeDrawToolProperties, undoRedoService),
+                () => new ColorTool(colorToolProperties, undoRedoService),
+                () => new StrokeStyleTool(strokeStyleToolProperties, undoRedoService),
+                () => new UndoRedoTool(undoRedoService),
+                () => new ArrangeTool(undoRedoService),
+                () => new SaveTool(false),
+                () => new PlaceAsBackgroundTool(placeAsBackgroundToolProperties, undoRedoService),
+                () => new AddItemTool(),
+                () => new PolygonTool(polygonProperties, undoRedoService),
+                () => new PinTool(pinToolProperties, undoRedoService)); ;
         }
 
         public SvgDrawingCanvas DrawingCanvas { get; set; }

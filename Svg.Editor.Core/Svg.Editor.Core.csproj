@@ -112,6 +112,5 @@
 		<PackageReference Include="SkiaSharp" Version="1.68.1" />
 		<PackageReference Include="Svg" Version="2.4.4.11" />
 		<PackageReference Include="System.Reactive" Version="4.0.0" />
-		<PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
 	</ItemGroup>
 </Project>

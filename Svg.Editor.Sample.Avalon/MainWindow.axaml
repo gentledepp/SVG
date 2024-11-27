@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:avalon="clr-namespace:Svg.Editor.Sample.Avalon;assembly=Svg.Editor.Sample.Avalon"
+        xmlns:avalonia="clr-namespace:Svg.Editor.Avalonia;assembly=Svg.Editor.Avalonia.Forms"
+        xmlns:forms="clr-namespace:Svg.Editor.Avalonia.Forms;assembly=Svg.Editor.Avalonia.Forms"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Svg.Editor.Sample.Avalon.MainWindow"
+        Title="Window">
+	<Window.DataContext>
+        <avalon:MainViewModel />
+    </Window.DataContext>
+    <Window.Resources>
+        <forms:ToolCommandsToToolbarItemsConverter x:Key="ToolCommandsToToolbarItemsConverter"/>
+    </Window.Resources>
+	<StackPanel>
+		<Menu
+            ItemsSource="{Binding DrawingCanvas.ToolCommands, 
+      Converter={StaticResource ToolCommandsToToolbarItemsConverter}}" />
+
+		<avalon:SvgEditorView DataContext="{Binding DrawingCanvas}"></avalon:SvgEditorView>
+	</StackPanel>
+</Window>

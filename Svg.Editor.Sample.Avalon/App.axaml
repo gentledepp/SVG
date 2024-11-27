@@ -1,0 +1,14 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:Svg.Editor.Sample.Avalon"
+             xmlns:forms="clr-namespace:Svg.Editor.Avalonia.Forms;assembly=Svg.Editor.Avalonia.Forms"
+             x:Class="Svg.Editor.Sample.Avalon.App"
+             RequestedThemeVariant="Default">
+
+    <Application.DataTemplates>
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+</Application>
