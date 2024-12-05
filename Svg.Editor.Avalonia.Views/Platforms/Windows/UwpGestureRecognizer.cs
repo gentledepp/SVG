@@ -14,7 +14,7 @@ using Avalonia.Input;
 using TappedEventArgs = Avalonia.Input.TappedEventArgs;
 using Avalonia;
 
-namespace Svg.Editor.Avalonia.Views.Platforms.Windows;
+namespace Svg.Editor.Avalon.Views.Platforms.Windows;
 public class UwpGestureRecognizer : IGestureRecognizer, IInputEventDetector, IDisposable
 {
     private readonly ManipulationInputProcessor _inputProcessor;
@@ -46,7 +46,7 @@ internal class ManipulationInputProcessor : IDisposable
     // Why 960, you ask?
     // One wheel-step is defined as 120 (see: https://msdn.microsoft.com/en-us/library/windows/desktop/ms645617(v=vs.85).aspx)
     // The faster the wheel is scrolled, the higher the value will be, but it maxes out at 960
-    private const float MaxMouseWheelStep = 960;
+    private const float MaxMouseWheelStep = 12;
 
     private readonly CustomGestureRecognizer _recognizer;
     private readonly Control _element;
@@ -110,10 +110,10 @@ internal class ManipulationInputProcessor : IDisposable
     private void ElementOnPointerWheelChanged(object sender, PointerWheelEventArgs args)
     {
         var pointerPoint = args.GetCurrentPoint(_element);
-        var wheelDelta = (float)args.Delta.Length;
+        var wheelDelta = (float)args.Delta.Y;
 
-        _inputEventSubject.OnNext(new ScaleEvent(ScaleStatus.Scaling, 1 + wheelDelta / MaxMouseWheelStep,
-            (float)pointerPoint.Position.X, (float)pointerPoint.Position.Y)
+        _inputEventSubject.OnNext(new ScaleEvent(ScaleStatus.Scaling, 1+wheelDelta / MaxMouseWheelStep,
+      (float)pointerPoint.Position.X, (float)pointerPoint.Position.Y)
         {
             ChangeFocus = true
         });
@@ -216,11 +216,18 @@ internal class ManipulationInputProcessor : IDisposable
         _recognizer.ProcessUp(args.GetCurrentPoint(_element));
         _isManipulated = false;
 
+        var endPoint = args.GetPosition(_element);
+
+        //var deltaPoint = endPoint - _startPoint;
+        //var pointerF = PointF.Create((float)deltaPoint.X, (float)deltaPoint.Y);
+        var pointerF = PointF.Create((float)endPoint.X, (float)endPoint.Y);
+
+
         // Release the pointer
-        //_element.ReleasePointerCapture(args.Pointer);
+        args.Pointer.Capture(null);
 
         _inputEventSubject.OnNext(
-            new PointerEvent(EventType.PointerUp, PointF.Empty, PointF.Empty, PointF.Empty, 0));
+            new PointerEvent(EventType.PointerUp, pointerF, pointerF, pointerF, 0));
     }
 
     // Route the pointer canceled event to the gesture recognizer.

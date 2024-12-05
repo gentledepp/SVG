@@ -3,7 +3,7 @@
     <RootNamespace>Svg.Editor</RootNamespace>
     <AssemblyName>Svg.Editor</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
 	  <Version>2.4.4.11</Version>
 	  <LangVersion>latest</LangVersion>
 	  <PackageReleaseNotes>
@@ -109,8 +109,9 @@
 	<ItemGroup>
 		<PackageReference Include="FileSystemHelper" Version="1.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-		<PackageReference Include="SkiaSharp" Version="1.68.1" />
 		<PackageReference Include="Svg" Version="2.4.4.11" />
 		<PackageReference Include="System.Reactive" Version="4.0.0" />
+		<PackageReference Include="Avalonia" Version="11.2.1" />
+		<PackageReference Include="Avalonia.Skia" Version="11.2.1" />
 	</ItemGroup>
 </Project>

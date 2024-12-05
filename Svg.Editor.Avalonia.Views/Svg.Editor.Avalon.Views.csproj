@@ -1,12 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net8.0-windows</TargetFrameworks>
+		<TargetFrameworks>net8.0;net8.0-windows;net8.0-android;net8.0-ios</TargetFrameworks>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
-		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">13.0</SupportedOSPlatformVersion>
-
 	</PropertyGroup>
 
 	<PropertyGroup Condition="$(Configuration) == 'Release'">
@@ -32,30 +28,19 @@
 	</PropertyGroup>
 	<ItemGroup Condition=" $(TargetFramework.StartsWith('net8.0-android')) ">
 		<Compile Include="Platforms\Android\**\*.cs" />
---><!--<PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.1" />-->
-			<!--
+		--><!--<PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.1" />--><!--
 	</ItemGroup>
 
 	<ItemGroup Condition=" $(TargetFramework.StartsWith('net8.0-ios')) ">
 		<Compile Include="Platforms\iOS\**\*.cs" />
-		</ItemGroup>
-		-->
+</ItemGroup>-->
 
 	<ItemGroup>
 		<PackageReference Include="Avalonia" Version="11.2.1" />
-		<PackageReference Include="Avalonia.ReactiveUI" Version="11.2.1" />
 		<PackageReference Include="Avalonia.Skia" Version="11.2.1" />
-		<PackageReference Include="Avalonia.Themes.Fluent" />
-		<PackageReference Include="Avalonia.Fonts.Inter" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Svg.Editor.Avalonia.Views\Svg.Editor.Avalonia.Views.csproj" />
-	  <ProjectReference Include="..\Svg.Editor.Core\Svg.Editor.Core.csproj" />
+		<ProjectReference Include="..\Svg.Editor.Core\Svg.Editor.Core.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Platforms\Windows\" />
-	</ItemGroup>
-
 </Project>

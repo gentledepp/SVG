@@ -2,7 +2,7 @@
 using Svg.Interfaces;
 using System;
 
-namespace Svg.Editor.Avalonia.Views.Platforms.Windows;
+namespace Svg.Editor.Avalon.Views.Platforms.Windows;
 
 internal class UWPToolbarIconSizeProvider : IToolbarIconSizeProvider
 {

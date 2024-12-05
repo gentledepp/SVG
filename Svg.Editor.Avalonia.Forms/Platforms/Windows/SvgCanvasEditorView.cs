@@ -1,15 +1,15 @@
-﻿
-using System;
+﻿using System;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.LogicalTree;
+using Avalonia.Media;
+using Avalonia.Platform;
+using Avalonia.Skia;
 using SkiaSharp;
-//using SkiaSharp.Views.Desktop;
-using Svg.Editor.Avalonia.Views.Platforms.Windows;
+using Svg.Editor.Avalon.Views.Platforms.Windows;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Services;
 
-namespace Svg.Editor.Avalonia.Forms;
+namespace Svg.Editor.Avalon.Forms;
 
 public class SvgCanvasEditorView : CustomControl
 {
@@ -18,12 +18,12 @@ public class SvgCanvasEditorView : CustomControl
     public ISvgDrawingCanvas DrawingCanvas
     {
         get { return DataContext as ISvgDrawingCanvas; }
-        set { DataContext = value; }
+        set { 
+            DataContext = value; }
     }
 
     public SvgCanvasEditorView()
     {
-
     }
 
     protected override void OnInitialized()
@@ -89,13 +89,13 @@ public class SvgCanvasEditorView : CustomControl
     private void OnSurfaceInvalidated(object sender, EventArgs eventArgs)
     {
         // repaint the native control
-        //this.Invalidate();
+        InvalidateSurface();
     }
 
     // the user asked for the size
     private void OnGetCanvasSize(object sender, GetCanvasSizeEventArgs e)
     {
-        e.CanvasSize = this?.CanvasSize ?? SKSize.Empty;
+        //e.CanvasSize = this?.CanvasSize;
     }
 
 
@@ -108,10 +108,10 @@ public class SvgCanvasEditorView : CustomControl
         InvalidateSurface();
     }
 
-    //protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
-    //{
-    //    base.OnPaintSurface(e);
+    protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
+    {
+        base.OnPaintSurface(e);
 
-    //    DrawingCanvas?.OnDraw(new SKCanvasRenderer(e.Surface, e.Info.Width, e.Info.Height));
-    //}
+        DrawingCanvas?.OnDraw(new SKCanvasRenderer(e.Surface, e.Info.Width, e.Info.Height));
+    }
 }

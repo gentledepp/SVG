@@ -19,11 +19,15 @@
     <PackageReference Include="MessageBox.Avalonia" Version="3.2.0" />
 	  <PackageReference Include="Avalonia" Version="11.2.1" />
 	  <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.1" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.2.1">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Svg.Editor.Avalonia.Forms\Svg.Editor.Avalonia.Forms.csproj" />
-    <ProjectReference Include="..\Svg.Editor.Avalonia.Views\Svg.Editor.Avalonia.Views.csproj" />
+    <ProjectReference Include="..\Svg.Editor.Avalonia.Forms\Svg.Editor.Avalon.Forms.csproj" />
+    <ProjectReference Include="..\Svg.Editor.Avalonia.Views\Svg.Editor.Avalon.Views.csproj" />
     <ProjectReference Include="..\Svg.Editor.Core\Svg.Editor.Core.csproj" />
   </ItemGroup>
 

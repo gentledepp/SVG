@@ -1,15 +1,18 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using Svg;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Sample.Avalon.Resources.svg;
 using Svg.Editor.Sample.Avalon.Services;
+
+//using Svg.Editor.Sample.Avalon.Services;
 using Svg.Editor.Sample.Forms.Tools;
 using Svg.Editor.Services;
 using Svg.Editor.Tools;
 using Svg.Interfaces;
 using Svg.Platform;
-using Xamarin.Forms;
+
 
 namespace Svg.Editor.Sample.Avalon
 {
@@ -19,12 +22,12 @@ namespace Svg.Editor.Sample.Avalon
         {
             #region Register services
 
-            //SvgEngine.Register<IColorInputService>(() => new ColorInputService());
+            SvgEngine.Register<IColorInputService>(() => new ColorInputService());
             SvgEngine.Register<IMarkerOptionsInputService>(() => new MarkerOptionsInputService());
-            //SvgEngine.Register<IStrokeStyleOptionsInputService>(() => new StrokeStyleOptionsInputService());
-            //SvgEngine.Register<ITextInputService>(() => new TextInputService());
+            SvgEngine.Register<IStrokeStyleOptionsInputService>(() => new StrokeStyleOptionsInputService());
+            SvgEngine.Register<ITextInputService>(() => new TextInputService());
             //SvgEngine.Register<IPickImageService>(() => new FormsPickImageService());
-            //SvgEngine.Register<IPinInputService>(() => new PinInputService());
+            SvgEngine.Register<IPinInputService>(() => new PinInputService());
 
             SvgEngine.Resolve<ISvgCachingService>().Clear();
 

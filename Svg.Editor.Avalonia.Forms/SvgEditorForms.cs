@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace Svg.Editor.Avalonia.Forms;
+namespace Svg.Editor.Avalon.Forms;
 
 public class SvgEditorForms
 {

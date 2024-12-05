@@ -20,7 +20,6 @@ using Svg.Editor.Properties;
 using Svg.Editor.Tools;
 using Svg.Editor.UndoRedo;
 using Svg.Interfaces;
-using Xamarin.Forms;
 using Color = Svg.Interfaces.Color;
 using IGestureRecognizer = Svg.Editor.Interfaces.IGestureRecognizer;
 

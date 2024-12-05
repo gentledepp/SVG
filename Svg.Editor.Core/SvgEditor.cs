@@ -16,7 +16,6 @@ namespace Svg.Editor
         {
             if (_initialized)
                 return;
-
             try
             {
                 _lock.Wait();

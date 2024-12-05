@@ -3,7 +3,7 @@ using System;
 using Avalonia;
 using Avalonia.Input;
 
-namespace Svg.Editor.Avalonia.Views.Platforms.Windows;
+namespace Svg.Editor.Avalon.Views.Platforms.Windows;
 
 public class CustomGestureRecognizer
 {

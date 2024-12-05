@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using Svg.Interfaces;
 
-namespace Svg.Editor.Avalonia.Forms;
+namespace Svg.Editor.Avalon.Forms;
 
 public class FormsToolBarIconSizeProvider
 {
