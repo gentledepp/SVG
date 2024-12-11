@@ -1,6 +1,9 @@
 ﻿using Avalonia.Controls;
 using Svg.Editor.Sample.Avalon.Dialog;
 using Svg.Editor.Tools;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Svg.Editor.Sample.Avalon.Services
 {

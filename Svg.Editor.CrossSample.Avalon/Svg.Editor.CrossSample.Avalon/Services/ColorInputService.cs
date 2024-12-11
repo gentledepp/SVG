@@ -1,6 +1,4 @@
 ﻿using Avalonia.Controls;
-using MsBox.Avalonia;
-using MsBox.Avalonia.Dto;
 using Svg.Editor.Sample.Avalon.Dialog;
 using System;
 using System.Collections.Generic;

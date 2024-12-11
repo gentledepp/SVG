@@ -31,15 +31,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Svg.Editor.Sample.Desktop.A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Svg.Editor.Avalon.Forms", "Svg.Editor.Avalonia.Forms\Svg.Editor.Avalon.Forms.csproj", "{5AA10527-6EB1-4C0C-BC78-1BD60F646FB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svg.Editor.CrossSample.Avalon", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.csproj", "{C51ECCD1-6360-4775-B258-7DD9C369022D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Svg.Editor.CrossSample.Avalon", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.csproj", "{C51ECCD1-6360-4775-B258-7DD9C369022D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svg.Editor.CrossSample.Avalon.Android", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.Android\Svg.Editor.CrossSample.Avalon.Android.csproj", "{EAD68BE2-6108-41A2-882B-D7A8D2CC12C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Svg.Editor.CrossSample.Avalon.Android", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.Android\Svg.Editor.CrossSample.Avalon.Android.csproj", "{EAD68BE2-6108-41A2-882B-D7A8D2CC12C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svg.Editor.CrossSample.Avalon.Desktop", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.Desktop\Svg.Editor.CrossSample.Avalon.Desktop.csproj", "{38EECE43-BF64-4060-B033-D2D43A3D7AC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Svg.Editor.CrossSample.Avalon.Desktop", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.Desktop\Svg.Editor.CrossSample.Avalon.Desktop.csproj", "{38EECE43-BF64-4060-B033-D2D43A3D7AC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svg.Editor.CrossSample.Avalon.iOS", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.iOS\Svg.Editor.CrossSample.Avalon.iOS.csproj", "{63E9727D-5A71-431E-9A9F-AD3CBBB40D03}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Svg.Editor.CrossSample.Avalon.iOS", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.iOS\Svg.Editor.CrossSample.Avalon.iOS.csproj", "{63E9727D-5A71-431E-9A9F-AD3CBBB40D03}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svg.Editor.CrossSample.Avalon.Browser", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.Browser\Svg.Editor.CrossSample.Avalon.Browser.csproj", "{F57CEC0F-D96E-43BF-94B8-EC57F823CC51}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Svg.Editor.CrossSample.Avalon.Browser", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.Browser\Svg.Editor.CrossSample.Avalon.Browser.csproj", "{F57CEC0F-D96E-43BF-94B8-EC57F823CC51}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

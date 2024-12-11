@@ -1,24 +1,17 @@
 ﻿
-using Avalonia.Controls;
-using Avalonia.Input;
 using Svg.Editor.Avalon.Forms;
+using System;
 
 namespace Svg.Editor.CrossSample.Avalon
 {
     public class SvgEditorView : SvgCanvasEditorView
     {
-        protected override void OnPointerPressed(PointerPressedEventArgs e)
+        public SvgEditorView()
         {
-            // Check if the click is on a menu item
-            if (e.Source is MenuItem)
+            if (OperatingSystem.IsWindows())
             {
-                // Allow menu interaction
-                base.OnPointerPressed(e);
-                return;
+                Console.WriteLine("IsWindowstrue");
             }
-
-            // Your existing logic
-            base.OnPointerPressed(e);
         }
     }
 }

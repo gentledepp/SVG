@@ -23,6 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Svg.Editor.Avalonia.Forms\Svg.Editor.Avalon.Forms.csproj" />
+    <ProjectReference Include="..\..\Svg.Editor.Avalonia.Views\Svg.Editor.Avalon.Views.csproj" />
     <ProjectReference Include="..\Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.csproj" />
   </ItemGroup>
 </Project>

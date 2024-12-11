@@ -54,10 +54,10 @@ namespace Svg.Editor.Avalon.Forms
                     var menuItem = new MenuItem
                     {
                         Header = command.Name,
-                        Icon = new Avalonia.Controls.Image
-                        {
-                            Source = bmp
-                        }
+                        //Icon = new Avalonia.Controls.Image
+                        //{
+                        //    Source = bmp
+                        //}
                     };
                     menuItem.Click += (s, e) => command.Execute(null);
                     menuItems.Add(menuItem);
@@ -72,10 +72,10 @@ namespace Svg.Editor.Avalon.Forms
                     var groupMenuItem = new MenuItem
                     {
                         Header = cmd.GroupName,
-                        Icon = new Avalonia.Controls.Image
-                        {
-                            Source = bmp
-                        },
+                        //Icon = new Avalonia.Controls.Image
+                        //{
+                        //    Source = bmp
+                        //},
                      
                     };
 
@@ -88,10 +88,10 @@ namespace Svg.Editor.Avalon.Forms
                         var subMenuItem = new MenuItem
                         {
                             Header = subCommand.Name,
-                            Icon = new Avalonia.Controls.Image
-                            {
-                                Source = bmp2
-                            }
+                            //Icon = new Avalonia.Controls.Image
+                            //{
+                            //    Source = bmp2
+                            //}
                         };
                         subMenuItem.Click += (s, e) => subCommand.Execute(null);
                         groupMenuItem.Items.Add(subMenuItem);

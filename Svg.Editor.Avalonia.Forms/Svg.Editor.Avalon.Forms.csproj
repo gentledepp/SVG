@@ -3,62 +3,45 @@
 		<TargetFrameworks>net8.0;net8.0-windows;net8.0-android;net8.0-ios</TargetFrameworks>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
-
-
 	</PropertyGroup>
-
-	<PropertyGroup Condition="$(Configuration) == 'Release'">
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<IncludeSource>True</IncludeSource>
-		<IncludeSymbols>True</IncludeSymbols>
-	</PropertyGroup>
-
+	
 	<ItemGroup>
-		<Compile Remove="Platforms\**\*.cs" />
-		<None Include="Platforms\**\*.cs" />
+		<Compile Remove="**\*.Windows.cs" />
+		<Compile Remove="**\*.Android.cs" />
+		<Compile Remove="**\*.Ios.cs" />
+		<None Include="**\*.Windows.cs" />
+		<None Include="**\*.Android.cs" />
+		<None Include="**\*.Ios.cs" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" $(TargetFramework.Contains('-windows')) ">
-		<Compile Include="Platforms\Windows\**\*.cs" />
+		<Compile Include="**\*.Windows.cs" />
+	</ItemGroup>
+
+	<PropertyGroup Condition=" $(TargetFramework.StartsWith('net8.0-android')) ">
+		<AndroidUseIntermediateDesignerFile>False</AndroidUseIntermediateDesignerFile>
+
+		<XamarinGoogleGuavaListenableFutureOptOut>true</XamarinGoogleGuavaListenableFutureOptOut>
+	</PropertyGroup>
+	<ItemGroup Condition=" $(TargetFramework.StartsWith('net8.0-android')) ">
+		<Compile Include="**\*.Android.cs" />
+		<PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.1" />
+
+	</ItemGroup>
+
+	<ItemGroup Condition=" $(TargetFramework.StartsWith('net8.0-ios')) ">
+		<Compile Include="**\*.Ios.cs" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<PackageReference Include="Avalonia" Version="11.2.1" />
+		<PackageReference Include="Avalonia.Skia" Version="11.2.1" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\svg\ic_arrow_downward.svg" />
-	  <None Remove="Resources\svg\ic_arrow_upward.svg" />
-	  <None Remove="Resources\svg\ic_aspect_ratio.svg" />
-	  <None Remove="Resources\svg\ic_border_style.svg" />
-	  <None Remove="Resources\svg\ic_brush.svg" />
-	  <None Remove="Resources\svg\ic_code.svg" />
-	  <None Remove="Resources\svg\ic_color_lens.svg" />
-	  <None Remove="Resources\svg\ic_crop_square.svg" />
-	  <None Remove="Resources\svg\ic_delete.svg" />
-	  <None Remove="Resources\svg\ic_flip_to_back.svg" />
-	  <None Remove="Resources\svg\ic_flip_to_front.svg" />
-	  <None Remove="Resources\svg\ic_format_color_fill.svg" />
-	  <None Remove="Resources\svg\ic_grid_off.svg" />
-	  <None Remove="Resources\svg\ic_grid_on.svg" />
-	  <None Remove="Resources\svg\ic_insert_photo.svg" />
-	  <None Remove="Resources\svg\ic_line_endings.svg" />
-	  <None Remove="Resources\svg\ic_line_style.svg" />
-	  <None Remove="Resources\svg\ic_mode_edit.svg" />
-	  <None Remove="Resources\svg\ic_panorama_fish_eye.svg" />
-	  <None Remove="Resources\svg\ic_pan_tool.svg" />
-	  <None Remove="Resources\svg\ic_pin_resize.svg" />
-	  <None Remove="Resources\svg\ic_pin_tool.svg" />
-	  <None Remove="Resources\svg\ic_polygon.svg" />
-	  <None Remove="Resources\svg\ic_redo.svg" />
-	  <None Remove="Resources\svg\ic_rotate_left.svg" />
-	  <None Remove="Resources\svg\ic_rotate_right.svg" />
-	  <None Remove="Resources\svg\ic_save.svg" />
-	  <None Remove="Resources\svg\ic_select.svg" />
-	  <None Remove="Resources\svg\ic_swap_vert.svg" />
-	  <None Remove="Resources\svg\ic_text_fields.svg" />
-	  <None Remove="Resources\svg\ic_undo.svg" />
-	  <None Remove="Resources\svg\ic_zoom.svg" />
-	  <None Remove="Resources\svg\ic_zoom_100.svg" />
-	  <None Remove="Resources\svg\ic_zoom_200.svg" />
-	  <None Remove="Resources\svg\ic_zoom_in.svg" />
-	  <None Remove="Resources\svg\ic_zoom_out.svg" />
+		<ProjectReference Include="..\Svg.Editor.Avalonia.Views\Svg.Editor.Avalon.Views.csproj" />
+		<ProjectReference Include="..\Svg.Editor.Core\Svg.Editor.Core.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -98,37 +81,6 @@
 	  <EmbeddedResource Include="Resources\svg\ic_zoom_200.svg" />
 	  <EmbeddedResource Include="Resources\svg\ic_zoom_in.svg" />
 	  <EmbeddedResource Include="Resources\svg\ic_zoom_out.svg" />
-	</ItemGroup>
-
-	
-	<PropertyGroup Condition=" $(TargetFramework.StartsWith('net8.0-android')) ">
-		<AndroidUseIntermediateDesignerFile>False</AndroidUseIntermediateDesignerFile>
-		
-	<XamarinGoogleGuavaListenableFutureOptOut>true</XamarinGoogleGuavaListenableFutureOptOut>
-	</PropertyGroup>
-	<ItemGroup Condition=" $(TargetFramework.StartsWith('net8.0-android')) ">
-		<Compile Include="Platforms\Android\**\*.cs" />
-<PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.1" />
-			
-	</ItemGroup>
-
-	<ItemGroup Condition=" $(TargetFramework.StartsWith('net8.0-ios')) ">
-		<Compile Include="Platforms\iOS\**\*.cs" />
-		</ItemGroup>
-		
-
-	<ItemGroup>
-		<PackageReference Include="Avalonia" Version="11.2.1" />
-		<PackageReference Include="Avalonia.Skia" Version="11.2.1" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\Svg.Editor.Avalonia.Views\Svg.Editor.Avalon.Views.csproj" />
-	  <ProjectReference Include="..\Svg.Editor.Core\Svg.Editor.Core.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Platforms\Windows\" />
 	</ItemGroup>
 
 </Project>

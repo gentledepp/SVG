@@ -8,11 +8,14 @@ using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Skia;
 using SkiaSharp;
+using Svg.Editor.Avalon.Views;
+using Svg.Editor.Interfaces;
 
 namespace Svg.Editor.Avalon.Forms
 {
     public class CustomControl : SKCanvasView
     {
+
         // the user can subscribe to repaint
 
         private bool _IgnorePixelScaling;
@@ -34,4 +37,5 @@ namespace Svg.Editor.Avalon.Forms
     {
         public SKSize CanvasSize { get; set; }
     }
+
 }

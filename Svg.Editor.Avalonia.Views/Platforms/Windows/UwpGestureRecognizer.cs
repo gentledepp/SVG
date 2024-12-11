@@ -13,6 +13,7 @@ using Avalonia.Media;
 using Avalonia.Input;
 using TappedEventArgs = Avalonia.Input.TappedEventArgs;
 using Avalonia;
+using System.Runtime.Intrinsics.Arm;
 
 namespace Svg.Editor.Avalon.Views.Platforms.Windows;
 public class UwpGestureRecognizer : IGestureRecognizer, IInputEventDetector, IDisposable
@@ -83,12 +84,11 @@ internal class ManipulationInputProcessor : IDisposable
         _element.PointerMoved += OnPointerMoved;
         _element.PointerReleased += OnPointerReleased;
         _element.PointerCaptureLost += OnPointerCanceled;
+      
 
         _element.Tapped += ElementOnTapped;
         _element.DoubleTapped += ElementOnDoubleTapped;
         _element.PointerWheelChanged += ElementOnPointerWheelChanged;
-        //_element.ManipulationStarted += ElementOnManipulateStarted;
-        //_element.ManipulationCompleted += ElementOnManipulateCompleted;
 
         //Set up event handlers to respond to gesture recognizer output
         _recognizer.OnManipulationStarted += OnManipulationStarted;
@@ -122,7 +122,7 @@ internal class ManipulationInputProcessor : IDisposable
     private void ElementOnDoubleTapped(object sender, TappedEventArgs args)
     {
         var dpi = PixelDensityFactor;
-        //if (_element is SKXamlCanvas c)
+        //if (_element is SKCanvasView c)
         //{
         //    dpi = c.Dpi;
         //}
@@ -135,12 +135,14 @@ internal class ManipulationInputProcessor : IDisposable
     private void ElementOnTapped(object sender, TappedEventArgs args)
     {
         var dpi = PixelDensityFactor;
-        //if (_element is SKXamlCanvas c)
+        //if (_element is SKCanvasView c)
         //{
         //    dpi = c.Dpi;
         //}
 
+      
         var position = args.GetPosition(_element);
+
         _gesturesSubject.OnNext(
             new TapGesture(PointF.Create((float)(position.X * dpi), (float)(position.Y * dpi))));
     }
@@ -170,6 +172,12 @@ internal class ManipulationInputProcessor : IDisposable
         var pointerPoint = args.GetCurrentPoint(_element);
         var pointerPosition = pointerPoint.Position;
         var pointerPointF = PointF.Create((float)pointerPosition.X, (float)pointerPosition.Y);
+
+        if (pointerPoint.Properties.IsRightButtonPressed)
+        {
+            _gesturesSubject.OnNext(
+                new LongPressGesture(pointerPointF));
+        }
 
         _inputEventSubject.OnNext(new PointerEvent(EventType.PointerDown, pointerPointF, pointerPointF,
             pointerPointF, 1));

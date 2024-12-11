@@ -1,20 +1,19 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
-
 
 namespace Svg.Editor.CrossSample.Avalon;
 
-public partial class MainWindow : Window
+public partial class MainView : UserControl
 {
-    private bool _isDarkMode = false;
-
-    public MainWindow()
+    public MainView()
     {
         InitializeComponent();
     }
+
+    private bool _isDarkMode = false;
 
     public void ClickHandler(object sender, RoutedEventArgs args)
     {

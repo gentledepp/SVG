@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Svg.Editor.Sample.Avalon.Dialog
 {
-    internal class ActionSheetDialog : Window
+    public class ActionSheetDialog : Window
     {
         private string _selectedAction;
 
