@@ -8,35 +8,79 @@ using Svg.Editor.Events;
 using Svg.Editor.Interfaces;
 using Svg.Interfaces;
 using Avalonia.Controls;
+using Svg.Editor.Gestures;
+using Svg.Editor.Avalon.Views;
+using Avalonia.Input.GestureRecognizers;
 
 namespace Svg.Editor.Droid.Services
 {
-    public class AndroidInputEventDetector : IInputEventDetector, IDisposable
+    public class AndroidInputEventDetector : IGestureRecognizer, IDisposable
     {
 
         public const int InvalidPointerId = -1;
         public int ActivePointerId = InvalidPointerId;
-
         private float _lastTouchX;
         private float _lastTouchY;
 
         private float _pointerDownX;
         private float _pointerDownY;
-
+        private int _scaleFactor;
+        private object _previousScale;
+        private int _scaleStart;
         private readonly Subject<UserInputEvent> _detectedGestures = new Subject<UserInputEvent>();
-        private readonly Control _owner;
+
+        private readonly SKCanvasView _owner;
+        private readonly ZoomGestureRecognizer _pinchGesture;
 
         public IObservable<UserInputEvent> UserInputEvents => _detectedGestures.AsObservable();
 
-        public AndroidInputEventDetector(Control owner)
+        public IObservable<UserGesture> RecognizedGestures => throw new NotImplementedException();
+
+        public AndroidInputEventDetector(SKCanvasView owner)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            _pinchGesture = new ZoomGestureRecognizer();
+
+            _owner.GestureRecognizers.Add(_pinchGesture);
 
             // Add pointer event handlers
             _owner.PointerPressed += OnPointerPressed;
             _owner.PointerReleased += OnPointerReleased;
             _owner.PointerMoved += OnPointerMoved;
             _owner.PointerCaptureLost += OnPointerCancelled;
+
+            _pinchGesture.OnPointerPressed += OnZoomStart;
+            _pinchGesture.OnPointerMoved += OnZoom;
+            _pinchGesture.OnPointerReleased += OnZoomEnd;
+
+
+        }
+
+        private void OnZoom(object? sender, PinchEventArgs e)
+        { 
+            var s = new ScaleEvent(ScaleStatus.Scaling,(float)e.Scale, (float)e.ScaleOrigin.X, (float)e.ScaleOrigin.Y);
+            _detectedGestures.OnNext(s);
+            _previousScale =(float)e.Scale;
+            SvgEngine.Logger.Warn("Sclaing to " + e.Scale);
+        }
+
+        private void OnZoomEnd(object? sender, PointerReleasedEventArgs e)
+        {
+            if(_previousScale != null){
+                var point = e.GetPosition(_owner);
+                var x = (float)point.X;
+                var y = (float)point.Y;
+                var s = new ScaleEvent(ScaleStatus.End, (float)_previousScale, x, y);
+                _detectedGestures.OnNext(s);
+            }
+        }
+
+        private void OnZoomStart(object? sender, PointerPressedEventArgs e)
+        {
+            _previousScale = 1;
+            var point = e.GetPosition(_owner);
+            var s = new ScaleEvent(ScaleStatus.Start, 1, (float)point.X, (float)point.Y);
+            _detectedGestures.OnNext(s);
         }
 
         private void OnPointerPressed(object sender, PointerEventArgs e)
@@ -45,6 +89,8 @@ namespace Svg.Editor.Droid.Services
             var x = (float)point.X;
             var y = (float)point.Y;
 
+            
+
             var uie = new PointerEvent(
                 EventType.PointerDown,
                 PointF.Create(_pointerDownX, _pointerDownY),
@@ -52,6 +98,7 @@ namespace Svg.Editor.Droid.Services
                 PointF.Create(x, y),
                 1 // Avalonia doesn't provide direct pointer count like Android
             );
+
 
             _lastTouchX = x;
             _lastTouchY = y;
@@ -108,7 +155,7 @@ namespace Svg.Editor.Droid.Services
 
         private void OnPointerCancelled(object sender, PointerCaptureLostEventArgs e)
         {
-            //var point = e.;
+            //var point = e. Sourc;
             //var x = (float)point.X;
             //var y = (float)point.Y;
 
@@ -122,7 +169,7 @@ namespace Svg.Editor.Droid.Services
 
             ActivePointerId = InvalidPointerId;
 
-            _detectedGestures.OnNext(null);
+            //_detectedGestures.OnNext(null);
         }
 
         public void Reset()
@@ -130,49 +177,6 @@ namespace Svg.Editor.Droid.Services
             _lastTouchX = 0;
             _lastTouchY = 0;
             ActivePointerId = InvalidPointerId;
-        }
-
-        // Custom Gesture Recognition (Simplified)
-        private class ScaleGestureDetector
-        {
-            private float _startDistance;
-            private PointF _focusPoint;
-
-            public event EventHandler<UserInputEvent> OnScaleEvent;
-
-            public void OnPointerEvent(PointerEventArgs[] events)
-            {
-                if (events.Length < 2) return;
-
-                var point1 = events[0].GetPosition(null);
-                var point2 = events[1].GetPosition(null);
-
-                var currentDistance = Distance(point1, point2);
-                var focusX = (float)((point1.X + point2.X) / 2);
-                var focusY = (float)((point1.Y + point2.Y) / 2);
-
-                if (_startDistance == 0)
-                {
-                    // Scale Begin
-                    _startDistance = currentDistance;
-                    _focusPoint = PointF.Create(focusX, focusY);
-                    OnScaleEvent?.Invoke(this, new ScaleEvent(ScaleStatus.Start, 1, focusX, focusY));
-                }
-                else
-                {
-                    // Scaling
-                    var scaleFactor = currentDistance / _startDistance;
-                    OnScaleEvent?.Invoke(this, new ScaleEvent(ScaleStatus.Scaling, scaleFactor, focusX, focusY));
-                }
-            }
-
-            private float Distance(Point p1, Point p2)
-            {
-                return (float)Math.Sqrt(
-                    Math.Pow(p1.X - p2.X, 2) +
-                    Math.Pow(p1.Y - p2.Y, 2)
-                );
-            }
         }
 
         private class RotationGestureDetector
@@ -224,7 +228,15 @@ namespace Svg.Editor.Droid.Services
             _owner.PointerMoved -= OnPointerMoved;
             _owner.PointerCaptureLost -= OnPointerCancelled;
 
+            _pinchGesture.OnPointerPressed -= OnZoomStart;
+            _pinchGesture.OnPointerMoved -= OnZoom;
+            _pinchGesture.OnPointerReleased -= OnZoomEnd;
+            
             _detectedGestures?.Dispose();
+        }
+
+        public void OnNext(UserInputEvent e)
+        {
         }
     }
 }

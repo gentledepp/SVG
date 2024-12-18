@@ -90,6 +90,7 @@ internal class ManipulationInputProcessor : IDisposable
         _element.DoubleTapped += ElementOnDoubleTapped;
         _element.PointerWheelChanged += ElementOnPointerWheelChanged;
 
+
         //Set up event handlers to respond to gesture recognizer output
         _recognizer.OnManipulationStarted += OnManipulationStarted;
         _recognizer.OnManipulationDelta += OnManipulationUpdated;

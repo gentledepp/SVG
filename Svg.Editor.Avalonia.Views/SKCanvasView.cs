@@ -14,10 +14,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Remote.Protocol.Viewport;
 using SkiaSharp;
+using Avalonia.Input;
 
 namespace Svg.Editor.Avalon.Views
 {
-    public class SKCanvasView : Control
+    public class SKCanvasView : Decorator
     {
         /// <summary>
         /// Event to externally paint the Skia surface (using the <see cref="SKCanvas"/>).

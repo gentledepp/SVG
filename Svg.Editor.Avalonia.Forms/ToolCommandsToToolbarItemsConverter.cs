@@ -48,9 +48,9 @@ namespace Svg.Editor.Avalon.Forms
                 {
                     var command = cmds.Single();
                     
-                    var bmp = GetIconBitmap(command.IconName);
-                    if(bmp == null)
-                        continue;
+                    //var bmp = GetIconBitmap(command.IconName);
+                    //if(bmp == null)
+                    //    continue;
                     var menuItem = new MenuItem
                     {
                         Header = command.Name,
@@ -66,9 +66,9 @@ namespace Svg.Editor.Avalon.Forms
                 else
                 {
                     var cmd = cmds.First();
-                    var bmp = GetIconBitmap(cmd.IconName);
-                    if(bmp == null)
-                        continue;
+                    //var bmp = GetIconBitmap(cmd.IconName);
+                    //if(bmp == null)
+                    //    continue;
                     var groupMenuItem = new MenuItem
                     {
                         Header = cmd.GroupName,
@@ -82,9 +82,9 @@ namespace Svg.Editor.Avalon.Forms
                     // Add submenu items
                     foreach (var subCommand in cmds)
                     {
-                        var bmp2 = GetIconBitmap(subCommand.IconName);
-                        if(bmp2 == null)
-                            continue;
+                        //var bmp2 = GetIconBitmap(subCommand.IconName);
+                        //if(bmp2 == null)
+                        //    continue;
                         var subMenuItem = new MenuItem
                         {
                             Header = subCommand.Name,
@@ -110,7 +110,6 @@ namespace Svg.Editor.Avalon.Forms
 
         private Avalonia.Media.Imaging.Bitmap GetIconBitmap(string iconName)
         {
-
             var iconPath = _imageSourceProvider.Value.GetImage(iconName);
 
             var name = Assembly.GetExecutingAssembly().GetName().Name;

@@ -4,7 +4,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:avalon="clr-namespace:Svg.Editor.CrossSample.Avalon;assembly=Svg.Editor.CrossSample.Avalon"
         xmlns:forms="clr-namespace:Svg.Editor.Avalon.Forms;assembly=Svg.Editor.Avalon.Forms"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Svg.Editor.CrossSample.Avalon.MainWindow"
 		x:DataType="avalon:MainViewModel"
         Title="Window">
@@ -17,9 +16,9 @@
 	<StackPanel
 		VerticalAlignment="Top"
 		HorizontalAlignment="Center"
-		Height="800">
+		Height="1000">
 		<Menu
-			Height="30" Width="500" HorizontalAlignment="Center"
+			Height="30" Width="1000" HorizontalAlignment="Center"
 			VerticalAlignment="Top"
 			ItemsSource="{Binding DrawingCanvas.ToolCommands, 
         Converter={StaticResource ToolCommandsToToolbarItemsConverter}}" />

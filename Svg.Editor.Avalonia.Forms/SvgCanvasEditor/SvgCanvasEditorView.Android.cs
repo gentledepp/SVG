@@ -15,26 +15,20 @@ namespace Svg.Editor.Avalon.Forms
     public partial class SvgCanvasEditorView
     {
         private AndroidInputEventDetector _detector;
-        private ISvgDrawingCanvas _drawingCanvas;
-
 
         protected override void OnInitialized()
         {
-            _detector?.Dispose();
-            _detector = new AndroidInputEventDetector(this);
-            _detector.UserInputEvents.Subscribe(async uie => await DrawingCanvas.OnEvent(uie));
+            RegisterCallbacks();
             base.OnInitialized();
         }
 
 
-        protected override void OnDataContextChanged(EventArgs e)
-        {
-            _detector?.Dispose();
-            _detector = new AndroidInputEventDetector(this);
-            _detector.UserInputEvents.Subscribe(async uie => await DrawingCanvas.OnEvent(uie));
-            RegisterCallbacks();
-            base.OnDataContextChanged(e);
-        }
+        //protected override void OnDataContextChanged(EventArgs e)
+        //{
+        //    UnregisterCallbacks();
+        //    RegisterCallbacks();
+        //    base.OnDataContextChanged(e);
+        //}
 
         protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
         {
@@ -50,6 +44,8 @@ namespace Svg.Editor.Avalon.Forms
 
         private void UnregisterCallbacks()
         {
+            _detector?.Dispose();
+
             var canvas = DrawingCanvas;
             if (canvas == null)
                 return;
@@ -65,6 +61,9 @@ namespace Svg.Editor.Avalon.Forms
 
         private void RegisterCallbacks()
         {
+            _detector = new AndroidInputEventDetector(this);
+            _detector.UserInputEvents.Subscribe(async uie => await DrawingCanvas.OnEvent(uie));
+
             var canvas = DrawingCanvas;
             if (canvas == null)
                 return;

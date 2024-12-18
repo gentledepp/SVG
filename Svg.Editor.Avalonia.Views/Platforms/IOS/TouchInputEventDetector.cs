@@ -1,26 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Input.GestureRecognizers;
 using Avalonia.Interactivity;
 using CoreGraphics;
+using Svg.Editor.Avalon.Views;
 using Svg.Editor.Events;
+using Svg.Editor.Gestures;
 using Svg.Editor.Interfaces;
 using Svg.Interfaces;
-using UIKit;
 
 namespace Svg.Editor.iOS
 {
     /// <summary>
     /// see: https://developer.xamarin.com/guides/ios/application_fundamentals/touch/touch_in_ios/
     /// </summary>
-    public class TouchInputEventDetector : IDisposable
+    public class TouchInputEventDetector : IGestureRecognizer, IDisposable
     {
-        private readonly Control _owner;
+        private readonly SKCanvasView _owner;
         private readonly Subject<UserInputEvent> _gestureSubject = new Subject<UserInputEvent>();
+        private readonly PinchGestureRecognizer _pinchGestureRecognizer;
 
         private Dictionary<int, PointF> _pointerDownPositions = new Dictionary<int, PointF>();
         private Dictionary<int, PointF> _previousPointerPositions = new Dictionary<int, PointF>();
@@ -29,41 +33,118 @@ namespace Svg.Editor.iOS
         private float _previousRotation = 0;
         private float _scaleStart;
         private double _previousScale;
+        private readonly ZoomGestureRecognizer _pinchGesture;
 
-        public TouchInputEventDetector(Control owner)
+        public TouchInputEventDetector(SKCanvasView owner)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+
+            _pinchGesture = new ZoomGestureRecognizer();
+            _owner.GestureRecognizers.Add(_pinchGesture);
 
             // Add pointer event handlers
             _owner.PointerPressed += OnPointerPressed;
             _owner.PointerReleased += OnPointerReleased;
             _owner.PointerMoved += OnPointerMoved;
             _owner.PointerCaptureLost += OnPointerCancelled;
+            
+            _pinchGesture.OnPointerPressed += OnZoomStart;
+            _pinchGesture.OnPointerMoved += OnZoom;
+            _pinchGesture.OnPointerReleased += OnZoomEnd;
 
         }
 
-        private void OnPointerPressed(object sender, PointerEventArgs e)
+        private void OnZoom(object? sender, PinchEventArgs e)
+        { 
+            var s = new ScaleEvent(ScaleStatus.Scaling,(float)e.Scale, (float)e.ScaleOrigin.X, (float)e.ScaleOrigin.Y);
+            _gestureSubject.OnNext(s);
+            _previousScale =(float)e.Scale;
+            SvgEngine.Logger.Warn("Sclaing to " + e.Scale);
+        }
+
+        private void OnZoomEnd(object? sender, PointerReleasedEventArgs e)
         {
-            var point = e.GetPosition(_owner);
-            var pointF = PointF.Create((float)point.X * _scaleFactor, (float)point.Y * _scaleFactor);
-
-            // Use pointer ID instead of UITouch
-            int pointerId = e.Pointer.Id;
-
-            _pointerDownPositions[pointerId] = pointF;
-            _previousPointerPositions[pointerId] = pointF;
-
-            var pe = new PointerEvent(
-                EventType.PointerDown,
-                pointF,
-                pointF,
-                pointF,
-                _pointerDownPositions.Count
-            );
-
-            _gestureSubject.OnNext(pe);
-            System.Diagnostics.Debug.WriteLine($"Down: {pe}");
+            if(_previousScale != null){
+                var point = e.GetPosition(_owner);
+                var x = (float)point.X;
+                var y = (float)point.Y;
+                var s = new ScaleEvent(ScaleStatus.End, (float)_previousScale, x, y);
+                _gestureSubject.OnNext(s);
+            }
         }
+
+        private void OnZoomStart(object? sender, PointerPressedEventArgs e)
+        {
+            _previousScale = 1;
+            var point = e.GetPosition(_owner);
+            var s = new ScaleEvent(ScaleStatus.Start, 1, (float)point.X, (float)point.Y);
+            _gestureSubject.OnNext(s);
+        }
+        private void OnPinchDelta(object? sender, PinchEventArgs e)
+        {
+
+            //    var focus = e.ScaleOrigin
+            //    if (_scaleStart == 0)
+            //    {
+            //        _scaleStart = (float)e.Scale/_scaleFactor;
+            //        _previousScale = 1;
+
+            //        var s = new ScaleEvent(ScaleStatus.Start, 1, focus.X, focus.Y);
+            //        System.Diagnostics.Debug.WriteLine($"Zoom Begin: {s}");
+            //        _gestureSubject.OnNext(s);
+            //    }
+            //    else if (state == UIGestureRecognizerState.Changed)
+            //    {
+            //        var scale = (float)r.Scale/_scaleFactor;
+            //        var diff = 1 - _scaleStart;
+            //        scale += diff;
+            //        var relativeScale = (float)(1 + (scale - _previousScale));
+
+            //        _previousScale = scale;
+
+            //        var c = new ScaleEvent(ScaleStatus.Scaling, relativeScale, focus.X, focus.Y);
+            //        System.Diagnostics.Debug.WriteLine($"Zooming: {c}");
+            //        _gestureSubject.OnNext(c);
+
+            //    }
+            //    else if (state == UIGestureRecognizerState.Cancelled ||
+            //        state == UIGestureRecognizerState.Ended ||
+            //        state ==UIGestureRecognizerState.Recognized)
+            //    {
+            //        var scale = (float)r.Scale/_scaleFactor;
+            //        var diff = 1 - _scaleStart;
+            //        scale += diff;
+            //        var relativeScale = (float)(1 + (scale - _previousScale));
+
+            //        var e = new ScaleEvent(ScaleStatus.End, relativeScale, focus.X, focus.Y);
+            //        System.Diagnostics.Debug.WriteLine($"Zoom End: {e}");
+            //        _gestureSubject.OnNext(e);
+            //    }
+            //    _scaleFactor = (float)e.Scale;
+            }
+
+            private void OnPointerPressed(object sender, PointerEventArgs e)
+            {
+                var point = e.GetPosition(_owner);
+                var pointF = PointF.Create((float)point.X * _scaleFactor, (float)point.Y * _scaleFactor);
+
+                // Use pointer ID instead of UITouch
+                int pointerId = e.Pointer.Id;
+
+                _pointerDownPositions[pointerId] = pointF;
+                _previousPointerPositions[pointerId] = pointF;
+
+                var pe = new PointerEvent(
+                    EventType.PointerDown,
+                    pointF,
+                    pointF,
+                    pointF,
+                    _pointerDownPositions.Count
+                );
+
+                _gestureSubject.OnNext(pe);
+                System.Diagnostics.Debug.WriteLine($"Down: {pe}");
+            }
 
         private void OnPointerMoved(object sender, PointerEventArgs e)
         {
@@ -150,6 +231,8 @@ namespace Svg.Editor.iOS
 
         public IObservable<UserInputEvent> UserInputEvents => _gestureSubject.AsObservable();
 
+        public IObservable<UserGesture> RecognizedGestures => throw new NotImplementedException();
+
         public void Dispose()
         {
             // Remove handlers
@@ -158,7 +241,15 @@ namespace Svg.Editor.iOS
             _owner.PointerMoved -= OnPointerMoved;
             _owner.PointerCaptureLost -= OnPointerCancelled;
 
+            _pinchGesture.OnPointerPressed -= OnZoomStart;
+            _pinchGesture.OnPointerMoved -= OnZoom;
+            _pinchGesture.OnPointerReleased -= OnZoomEnd;
+
             _gestureSubject.Dispose();
+        }
+
+        public void OnNext(UserInputEvent e)
+        {
         }
 
         //    private void OnZoom(UIPinchGestureRecognizer r)

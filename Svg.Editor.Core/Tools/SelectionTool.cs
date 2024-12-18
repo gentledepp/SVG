@@ -243,6 +243,8 @@ namespace Svg.Editor.Tools
             // we need to compare our rectangle to the translated boundingboxes of the svg elements
             var selected = ws.GetElementsUnder<SvgVisualElement>(selectionRectangle, selectionType, HitTestResultMode.ReturnRootElementOnly, maxItems, recursionLevel: recursionLevel);
 
+            var x = this.GetHashCode();
+
             foreach (var element in selected)
             {
                 ws.SelectedElements.Add(element);
