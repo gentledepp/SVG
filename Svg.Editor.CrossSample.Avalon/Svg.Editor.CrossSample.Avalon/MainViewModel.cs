@@ -94,7 +94,7 @@ namespace Svg.Editor.CrossSample.Avalon
             var rotationToolProperties = new Dictionary<string, object>
             {
                 { RotationTool.RotationStepKey, 45.0f },
-                { RotationTool.FilterKey, (Func<SvgVisualElement, bool>) (e => e is SvgTextBase) }
+                //{ RotationTool.FilterKey, (Func<SvgVisualElement, bool>) (e => e is SvgTextBase) }
             };
 
             var undoRedoService = SvgEngine.Resolve<IUndoRedoService>();

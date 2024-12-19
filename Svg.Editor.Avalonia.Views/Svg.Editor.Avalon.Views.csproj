@@ -11,11 +11,6 @@
 		<IncludeSymbols>True</IncludeSymbols>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<Compile Remove="Platforms\**\*.cs" />
-		<None Include="Platforms\**\*.cs" />
-	</ItemGroup>
-
 	<ItemGroup Condition=" $(TargetFramework.Contains('-windows')) ">
 		<Compile Include="Platforms\Windows\**\*.cs" />
 	</ItemGroup>

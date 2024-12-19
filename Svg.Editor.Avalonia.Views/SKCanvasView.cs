@@ -127,7 +127,7 @@ namespace Svg.Editor.Avalon.Views
                 var info = new SKImageInfo(
                     framebuffer.Size.Width,
                     framebuffer.Size.Height,
-                    framebuffer.Format.ToSkColorType(),
+                    SKColorType.Rgba8888,
                     SKAlphaType.Premul);
 
                 var properties = new SKSurfaceProperties(SKPixelGeometry.RgbHorizontal);
@@ -150,6 +150,7 @@ namespace Svg.Editor.Avalon.Views
 
                 properties.Dispose();
             }
+
 
             this.SetCurrentValue(BackgroundProperty, new ImageBrush(bitmap)
             {

@@ -14,24 +14,16 @@
 		<None Include="**\*.Ios.cs" />
 	</ItemGroup>
 
-	<ItemGroup Condition=" $(TargetFramework.Contains('-windows')) ">
-		<Compile Include="**\*.Windows.cs" />
-	</ItemGroup>
-
 	<PropertyGroup Condition=" $(TargetFramework.StartsWith('net8.0-android')) ">
 		<AndroidUseIntermediateDesignerFile>False</AndroidUseIntermediateDesignerFile>
 
 		<XamarinGoogleGuavaListenableFutureOptOut>true</XamarinGoogleGuavaListenableFutureOptOut>
 	</PropertyGroup>
 	<ItemGroup Condition=" $(TargetFramework.StartsWith('net8.0-android')) ">
-		<Compile Include="**\*.Android.cs" />
 		<PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.1" />
 
 	</ItemGroup>
 
-	<ItemGroup Condition=" $(TargetFramework.StartsWith('net8.0-ios')) ">
-		<Compile Include="**\*.Ios.cs" />
-	</ItemGroup>
 
 
 	<ItemGroup>
@@ -42,45 +34,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Svg.Editor.Avalonia.Views\Svg.Editor.Avalon.Views.csproj" />
 		<ProjectReference Include="..\Svg.Editor.Core\Svg.Editor.Core.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EmbeddedResource Include="Resources\svg\ic_arrow_downward.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_arrow_upward.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_aspect_ratio.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_border_style.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_brush.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_code.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_color_lens.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_crop_square.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_delete.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_flip_to_back.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_flip_to_front.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_format_color_fill.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_grid_off.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_grid_on.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_insert_photo.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_line_endings.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_line_style.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_mode_edit.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_panorama_fish_eye.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_pan_tool.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_pin_resize.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_pin_tool.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_polygon.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_redo.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_rotate_left.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_rotate_right.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_save.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_select.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_swap_vert.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_text_fields.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_undo.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_zoom.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_zoom_100.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_zoom_200.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_zoom_in.svg" />
-	  <EmbeddedResource Include="Resources\svg\ic_zoom_out.svg" />
 	</ItemGroup>
 
 </Project>

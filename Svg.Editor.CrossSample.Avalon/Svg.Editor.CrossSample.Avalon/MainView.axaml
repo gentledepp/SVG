@@ -17,10 +17,8 @@
 			ItemsSource="{Binding DrawingCanvas.ToolCommands, 
         Converter={StaticResource ToolCommandsToToolbarItemsConverter}}" />
 
-		<DockPanel Background = "#32a852">
-			<avalon:SvgEditorView
-				DataContext="{Binding DrawingCanvas}">
-			</avalon:SvgEditorView>
-		</DockPanel>
+		<avalon:SvgEditorView
+			DataContext="{Binding DrawingCanvas}">
+		</avalon:SvgEditorView>
 	</DockPanel>
 </UserControl>
