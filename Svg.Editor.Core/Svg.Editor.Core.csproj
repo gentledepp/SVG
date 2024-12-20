@@ -3,7 +3,7 @@
     <RootNamespace>Svg.Editor</RootNamespace>
     <AssemblyName>Svg.Editor</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
 	  <Version>2.4.4.11</Version>
 	  <LangVersion>latest</LangVersion>
 	  <PackageReleaseNotes>
