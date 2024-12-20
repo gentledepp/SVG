@@ -15,14 +15,14 @@ namespace Svg.Editor.Sample.Avalon.Services
 
 
             var mso = markerStartOptions.ToList();
-            var start = await ActionSheetDialog.ShowActionSheet(new Window(), "Start", "cancel", mso.ToArray());
+            var start = await ActionSheetDialog.ShowActionSheet(StrokeStyleOptionsInputService.GetWindow(), "Start", "cancel", mso.ToArray());
 
             var startIndex = mso.IndexOf(start);
             if (start == null || startIndex < 0)
                 return new[] { markerStartSelected, markerEndSelected };
 
             var meo = markerEndOptions.ToList();
-            var end = await ActionSheetDialog.ShowActionSheet(new Window(), "End", "cancel", mso.ToArray());
+            var end = await ActionSheetDialog.ShowActionSheet(StrokeStyleOptionsInputService.GetWindow(), "End", "cancel", mso.ToArray());
 
             var endIndex = meo.IndexOf(end);
             if (end == null || endIndex < 0)

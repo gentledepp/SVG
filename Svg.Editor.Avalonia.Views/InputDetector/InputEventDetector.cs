@@ -12,16 +12,7 @@ using Avalonia;
 
 namespace Svg.Editor.Avalon.Views.InputDetector
 {
-
-    /* Unmerged change from project 'Svg.Editor.Avalon.Views (net8.0)'
-    Before:
-        public class MobileInputEventDetector : Avalon.Views.IGestureRecognizer, IDisposable
-        {
-    After:
-        public class MobileInputEventDetector : IGestureRecognizer, IDisposable
-        {
-    */
-    public class MobileInputEventDetector : IInputDetector, IGestureRecognizer, IDisposable
+    public class InputEventDetector : IInputDetector, IGestureRecognizer, IDisposable
     {
         private const float MaxMouseWheelStep = 12;
 
@@ -49,7 +40,7 @@ namespace Svg.Editor.Avalon.Views.InputDetector
 
         public IObservable<UserGesture> RecognizedGestures => _gesturesSubject.AsObservable();
 
-        public MobileInputEventDetector(SKCanvasView owner)
+        public InputEventDetector(SKCanvasView owner)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _pinchGesture = new ZoomGestureRecognizer();

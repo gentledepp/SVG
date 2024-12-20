@@ -113,7 +113,7 @@ namespace Svg.Editor.Tools
         {
             var doc = SvgDocument
                 .Open(
-                    "C:\\Users\\zepr2\\AppData\\Local\\Packages\\b59e58e0-ad0a-44f6-8ad5-b3e2cc51b8b8_n40svhjkyhv9a\\LocalState\\864a895d-ba0d-4cbf-973a-4cea2598289a.svg");
+                    "C:\\Users\\zepr2\\Desktop\\98fc3a08-8f01-4033-b4f7-fd10264862d3.svg");
 
             //var bImage = doc.Children.OfType<SvgImage>().FirstOrDefault();
 

@@ -12,7 +12,7 @@ namespace Svg.Editor.Sample.Avalon.Services
     {
         public async Task<int> GetIndexFromUserInput(string title, string[] items, string[] colors, int defaultIndex = 0)
         {
-            var result = await ActionSheetDialog.ShowActionSheet(new Window() ,title, "cancel", items);
+            var result = await ActionSheetDialog.ShowActionSheet(StrokeStyleOptionsInputService.GetWindow(), title, "cancel", items);
 
             if (result == null)
                 return -1;

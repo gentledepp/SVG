@@ -1,30 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net8.0;net8.0-windows;net8.0-android;net8.0-ios</TargetFrameworks>
+		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
-	
-	<ItemGroup>
-		<Compile Remove="**\*.Windows.cs" />
-		<Compile Remove="**\*.Android.cs" />
-		<Compile Remove="**\*.Ios.cs" />
-		<None Include="**\*.Windows.cs" />
-		<None Include="**\*.Android.cs" />
-		<None Include="**\*.Ios.cs" />
-	</ItemGroup>
-
-	<PropertyGroup Condition=" $(TargetFramework.StartsWith('net8.0-android')) ">
-		<AndroidUseIntermediateDesignerFile>False</AndroidUseIntermediateDesignerFile>
-
-		<XamarinGoogleGuavaListenableFutureOptOut>true</XamarinGoogleGuavaListenableFutureOptOut>
-	</PropertyGroup>
-	<ItemGroup Condition=" $(TargetFramework.StartsWith('net8.0-android')) ">
-		<PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.1" />
-
-	</ItemGroup>
-
-
 
 	<ItemGroup>
 		<PackageReference Include="Avalonia" Version="11.2.1" />

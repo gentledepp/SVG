@@ -63,7 +63,7 @@ namespace Svg.Editor.Avalon.Forms
         private void RegisterCallbacks()
         {
 
-            _detector = new MobileInputEventDetector(this);
+            _detector = new InputEventDetector(this);
 
             _detector.UserInputEvents.Subscribe(async uie => await DrawingCanvas.OnEvent(uie));
 

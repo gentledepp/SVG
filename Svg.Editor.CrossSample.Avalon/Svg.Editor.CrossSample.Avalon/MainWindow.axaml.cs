@@ -3,27 +3,19 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
+using Svg.Editor.Sample.Avalon.Services;
 
 
 namespace Svg.Editor.CrossSample.Avalon;
 
 public partial class MainWindow : Window
 {
-    private bool _isDarkMode = false;
 
     public MainWindow()
     {
         InitializeComponent();
+
+        StrokeStyleOptionsInputService.GetWindow = () => this;
     }
 
-    public void ClickHandler(object sender, RoutedEventArgs args)
-    {
-        _isDarkMode = !_isDarkMode;
-
-        var theme = _isDarkMode
-            ? ThemeVariant.Dark
-            : ThemeVariant.Light;
-
-        Application.Current.RequestedThemeVariant = theme;
-    }
 }

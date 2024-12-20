@@ -15,7 +15,7 @@ namespace Svg.Editor.Sample.Avalon.Services
         {
             var defaultResult = (PinTool.PinSize)oldSizeIndex;
 
-            var sizeResult = await ActionSheetDialog.ShowActionSheet(new Window(), "Select pin size", "cancel", pinSizeOptions.ToArray()); PinTool.PinSize.Medium.ToString(); 
+            var sizeResult = await ActionSheetDialog.ShowActionSheet(StrokeStyleOptionsInputService.GetWindow(), "Select pin size", "cancel", pinSizeOptions.ToArray()); PinTool.PinSize.Medium.ToString(); 
 
             if (sizeResult == "Cancel")
             {

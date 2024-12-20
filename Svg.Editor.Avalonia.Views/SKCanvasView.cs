@@ -127,7 +127,7 @@ namespace Svg.Editor.Avalon.Views
                 var info = new SKImageInfo(
                     framebuffer.Size.Width,
                     framebuffer.Size.Height,
-                    SKColorType.Rgba8888,
+                    framebuffer.Format.ToSkColorType(),
                     SKAlphaType.Premul);
 
                 var properties = new SKSurfaceProperties(SKPixelGeometry.RgbHorizontal);
