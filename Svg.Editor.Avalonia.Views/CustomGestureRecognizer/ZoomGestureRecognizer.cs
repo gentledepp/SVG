@@ -57,7 +57,6 @@ namespace Svg.Editor.Avalon.Views.CustomGestureRecognizer
                     // distance did not change, dont zoom
                     if (Math.Abs(distance - _lastDistance) * scale < 30)
                     {
-                        SvgEngine.Logger.Warn("Stop zoom");
                         return;
                     }
 

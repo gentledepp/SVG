@@ -22,12 +22,10 @@ namespace Svg.Editor.Avalon.Views.InputDetector
 
         private float _pointerDownX;
         private float _pointerDownY;
-        private Point _startPoint;
         private object _previousScale;
         private IPointer _firstContact;
         private IPointer _secondContact;
         private IPointer _thirdContact;
-        private bool _isTapped;
 
         private readonly Subject<UserInputEvent> _detectedGestures = new Subject<UserInputEvent>();
         private readonly Subject<UserGesture> _gesturesSubject = new Subject<UserGesture>();
@@ -99,15 +97,12 @@ namespace Svg.Editor.Avalon.Views.InputDetector
         {
             var s = new RotateEvent(e.Delta, e.AbsoluteDelta, RotateStatus.End, 3);
             _detectedGestures.OnNext(s);
-            SvgEngine.Logger.Warn("rotate");
         }
 
         private void OnRotate(object? sender, RotateEventArgs e)
         {
             var s = new RotateEvent(e.Delta, e.AbsoluteDelta, RotateStatus.Rotating, 3);
             _detectedGestures.OnNext(s);
-            SvgEngine.Logger.Warn("rotate");
-
         }
 
         private void OnRotateStart(object? sender, PointerEventArgs e)
@@ -123,7 +118,6 @@ namespace Svg.Editor.Avalon.Views.InputDetector
             var s = new ScaleEvent(ScaleStatus.Scaling, (float)e.Scale, (float)e.ScaleOrigin.X, (float)e.ScaleOrigin.Y);
             _detectedGestures.OnNext(s);
             _previousScale =(float)e.Scale;
-            SvgEngine.Logger.Warn("Sclaing to " + e.Scale);
         }
 
         private void OnZoomEnd(object? sender, PointerReleasedEventArgs e)
@@ -164,11 +158,6 @@ namespace Svg.Editor.Avalon.Views.InputDetector
 
             _pointerDownX = x;
             _pointerDownY = y;
-            _startPoint = point;
-
-            if(e.Pointer.Type == PointerType.Mouse)
-                _isTapped = true;
-
 
             RegisterContact(e.Pointer);
             _detectedGestures.OnNext(uie);
@@ -226,7 +215,6 @@ namespace Svg.Editor.Avalon.Views.InputDetector
                 1
             );
 
-            _isTapped = false;
             RemoveContact(e.Pointer);
             _detectedGestures.OnNext(uie);
         }
@@ -241,7 +229,6 @@ namespace Svg.Editor.Avalon.Views.InputDetector
                 1
             );
 
-            _isTapped = false;
             _detectedGestures.OnNext(uie);
         }
 
