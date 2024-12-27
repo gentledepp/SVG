@@ -3,6 +3,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
+		<Version>2.5.0-avalonia</Version>
 	</PropertyGroup>
 
 	<ItemGroup>

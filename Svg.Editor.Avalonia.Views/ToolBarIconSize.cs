@@ -1,11 +1,5 @@
-﻿using Avalonia.Platform;
-using Avalonia;
-using Svg.Editor.Interfaces;
+﻿using Svg.Editor.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Svg.Interfaces;
 
 namespace Svg.Editor.Avalon.Views
@@ -18,23 +12,17 @@ namespace Svg.Editor.Avalon.Views
 
             // Use similar scaling breakpoints as Android but adapted for Avalonia
             // LDPI equivalent
-            if (scaling <= 0.75)
-                return SizeF.Create(24, 24);
+            if (scaling <= 0.75) return SizeF.Create(24, 24);
             // MDPI equivalent
-            if (scaling <= 1.0)
-                return SizeF.Create(32, 32);
+            if (scaling <= 1.0) return SizeF.Create(32, 32);
             // HDPI equivalent
-            if (scaling <= 1.5)
-                return SizeF.Create(48, 48);
+            if (scaling <= 1.5) return SizeF.Create(48, 48);
             // XHDPI equivalent
-            if (scaling <= 2.0)
-                return SizeF.Create(64, 64);
+            if (scaling <= 2.0) return SizeF.Create(64, 64);
             // XXHDPI equivalent
-            if (scaling <= 3.0)
-                return SizeF.Create(96, 96);
+            if (scaling <= 3.0) return SizeF.Create(96, 96);
             // XXXHDPI equivalent
-            if (scaling <= 4.0)
-                return SizeF.Create(128, 128);
+            if (scaling <= 4.0) return SizeF.Create(128, 128);
 
             // Default fallback size
             return SizeF.Create(24, 24);
@@ -44,6 +32,5 @@ namespace Svg.Editor.Avalon.Views
         {
             return _size.Value;
         }
-
     }
 }

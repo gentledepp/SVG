@@ -7,35 +7,27 @@ using Svg.Interfaces;
 using Svg.Editor.Gestures;
 using Svg.Editor.Avalon.Views.CustomGestureRecognizer;
 using Svg.Editor.Interfaces;
-using System.Xml.Linq;
-using Avalonia;
 
 namespace Svg.Editor.Avalon.Views.InputDetector
 {
     public class InputEventDetector : IInputDetector, IGestureRecognizer, IDisposable
     {
         private const float MaxMouseWheelStep = 12;
-
         public const int InvalidPointerId = -1;
         private float _lastTouchX;
         private float _lastTouchY;
-
         private float _pointerDownX;
         private float _pointerDownY;
         private object _previousScale;
         private IPointer _firstContact;
         private IPointer _secondContact;
         private IPointer _thirdContact;
-
         private readonly Subject<UserInputEvent> _detectedGestures = new Subject<UserInputEvent>();
         private readonly Subject<UserGesture> _gesturesSubject = new Subject<UserGesture>();
-
         private readonly SKCanvasView _owner;
         private readonly ZoomGestureRecognizer _pinchGesture;
         private readonly RotatetGestureRecognizer _rotateGesture;
-
         public IObservable<UserInputEvent> UserInputEvents => _detectedGestures.AsObservable();
-
         public IObservable<UserGesture> RecognizedGestures => _gesturesSubject.AsObservable();
 
         public InputEventDetector(SKCanvasView owner)
@@ -43,7 +35,6 @@ namespace Svg.Editor.Avalon.Views.InputDetector
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _pinchGesture = new ZoomGestureRecognizer();
             _rotateGesture = new RotatetGestureRecognizer();
-
             _owner.GestureRecognizers.Add(_rotateGesture);
             _owner.GestureRecognizers.Add(_pinchGesture);
 
@@ -52,45 +43,40 @@ namespace Svg.Editor.Avalon.Views.InputDetector
             _owner.PointerReleased += OnPointerReleased;
             _owner.PointerMoved += OnPointerMoved;
             _owner.PointerCaptureLost += OnPointerCancelled;
-
+            
+            _pinchGesture.ZoomStart += OnZoomStart;
+            _pinchGesture.Zoom += OnZoom;
+            _pinchGesture.ZoomEnd += OnZoomEnd;
+            
+            _rotateGesture.Rotate += OnRotate;
+            _rotateGesture.RotateEnd += OnRotateEnd;
+            _rotateGesture.RotateStart += OnRotateStart;
+            
+            // UWP Gestures
             _owner.Tapped += ElementOnTapped;
             _owner.DoubleTapped += ElementOnDoubleTapped;
             _owner.PointerWheelChanged += ElementOnPointerWheelChanged;
 
-            _pinchGesture.ZoomStart += OnZoomStart;
-            _pinchGesture.Zoom += OnZoom;
-            _pinchGesture.ZoomEnd += OnZoomEnd;
-
-            _rotateGesture.Rotate += OnRotate;
-            _rotateGesture.RotateEnd += OnRotateEnd;
-            _rotateGesture.RotateStart += OnRotateStart;
         }
 
         private void ElementOnPointerWheelChanged(object sender, PointerWheelEventArgs args)
         {
             var pointerPoint = args.GetCurrentPoint(_owner);
             var wheelDelta = (float)args.Delta.Y;
-
-            _detectedGestures.OnNext(new ScaleEvent(ScaleStatus.Scaling, 1+wheelDelta / MaxMouseWheelStep,
-          (float)pointerPoint.Position.X, (float)pointerPoint.Position.Y)
-            {
-                ChangeFocus = true
-            });
+            _detectedGestures.OnNext(new ScaleEvent(ScaleStatus.Scaling, 1 + wheelDelta / MaxMouseWheelStep,
+                (float)pointerPoint.Position.X, (float)pointerPoint.Position.Y) { ChangeFocus = true });
         }
 
         private void ElementOnDoubleTapped(object sender, TappedEventArgs args)
         {
             var position = args.GetPosition(_owner);
-            _gesturesSubject.OnNext(
-                new DoubleTapGesture(PointF.Create((float)position.X, (float)position.Y)));
+            _gesturesSubject.OnNext(new DoubleTapGesture(PointF.Create((float)position.X, (float)position.Y)));
         }
 
         private void ElementOnTapped(object sender, TappedEventArgs args)
         {
             var position = args.GetPosition(_owner);
-
-            _gesturesSubject.OnNext(
-                new TapGesture(PointF.Create((float)position.X, (float)position.Y)))    ;
+            _gesturesSubject.OnNext(new TapGesture(PointF.Create((float)position.X, (float)position.Y)));
         }
 
         private void OnRotateEnd(object? sender, RotateEventArgs e)
@@ -113,16 +99,16 @@ namespace Svg.Editor.Avalon.Views.InputDetector
 
         private void OnZoom(object? sender, PinchEventArgs e)
         {
-            if (_thirdContact != null)
-                return;
+            if (_thirdContact != null) return;
             var s = new ScaleEvent(ScaleStatus.Scaling, (float)e.Scale, (float)e.ScaleOrigin.X, (float)e.ScaleOrigin.Y);
             _detectedGestures.OnNext(s);
-            _previousScale =(float)e.Scale;
+            _previousScale = (float)e.Scale;
         }
 
         private void OnZoomEnd(object? sender, PointerReleasedEventArgs e)
         {
-            if(_previousScale != null){
+            if (_previousScale != null)
+            {
                 var point = e.GetPosition(_owner);
                 var x = (float)point.X;
                 var y = (float)point.Y;
@@ -144,21 +130,14 @@ namespace Svg.Editor.Avalon.Views.InputDetector
             var point = e.GetPosition(_owner);
             var x = (float)point.X;
             var y = (float)point.Y;
-
-            var uie = new PointerEvent(
-                EventType.PointerDown,
-                PointF.Create(_pointerDownX, _pointerDownY),
-                PointF.Create(_lastTouchX, _lastTouchY),
-                PointF.Create(x, y),
+            var uie = new PointerEvent(EventType.PointerDown, PointF.Create(_pointerDownX, _pointerDownY),
+                PointF.Create(_lastTouchX, _lastTouchY), PointF.Create(x, y),
                 1 // Avalonia doesn't provide direct pointer count like Android
             );
-
             _lastTouchX = x;
             _lastTouchY = y;
-
             _pointerDownX = x;
             _pointerDownY = y;
-
             RegisterContact(e.Pointer);
             _detectedGestures.OnNext(uie);
         }
@@ -168,36 +147,26 @@ namespace Svg.Editor.Avalon.Views.InputDetector
             var point = e.GetPosition(_owner);
             var x = (float)point.X;
             var y = (float)point.Y;
-
             var relativeDeltaX = x - _lastTouchX;
             var relativeDeltaY = y - _lastTouchY;
-
-            if(_thirdContact != null)
-                return;
-
-            var uie = new MoveEvent(
-                PointF.Create(_pointerDownX, _pointerDownY),
-                PointF.Create(_lastTouchX, _lastTouchY),
-                PointF.Create(x, y),
+            if (_thirdContact != null) return;
+            var uie = new MoveEvent(PointF.Create(_pointerDownX, _pointerDownY),
+                PointF.Create(_lastTouchX, _lastTouchY), PointF.Create(x, y),
                 PointF.Create(relativeDeltaX, relativeDeltaY),
                 1 // Avalonia doesn't provide direct pointer count like Android
             );
-
             var pointer = e.GetCurrentPoint(_owner);
-            if((_firstContact != null && _secondContact != null) || pointer.Properties.IsMiddleButtonPressed)
+            if ((_firstContact != null && _secondContact != null) || pointer.Properties.IsMiddleButtonPressed)
             {
-                uie = new MoveEvent(
-                  PointF.Create(_pointerDownX, _pointerDownY),
-                  PointF.Create(_lastTouchX, _lastTouchY),
-                  PointF.Create(x, y),
-                  PointF.Create(relativeDeltaX, relativeDeltaY),
-                  2 // Avalonia doesn't provide direct pointer count like Android
-              );
+                uie = new MoveEvent(PointF.Create(_pointerDownX, _pointerDownY),
+                    PointF.Create(_lastTouchX, _lastTouchY), PointF.Create(x, y),
+                    PointF.Create(relativeDeltaX, relativeDeltaY),
+                    2 // Avalonia doesn't provide direct pointer count like Android
+                );
             }
 
             _lastTouchX = x;
             _lastTouchY = y;
-
             _detectedGestures.OnNext(uie);
         }
 
@@ -206,29 +175,16 @@ namespace Svg.Editor.Avalon.Views.InputDetector
             var point = e.GetPosition(_owner);
             var x = (float)point.X;
             var y = (float)point.Y;
-
-            var uie = new PointerEvent(
-                EventType.PointerUp,
-                PointF.Create(_pointerDownX, _pointerDownY),
-                PointF.Create(_lastTouchX, _lastTouchY),
-                PointF.Create(x, y),
-                1
-            );
-
+            var uie = new PointerEvent(EventType.PointerUp, PointF.Create(_pointerDownX, _pointerDownY),
+                PointF.Create(_lastTouchX, _lastTouchY), PointF.Create(x, y), 1);
             RemoveContact(e.Pointer);
             _detectedGestures.OnNext(uie);
         }
 
         private void OnPointerCancelled(object sender, PointerCaptureLostEventArgs e)
         {
-            var uie = new PointerEvent(
-                EventType.Cancel,
-                PointF.Create(_pointerDownX, _pointerDownY),
-                PointF.Create(_lastTouchX, _lastTouchY),
-                PointF.Create(_lastTouchX, _lastTouchY),
-                1
-            );
-
+            var uie = new PointerEvent(EventType.Cancel, PointF.Create(_pointerDownX, _pointerDownY),
+                PointF.Create(_lastTouchX, _lastTouchY), PointF.Create(_lastTouchX, _lastTouchY), 1);
             _detectedGestures.OnNext(uie);
         }
 
@@ -242,19 +198,15 @@ namespace Svg.Editor.Avalon.Views.InputDetector
         {
             private float? _startAngle;
             private float? _previousAngle;
-
             public event EventHandler<UserInputEvent> OnRotateEvent;
 
             public void OnPointerEvent(PointerEventArgs[] events)
             {
                 if (events.Length < 2) return;
-
                 var point1 = events[0].GetPosition(null);
                 var point2 = events[1].GetPosition(null);
-
                 var angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
                 angle = (float)(angle * (180.0 / Math.PI));
-
                 if (!_startAngle.HasValue)
                 {
                     // Rotation Start
@@ -266,13 +218,7 @@ namespace Svg.Editor.Avalon.Views.InputDetector
                     // Rotating
                     var delta = (_previousAngle ?? angle) - angle;
                     var absoluteDelta = (_startAngle.Value - angle) % 360;
-
-                    OnRotateEvent?.Invoke(this, new RotateEvent(
-                        delta,
-                        absoluteDelta,
-                        RotateStatus.Rotating,
-                        2
-                    ));
+                    OnRotateEvent?.Invoke(this, new RotateEvent(delta, absoluteDelta, RotateStatus.Rotating, 2));
                 }
 
                 _previousAngle = angle;
@@ -286,19 +232,15 @@ namespace Svg.Editor.Avalon.Views.InputDetector
             _owner.PointerReleased -= OnPointerReleased;
             _owner.PointerMoved -= OnPointerMoved;
             _owner.PointerCaptureLost -= OnPointerCancelled;
-
             _owner.Tapped -= ElementOnTapped;
             _owner.DoubleTapped -= ElementOnDoubleTapped;
             _owner.PointerWheelChanged -= ElementOnPointerWheelChanged;
-
             _pinchGesture.ZoomStart -= OnZoomStart;
             _pinchGesture.Zoom -= OnZoom;
             _pinchGesture.ZoomEnd -= OnZoomEnd;
-
             _rotateGesture.Rotate -= OnRotate;
             _rotateGesture.RotateEnd -= OnRotateEnd;
             _rotateGesture.RotateStart -= OnRotateStart;
-
             _detectedGestures?.Dispose();
         }
 
@@ -340,6 +282,7 @@ namespace Svg.Editor.Avalon.Views.InputDetector
                 }
             }
         }
+
         public void OnNext(UserInputEvent e)
         {
         }

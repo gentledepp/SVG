@@ -8,16 +8,11 @@ using Avalonia.Threading;
 using Avalonia;
 using System;
 using Avalonia.Skia;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Avalonia.Remote.Protocol.Viewport;
 using SkiaSharp;
-using Avalonia.Input;
 
 namespace Svg.Editor.Avalon.Views
 {
+    // Copied from https://github.com/AvaloniaUI/Avalonia.Labs/blob/main/src/Avalonia.Labs.Controls/SKCanvasView/SKCanvasView.cs
     public class SKCanvasView : Decorator
     {
         /// <summary>
@@ -25,13 +20,9 @@ namespace Svg.Editor.Avalon.Views
         /// </summary>
         public event EventHandler<SKPaintSurfaceEventArgs>? PaintSurface;
 
-
         private static readonly Vector Dpi = new Vector(96, 96);
-
         private WriteableBitmap? _writeableBitmap = default;
-
         private bool _IgnorePixelScaling;
-
         private int _pixelWidth;
         private int _pixelHeight;
         private double _scale = 1;
@@ -60,12 +51,15 @@ namespace Svg.Editor.Avalon.Views
         /// <summary>
         /// Gets the current render scaling applied to the control.
         /// </summary>
-
         public readonly static DirectProperty<SKCanvasView, double> ScaleProperty =
-            AvaloniaProperty.RegisterDirect<SKCanvasView, double>(nameof(Scale),
-                v => v.Scale);
+            AvaloniaProperty.RegisterDirect<SKCanvasView, double>(nameof(Scale), v => v.Scale);
 
-        public double Scale { get => _scale; protected internal set => SetAndRaise(ScaleProperty, ref _scale, value); }
+        public double Scale
+        {
+            get => _scale;
+            protected internal set => SetAndRaise(ScaleProperty, ref _scale, value);
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether the canvas's resolution and scale
         /// will be automatically adjusted to match physical device pixels.
@@ -115,21 +109,13 @@ namespace Svg.Editor.Avalon.Views
                 return;
             }
 
-            var bitmap = _writeableBitmap ??= new WriteableBitmap(
-                new PixelSize(_pixelWidth, _pixelHeight),
-                Dpi,
-                Avalonia.Platform.PixelFormat.Bgra8888,
-                AlphaFormat.Premul);
+            var bitmap = _writeableBitmap ??= new WriteableBitmap(new PixelSize(_pixelWidth, _pixelHeight), Dpi,
+                Avalonia.Platform.PixelFormat.Bgra8888, AlphaFormat.Premul);
             var scale = this.Scale;
-
             using (var framebuffer = bitmap.Lock())
             {
-                var info = new SKImageInfo(
-                    framebuffer.Size.Width,
-                    framebuffer.Size.Height,
-                    framebuffer.Format.ToSkColorType(),
-                    SKAlphaType.Premul);
-
+                var info = new SKImageInfo(framebuffer.Size.Width, framebuffer.Size.Height,
+                    framebuffer.Format.ToSkColorType(), SKAlphaType.Premul);
                 var properties = new SKSurfaceProperties(SKPixelGeometry.RgbHorizontal);
 
                 // It is not too expensive to re-create the SKSurface on each re-paint.
@@ -151,14 +137,11 @@ namespace Svg.Editor.Avalon.Views
                 properties.Dispose();
             }
 
-
-            this.SetCurrentValue(BackgroundProperty, new ImageBrush(bitmap)
-            {
-                AlignmentX = AlignmentX.Left,
-                AlignmentY = AlignmentY.Top,
-                Stretch = Stretch.Fill
-            }.ToImmutable());
-
+            this.SetCurrentValue(BackgroundProperty,
+                new ImageBrush(bitmap)
+                {
+                    AlignmentX = AlignmentX.Left, AlignmentY = AlignmentY.Top, Stretch = Stretch.Fill
+                }.ToImmutable());
             return;
         }
 
@@ -177,7 +160,6 @@ namespace Svg.Editor.Avalon.Views
         protected override void OnLoaded(RoutedEventArgs e)
         {
             base.OnLoaded(e);
-
             /*
             var display = DisplayInformation.GetForCurrentView();
             display.DpiChanged += OnDpiChanged;
@@ -190,7 +172,6 @@ namespace Svg.Editor.Avalon.Views
         protected override void OnUnloaded(RoutedEventArgs e)
         {
             base.OnUnloaded(e);
-
             /*
             var display = DisplayInformation.GetForCurrentView();
             display.DpiChanged -= OnDpiChanged;
@@ -201,7 +182,6 @@ namespace Svg.Editor.Avalon.Views
         protected override void OnSizeChanged(SizeChangedEventArgs e)
         {
             base.OnSizeChanged(e);
-
             InvalidateSurface();
             return;
         }
@@ -219,11 +199,11 @@ namespace Svg.Editor.Avalon.Views
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
-
             if (change.Property == IsVisibleProperty)
             {
                 this.InvalidateSurface();
             }
+
             if (change.Property == BoundsProperty)
             {
                 // Display scaling is important to consider here:
@@ -236,7 +216,6 @@ namespace Svg.Editor.Avalon.Views
                 // Then the canvas undoes this by setting a scale factor itself.
                 // This means external code can use logical pixel size and the canvas will transform as needed.
                 // Then the underlying bitmap is still at physical device pixel resolution.
-
                 if (this.IgnorePixelScaling)
                 {
                     this.Scale = 1;
@@ -245,6 +224,7 @@ namespace Svg.Editor.Avalon.Views
                 {
                     this.Scale = LayoutHelper.GetLayoutScale(this);
                 }
+
                 var scale = this.Scale;
                 var bounds = change.GetNewValue<Rect>();
                 _pixelWidth = Convert.ToInt32(bounds.Width * scale);
@@ -254,6 +234,7 @@ namespace Svg.Editor.Avalon.Views
                 _writeableBitmap = null;
                 this.InvalidateSurface();
             }
+
             return;
         }
     }

@@ -84,7 +84,7 @@ namespace Svg.Editor.Sample.Avalon.Dialog
 
         // Static method to show the dialog similar to Xamarin's approach
         public static async Task<string> ShowActionSheet(
-            Window owner,
+            Control owner,
             string title,
             string cancelButton,
             string[] actions)
@@ -92,8 +92,8 @@ namespace Svg.Editor.Sample.Avalon.Dialog
             var dialog = new ActionSheetDialog(title, cancelButton, actions);
 
             // Show dialog and wait for result
-            var result = await dialog.ShowDialog<string>(owner);
-            return result;
+            //var result = await dialog.ShowDialog<string>(owner);
+            return "123";
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Svg.Editor.Sample.Avalon.Services
 {
     public class StrokeStyleOptionsInputService : IStrokeStyleOptionsInputService
     {
-        public static Func<Window> GetWindow { get;set; } = () => new Window();
+        public static Func<Control> GetWindow { get;set; } = () => new Control();
         public async Task<StrokeStyleTool.StrokeStyleOptions> GetUserInput(string title, IEnumerable<string> strokeDashOptions, int strokeDashSelected, IEnumerable<string> strokeWidthOptions,
             int strokeWidthSelected)
         {

@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using Svg.Interfaces;
 
-namespace Svg.Editor.Avalon.Forms;
-
-public class FormsToolBarIconSizeProvider
+namespace Svg.Editor.Avalon.Forms
 {
-    public SizeF GetSize()
+    public class FormsToolBarIconSizeProvider
     {
-        if (OperatingSystem.IsIOS())
+        public SizeF GetSize()
+        {
+            if (OperatingSystem.IsIOS()) return SizeF.Create(32, 32);
+            if (OperatingSystem.IsAndroid()) return SizeF.Create(32, 32);
             return SizeF.Create(32, 32);
-        if (OperatingSystem.IsAndroid())
-            return SizeF.Create(32, 32);
-
-        return SizeF.Create(32, 32);
+        }
     }
 }

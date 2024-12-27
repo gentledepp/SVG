@@ -10,14 +10,10 @@ namespace Svg.Editor.Avalon.Forms
 {
     public class SvgCanvasEditorView : SKCanvasView
     {
-
         public ISvgDrawingCanvas DrawingCanvas
         {
             get { return DataContext as ISvgDrawingCanvas; }
-            set
-            {
-                DataContext = value;
-            }
+            set { DataContext = value; }
         }
 
         private IInputDetector _detector;
@@ -27,7 +23,6 @@ namespace Svg.Editor.Avalon.Forms
             RegisterCallbacks();
             base.OnInitialized();
         }
-
 
         //protected override void OnDataContextChanged(EventArgs e)
         //{
@@ -51,28 +46,20 @@ namespace Svg.Editor.Avalon.Forms
         private void UnregisterCallbacks()
         {
             _detector?.Dispose();
-
             var canvas = DrawingCanvas;
-            if (canvas == null)
-                return;
-
+            if (canvas == null) return;
             canvas.CanvasInvalidated -= DrawingCanvas_CanvasInvalidated;
             canvas.ToolCommandsChanged -= DrawingCanvas_ToolCommandsChanged;
         }
 
         private void RegisterCallbacks()
         {
-
             _detector = new InputEventDetector(this);
-
             _detector.UserInputEvents.Subscribe(async uie => await DrawingCanvas.OnEvent(uie));
 
             //DrawingCanvas.GestureRecognizer = (IGestureRecognizer)_detector;
-
             var canvas = DrawingCanvas;
-            if (canvas == null)
-                return;
-
+            if (canvas == null) return;
             canvas.CanvasInvalidated += DrawingCanvas_CanvasInvalidated;
             canvas.ToolCommandsChanged += DrawingCanvas_ToolCommandsChanged;
         }
@@ -95,7 +82,6 @@ namespace Svg.Editor.Avalon.Forms
         protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
         {
             base.OnPaintSurface(e);
-
             DrawingCanvas?.OnDraw(new SKCanvasRenderer(e.Surface, e.Info.Width, e.Info.Height));
         }
     }

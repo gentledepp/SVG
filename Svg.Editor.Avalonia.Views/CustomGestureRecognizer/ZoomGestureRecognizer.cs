@@ -19,7 +19,6 @@ namespace Svg.Editor.Avalon.Views.CustomGestureRecognizer
         private double _previousAngle;
         private float _lastDistance;
         private const double ZOOM_DAMPING_FACTOR = 0.1; // Reduces zoom sensitivity
-
         public event EventHandler<PinchEventArgs>? Zoom;
         public event EventHandler<PointerReleasedEventArgs>? ZoomEnd;
         public event EventHandler<PointerPressedEventArgs>? ZoomStart;
@@ -53,7 +52,6 @@ namespace Svg.Editor.Avalon.Views.CustomGestureRecognizer
                     // zoom
                     var scale = distance / _initialDistance;
 
-
                     // distance did not change, dont zoom
                     if (Math.Abs(distance - _lastDistance) * scale < 30)
                     {
@@ -61,9 +59,7 @@ namespace Svg.Editor.Avalon.Views.CustomGestureRecognizer
                     }
 
                     var dampedScale = 1.0 + ((scale - 1.0) * ZOOM_DAMPING_FACTOR);
-
                     var degree = GetAngleDegreeFromPoints(_firstPoint, _secondPoint);
-
                     var pinchEventArgs = new PinchEventArgs(dampedScale, _origin, degree, _previousAngle - degree);
                     _previousAngle = degree;
                     _lastDistance = distance;
@@ -81,7 +77,6 @@ namespace Svg.Editor.Avalon.Views.CustomGestureRecognizer
                 {
                     _firstContact = e.Pointer;
                     _firstPoint = e.GetPosition(visual);
-
                     return;
                 }
                 else if (_secondContact == null && _firstContact != e.Pointer)
@@ -97,10 +92,10 @@ namespace Svg.Editor.Avalon.Views.CustomGestureRecognizer
                 if (_firstContact != null && _secondContact != null)
                 {
                     _initialDistance = GetDistance(_firstPoint, _secondPoint);
-                    _origin = new Point((_firstPoint.X + _secondPoint.X) / 2.0f, (_firstPoint.Y + _secondPoint.Y) / 2.0f);
+                    _origin = new Point((_firstPoint.X + _secondPoint.X) / 2.0f,
+                        (_firstPoint.Y + _secondPoint.Y) / 2.0f);
                     _previousAngle = GetAngleDegreeFromPoints(_firstPoint, _secondPoint);
                     ZoomStart?.Invoke(this, e);
-
                 }
             }
         }
@@ -137,13 +132,13 @@ namespace Svg.Editor.Avalon.Views.CustomGestureRecognizer
                 if (_firstContact == pointer)
                 {
                     _firstContact = _secondContact;
-
                     _secondContact = null;
                 }
 
                 Target?.RaiseEvent(new PinchEndedEventArgs());
                 return true;
             }
+
             return false;
         }
 
@@ -156,13 +151,13 @@ namespace Svg.Editor.Avalon.Views.CustomGestureRecognizer
         private static double GetAngleDegreeFromPoints(Point a, Point b)
         {
             // https://stackoverflow.com/a/15994225/20894223
-
             var deltaX = a.X - b.X;
-            var deltaY = -(a.Y - b.Y);                           // I reverse the sign, because on the screen the Y axes
-                                                                 // are reversed with respect to the Cartesian plane.
-            var rad = Math.Atan2(deltaX, deltaY);         // radians from -π to +π
-            var degree = rad * (180 / Math.PI) + 180; // Atan2 returns a radian value between -π to +π, in degrees -180 to +180.
-                                                      // To get the angle between 0 and 360 degrees you need to add 180 degrees.
+            var deltaY = -(a.Y - b.Y); // I reverse the sign, because on the screen the Y axes
+            // are reversed with respect to the Cartesian plane.
+            var rad = Math.Atan2(deltaX, deltaY); // radians from -π to +π
+            var degree =
+                rad * (180 / Math.PI) + 180; // Atan2 returns a radian value between -π to +π, in degrees -180 to +180.
+            // To get the angle between 0 and 360 degrees you need to add 180 degrees.
             return degree;
         }
     }

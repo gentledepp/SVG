@@ -1,16 +1,11 @@
 ﻿using SkiaSharp;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Svg.Editor.Avalon.Views
 {
     public class SKPaintSurfaceEventArgs : EventArgs
     {
-        public SKPaintSurfaceEventArgs(SKSurface surface, SKImageInfo info)
-            : this(surface, info, info)
+        public SKPaintSurfaceEventArgs(SKSurface surface, SKImageInfo info) : this(surface, info, info)
         {
         }
 
@@ -22,9 +17,7 @@ namespace Svg.Editor.Avalon.Views
         }
 
         public SKSurface Surface { get; }
-
         public SKImageInfo Info { get; }
-
         public SKImageInfo RawInfo { get; }
     }
 }
