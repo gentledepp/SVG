@@ -33,3 +33,4 @@ packages/
 /build
 /Svg.Tests.Benchmarks/Assets/TilesStream.zip
 /.idea/.idea.Svg.Editor/.idea
+/workload-install.ps1
