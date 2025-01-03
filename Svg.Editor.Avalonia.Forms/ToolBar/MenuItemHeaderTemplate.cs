@@ -2,6 +2,7 @@
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Layout;
+using Svg.Editor.Interfaces;
 
 namespace Svg.Editor.Avalon.Forms.ToolBar;
 
@@ -9,18 +10,20 @@ public class MenuItemHeaderTemplate : IDataTemplate
 {
     public Control? Build(object? param)
     {
-        var size = FormsToolBarIconSizeProvider.GetSize();
+        var sizeProvider = SvgEngine.TryResolve<IToolbarIconSizeProvider>();
+
+        var size = sizeProvider != null ? sizeProvider.GetSize() : FormsToolBarIconSizeProvider.GetSize() ;
         return new StackPanel
         {
             Orientation = Orientation.Horizontal,
             Spacing = 5,
             Children =
             {
-                new Avalonia.Controls.Image()
+                new Avalonia.Controls.PathIcon()
                 {
                     Width = size.Width,
                     Height = size.Height,
-                    [!Avalonia.Controls.Image.SourceProperty] = new Binding("Icon")
+                    [!Avalonia.Controls.PathIcon.DataProperty] = new Binding("Icon")
                 },
                 new TextBlock
                 {

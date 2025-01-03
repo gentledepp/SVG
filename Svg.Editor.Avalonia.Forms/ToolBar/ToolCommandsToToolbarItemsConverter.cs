@@ -8,18 +8,15 @@ using System.Linq;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Services;
 using Svg.Editor.Tools;
-using System.Reflection;
-using Avalonia;
-using Avalonia.Markup.Xaml.Templates;
+using System;
+using Avalonia.Media;
+using Path = Avalonia.Controls.Shapes.Path;
 
 namespace Svg.Editor.Avalon.Forms.ToolBar;
 
 public class ToolCommandsToToolbarItemsConverter : IValueConverter
 {
     private Lazy<IImageSourceProvider> _imageSourceProvider = new(SvgEngine.TryResolve<IImageSourceProvider>);
-
-    private Lazy<IToolbarIconSizeProvider> _toolbarIconSizeProvider =
-        new(SvgEngine.TryResolve<IToolbarIconSizeProvider>);
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
@@ -29,8 +26,6 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
         else
             shownActions = 3;
 
-        var imageProvider = _imageSourceProvider.Value;
-        var iconDimension = _toolbarIconSizeProvider.Value?.GetSize();
         var commandLists = value as IEnumerable<IEnumerable<IToolCommand>>;
 
         var menuItems = new List<MenuItem>();
@@ -52,7 +47,6 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
                 var menuItem = new MenuItem
                 {
                     Header = new MenuItemHeader(command.Name, bmp),
-                    HeaderTemplate = (DataTemplate)Application.Current.Resources["MenuItemHeaderTemplate"]
                 };
                 menuItem.Click += (s, e) => command.Execute(null);
                 menuItems.Add(menuItem);
@@ -67,7 +61,6 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
                 var groupMenuItem = new MenuItem
                 {
                     Header = new MenuItemHeader(cmd.GroupName, bmp),
-                    HeaderTemplate = (DataTemplate)Application.Current.Resources["MenuItemHeaderTemplate"]
                 };
 
                 // Add submenu items
@@ -79,7 +72,6 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
                     var subMenuItem = new MenuItem
                     {
                         Header = new MenuItemHeader(subCommand.Name, bmp2),
-                        HeaderTemplate = (DataTemplate)Application.Current.Resources["MenuItemHeaderTemplate"]
                     };
                     subMenuItem.Click += (s, e) => subCommand.Execute(null);
                     groupMenuItem.Items.Add(subMenuItem);
@@ -97,25 +89,13 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
         return null;
     }
 
-    private Avalonia.Media.Imaging.Bitmap GetIconBitmap(string iconName)
+    private StreamGeometry? GetIconBitmap(string iconName)
     {
-        var iconPath = _imageSourceProvider.Value.GetImage(iconName);
-
-        var name = Assembly.GetExecutingAssembly().GetName().Name;
-
-        var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"{name}.svg.{iconName}");
-
-        if (stream == null)
+        if(iconName == null)
             return null;
 
-        var svg = SvgDocument.Open<SvgDocument>(stream);
-        using var bmp = svg.DrawDocument();
-
-        var iconFileName = iconName + ".png";
-
-        using var fileS = File.OpenWrite(iconFileName);
-        bmp.SavePng(fileS);
-        fileS.Close();
-        return new Avalonia.Media.Imaging.Bitmap(iconFileName);
+        if(ToolBarGeometryIcons.Icons.TryGetValue(System.IO.Path.GetFileNameWithoutExtension(iconName), out var value))
+            return value;
+        return null;
     }
 }

@@ -5,44 +5,6 @@
 		<LangVersion>latest</LangVersion>
 		<Version>2.5.0-avalonia</Version>
 	</PropertyGroup>
-	<ItemGroup>
-	  <EmbeddedResource Include="svg\ic_arrow_downward.svg" />
-	  <EmbeddedResource Include="svg\ic_arrow_upward.svg" />
-	  <EmbeddedResource Include="svg\ic_aspect_ratio.svg" />
-	  <EmbeddedResource Include="svg\ic_border_style.svg" />
-	  <EmbeddedResource Include="svg\ic_brush.svg" />
-	  <EmbeddedResource Include="svg\ic_code.svg" />
-	  <EmbeddedResource Include="svg\ic_color_lens.svg" />
-	  <EmbeddedResource Include="svg\ic_crop_square.svg" />
-	  <EmbeddedResource Include="svg\ic_delete.svg" />
-	  <EmbeddedResource Include="svg\ic_flip_to_back.svg" />
-	  <EmbeddedResource Include="svg\ic_flip_to_front.svg" />
-	  <EmbeddedResource Include="svg\ic_format_color_fill.svg" />
-	  <EmbeddedResource Include="svg\ic_grid_off.svg" />
-	  <EmbeddedResource Include="svg\ic_grid_on.svg" />
-	  <EmbeddedResource Include="svg\ic_insert_photo.svg" />
-	  <EmbeddedResource Include="svg\ic_line_endings.svg" />
-	  <EmbeddedResource Include="svg\ic_line_style.svg" />
-	  <EmbeddedResource Include="svg\ic_mode_edit.svg" />
-	  <EmbeddedResource Include="svg\ic_panorama_fish_eye.svg" />
-	  <EmbeddedResource Include="svg\ic_pan_tool.svg" />
-	  <EmbeddedResource Include="svg\ic_pin_resize.svg" />
-	  <EmbeddedResource Include="svg\ic_pin_tool.svg" />
-	  <EmbeddedResource Include="svg\ic_polygon.svg" />
-	  <EmbeddedResource Include="svg\ic_redo.svg" />
-	  <EmbeddedResource Include="svg\ic_rotate_left.svg" />
-	  <EmbeddedResource Include="svg\ic_rotate_right.svg" />
-	  <EmbeddedResource Include="svg\ic_save.svg" />
-	  <EmbeddedResource Include="svg\ic_select.svg" />
-	  <EmbeddedResource Include="svg\ic_swap_vert.svg" />
-	  <EmbeddedResource Include="svg\ic_text_fields.svg" />
-	  <EmbeddedResource Include="svg\ic_undo.svg" />
-	  <EmbeddedResource Include="svg\ic_zoom.svg" />
-	  <EmbeddedResource Include="svg\ic_zoom_100.svg" />
-	  <EmbeddedResource Include="svg\ic_zoom_200.svg" />
-	  <EmbeddedResource Include="svg\ic_zoom_in.svg" />
-	  <EmbeddedResource Include="svg\ic_zoom_out.svg" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Avalonia" Version="11.2.1" />

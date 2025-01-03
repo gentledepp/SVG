@@ -3,7 +3,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:avalon="clr-namespace:Svg.Editor.CrossSample.Avalon;assembly=Svg.Editor.CrossSample.Avalon"
-        xmlns:forms="clr-namespace:Svg.Editor.Avalon.Forms;assembly=Svg.Editor.Avalon.Forms"
         xmlns:toolBar="clr-namespace:Svg.Editor.Avalon.Forms.ToolBar;assembly=Svg.Editor.Avalon.Forms"
         x:Class="Svg.Editor.CrossSample.Avalon.MainWindow"
 		x:DataType="avalon:MainViewModel"
@@ -14,20 +13,17 @@
     <Window.Resources>
         <toolBar:ToolCommandsToToolbarItemsConverter x:Key="ToolCommandsToToolbarItemsConverter"/>
     </Window.Resources>
-	<StackPanel
-		VerticalAlignment="Top"
-		HorizontalAlignment="Center"
-		Height="1000">
-		<Menu
-			Height="30" Width="1000" HorizontalAlignment="Center"
-			VerticalAlignment="Top"
-			ItemsSource="{Binding DrawingCanvas.ToolCommands, 
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Menu Margin="0"
+            ItemsSource="{Binding DrawingCanvas.ToolCommands, 
         Converter={StaticResource ToolCommandsToToolbarItemsConverter}}" />
 
-		<avalon:SvgEditorView
-			DataContext="{Binding DrawingCanvas}"
-			Height="720"
-			Width="1080"
-			Margin="1"/>
-	</StackPanel>
+        <avalon:SvgEditorView Grid.Row="1" 
+            DataContext="{Binding DrawingCanvas}"/>
+    </Grid>
 </Window>

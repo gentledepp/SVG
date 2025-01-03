@@ -3,7 +3,7 @@ using Svg.Interfaces;
 
 namespace Svg.Editor.Avalon.Forms.ToolBar
 {
-    public static class FormsToolBarIconSizeProvider
+    public class FormsToolBarIconSizeProvider
     {
         public static SizeF GetSize()
         {

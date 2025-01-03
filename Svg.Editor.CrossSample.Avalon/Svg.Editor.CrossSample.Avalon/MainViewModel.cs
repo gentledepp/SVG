@@ -24,26 +24,6 @@ namespace Svg.Editor.CrossSample.Avalon
 {
     public class MainViewModel
     {
-        public IDataTemplate MenuItemHeaderTemplate => new FuncDataTemplate<MenuItemHeader>((header, namescope) =>
-            new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                Spacing = 5,
-                Children =
-                {
-                    new Avalonia.Controls.Image()
-                    {
-                        Width = 16,
-                        Height = 16,
-                        [!Avalonia.Controls.Image.SourceProperty] = new Binding("Icon")
-                    },
-                    new TextBlock
-                    {
-                        [!TextBlock.TextProperty] = new Binding("Title"),
-                        VerticalAlignment = VerticalAlignment.Center
-                    }
-                }
-            });
         public MainViewModel()
         {
             #region Register services
