@@ -1,15 +1,19 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using Avalonia.Controls;
+using Avalonia.Controls.Templates;
+using Avalonia.Data;
+using Avalonia.Layout;
 using Svg;
+using Svg.Editor.Avalon.Forms.ToolBar;
+using Svg.Editor.CrossSample.Avalon.Services;
+using Svg.Editor.CrossSample.Avalon.Tools;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Sample.Avalon.Resources.svg;
-using Svg.Editor.Sample.Avalon.Services;
-using Svg.Editor.Sample.Forms;
 
 
 //using Svg.Editor.Sample.Avalon.Services;
-using Svg.Editor.Sample.Forms.Tools;
 using Svg.Editor.Services;
 using Svg.Editor.Tools;
 using Svg.Interfaces;
@@ -20,6 +24,26 @@ namespace Svg.Editor.CrossSample.Avalon
 {
     public class MainViewModel
     {
+        public IDataTemplate MenuItemHeaderTemplate => new FuncDataTemplate<MenuItemHeader>((header, namescope) =>
+            new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 5,
+                Children =
+                {
+                    new Avalonia.Controls.Image()
+                    {
+                        Width = 16,
+                        Height = 16,
+                        [!Avalonia.Controls.Image.SourceProperty] = new Binding("Icon")
+                    },
+                    new TextBlock
+                    {
+                        [!TextBlock.TextProperty] = new Binding("Title"),
+                        VerticalAlignment = VerticalAlignment.Center
+                    }
+                }
+            });
         public MainViewModel()
         {
             #region Register services
@@ -28,7 +52,7 @@ namespace Svg.Editor.CrossSample.Avalon
             SvgEngine.Register<IMarkerOptionsInputService>(() => new MarkerOptionsInputService());
             SvgEngine.Register<IStrokeStyleOptionsInputService>(() => new StrokeStyleOptionsInputService());
             SvgEngine.Register<ITextInputService>(() => new TextInputService());
-            // SvgEngine.Register<IPickImageService>(() => new FormsPickImageService());
+            SvgEngine.Register<IPickImageService>(() => new FormsPickImageService());
             SvgEngine.Register<IPinInputService>(() => new PinInputService());
 
             SvgEngine.Resolve<ISvgCachingService>().Clear();
@@ -134,7 +158,8 @@ namespace Svg.Editor.CrossSample.Avalon
                 () => new PlaceAsBackgroundTool(placeAsBackgroundToolProperties, undoRedoService),
                 () => new AddItemTool(),
                 () => new PolygonTool(polygonProperties, undoRedoService),
-                () => new PinTool(pinToolProperties, undoRedoService)); ;
+                () => new PinTool(pinToolProperties, undoRedoService));
+
         }
 
         public SvgDrawingCanvas DrawingCanvas { get; set; }

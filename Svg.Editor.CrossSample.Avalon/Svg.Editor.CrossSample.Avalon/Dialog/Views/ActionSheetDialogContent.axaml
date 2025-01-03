@@ -1,0 +1,39 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="clr-namespace:Svg.Editor.CrossSample.Avalon.Dialog.Views"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Svg.Editor.CrossSample.Avalon.Dialog.Views.ActionSheetDialogContent"
+             x:DataType="views:ActionSheetDialogResultViewModel">
+    <StackPanel Spacing="5">
+        <ContentControl Content="{Binding Content}" IsVisible="{Binding !!Content}" />
+        <ListBox
+            ItemsSource="{Binding Items}"
+            SelectedItem="{Binding SelectedItem}"
+            SelectionMode="Single"
+            Focusable="True"
+            MaxHeight="250"
+            KeyboardNavigation.TabNavigation="Continue"
+            AttachedToVisualTree="Visual_OnAttachedToVisualTree"
+            KeyDown="InputElement_OnKeyDown">
+            <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                    <Setter Property="Padding" Value="0"/>
+                </Style>
+            </ListBox.Styles>
+            <ListBox.ItemTemplate>
+                <DataTemplate  x:DataType="views:ActionSheetItem">
+                    <Grid PointerPressed="InputElement_OnPointerPressed"
+                        PointerReleased="InputElement_OnPointerReleased"
+                        Background="Transparent"
+                        VerticalAlignment="Stretch"
+                        HorizontalAlignment="Stretch">
+                        <TextBlock Text="{Binding Title}"
+                                   Margin="15,10"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </StackPanel>
+</UserControl>

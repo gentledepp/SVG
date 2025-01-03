@@ -2,10 +2,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:Svg.Editor.CrossSample.Avalon"
              xmlns:forms="clr-namespace:Svg.Editor.Avalon.Forms;assembly=Svg.Editor.Avalonia.Forms"
+             xmlns:controls="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
              x:Class="Svg.Editor.CrossSample.Avalon.App"
              RequestedThemeVariant="Default">
 
 	<Application.Styles>
+        <controls:ControlThemes />
+
 		<FluentTheme>
 			<FluentTheme.Palettes>
 				<ColorPaletteResources x:Key="Light" Accent="#ff662483" AltHigh="White" AltLow="White" AltMedium="White" AltMediumHigh="White" AltMediumLow="White" BaseHigh="Black" BaseLow="#ff72c02c" BaseMedium="#ff358212" BaseMediumHigh="#ff0c5900" BaseMediumLow="#ff206e09" ChromeAltLow="#ff0c5900" ChromeBlackHigh="Black" ChromeBlackLow="#ff72c02c" ChromeBlackMedium="#ff0c5900" ChromeBlackMediumLow="#ff358212" ChromeDisabledHigh="#ff72c02c" ChromeDisabledLow="#ff358212" ChromeGray="#ff206e09" ChromeHigh="#ff72c02c" ChromeLow="#ffcaabd9" ChromeMedium="#ffb690c8" ChromeMediumLow="#ffcaabd9" ChromeWhite="White" ListLow="#ffb690c8" ListMedium="#ff72c02c" RegionColor="White" />

@@ -1,11 +1,11 @@
 ﻿using System;
 using Svg.Interfaces;
 
-namespace Svg.Editor.Avalon.Forms
+namespace Svg.Editor.Avalon.Forms.ToolBar
 {
-    public class FormsToolBarIconSizeProvider
+    public static class FormsToolBarIconSizeProvider
     {
-        public SizeF GetSize()
+        public static SizeF GetSize()
         {
             if (OperatingSystem.IsIOS()) return SizeF.Create(32, 32);
             if (OperatingSystem.IsAndroid()) return SizeF.Create(32, 32);

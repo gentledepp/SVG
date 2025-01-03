@@ -1,18 +1,18 @@
 ﻿using Avalonia.Controls;
-using Svg.Editor.Sample.Avalon.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using iCL.Modules.UserInteraction;
 
-namespace Svg.Editor.Sample.Avalon.Services
+namespace Svg.Editor.CrossSample.Avalon.Services
 {
-    public class ColorInputService : Tools.IColorInputService
+    public class ColorInputService : Svg.Editor.Tools.IColorInputService
     {
         public async Task<int> GetIndexFromUserInput(string title, string[] items, string[] colors, int defaultIndex = 0)
         {
-            var result = await ActionSheetDialog.ShowActionSheet(StrokeStyleOptionsInputService.GetWindow(), title, "cancel", items);
+            var result = await UserInteractionServiceExt.UserInteractionInst.ActionSheetAsync(title, items);
 
             if (result == null)
                 return -1;

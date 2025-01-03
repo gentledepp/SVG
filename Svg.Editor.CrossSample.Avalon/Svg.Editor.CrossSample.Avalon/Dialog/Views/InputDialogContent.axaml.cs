@@ -1,0 +1,27 @@
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Threading;
+
+namespace Svg.Editor.CrossSample.Avalon.Dialog.Views;
+
+public partial class InputDialogContent : UserControl
+{
+    public InputDialogContent()
+    {
+        InitializeComponent();
+    }
+    
+    
+    private void InputField_OnAttachedToVisualTree(object sender, VisualTreeAttachmentEventArgs e)
+    {
+        // We will set the focus into our input field just after it got attached to the visual tree.
+        if (sender is InputElement inputElement)
+        {
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                inputElement.Focus(NavigationMethod.Unspecified, KeyModifiers.None);
+            });
+        }
+    }
+}

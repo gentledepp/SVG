@@ -1,0 +1,20 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="clr-namespace:Svg.Editor.CrossSample.Avalon.Dialog.Views"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Svg.Editor.CrossSample.Avalon.Dialog.Views.ProgressDialogContent"
+             x:DataType="views:ProgressDialogViewModel">
+    <StackPanel VerticalAlignment="Center" Spacing="10"
+                Focusable="true"
+                IsTabStop="true">
+        <ContentControl Content="{Binding Content, Mode=OneWay}" IsVisible="{Binding !!Content}"></ContentControl>
+        <ProgressBar IsIndeterminate="{Binding IsIndeterminate, Mode=OneWay}" 
+                     Value="{Binding Progress, Mode=OneWay}"
+                     ShowProgressText="{Binding !IsIndeterminate}"
+                     Minimum="0"
+                     Maximum="100"
+                     />
+    </StackPanel>
+</UserControl>

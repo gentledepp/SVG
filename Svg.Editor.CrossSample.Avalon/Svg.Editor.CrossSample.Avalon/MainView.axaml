@@ -3,14 +3,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:avalon="clr-namespace:Svg.Editor.CrossSample.Avalon;assembly=Svg.Editor.CrossSample.Avalon"
+			 xmlns:toolBar="clr-namespace:Svg.Editor.Avalon.Forms.ToolBar;assembly=Svg.Editor.Avalon.Forms"
 			 xmlns:forms="clr-namespace:Svg.Editor.Avalon.Forms;assembly=Svg.Editor.Avalon.Forms"
-             x:Class="Svg.Editor.CrossSample.Avalon.MainView"
+			 x:Class="Svg.Editor.CrossSample.Avalon.MainView"
 			 x:DataType="avalon:MainViewModel">
 	<UserControl.DataContext>
 		<avalon:MainViewModel />
 	</UserControl.DataContext>
 	<UserControl.Resources>
-		<forms:ToolCommandsToToolbarItemsConverter x:Key="ToolCommandsToToolbarItemsConverter"/>
+		<toolBar:ToolCommandsToToolbarItemsConverter x:Key="ToolCommandsToToolbarItemsConverter"/>
 	</UserControl.Resources>
 	<DockPanel>
 		<Menu DockPanel.Dock="Top"

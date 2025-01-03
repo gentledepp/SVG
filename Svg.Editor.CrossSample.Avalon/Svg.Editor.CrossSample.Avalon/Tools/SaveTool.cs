@@ -5,7 +5,7 @@ using Svg.Editor.Interfaces;
 using Svg.Editor.Tools;
 using Svg.Interfaces;
 
-namespace Svg.Editor.Sample.Forms.Tools
+namespace Svg.Editor.CrossSample.Avalon.Tools
 {
     public class SaveTool : ToolBase
     {

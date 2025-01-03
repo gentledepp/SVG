@@ -9,8 +9,10 @@ using Svg.Editor.Interfaces;
 using Svg.Editor.Services;
 using Svg.Editor.Tools;
 using System.Reflection;
+using Avalonia;
+using Avalonia.Markup.Xaml.Templates;
 
-namespace Svg.Editor.Avalon.Forms;
+namespace Svg.Editor.Avalon.Forms.ToolBar;
 
 public class ToolCommandsToToolbarItemsConverter : IValueConverter
 {
@@ -44,16 +46,13 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
             {
                 var command = cmds.Single();
 
-                //var bmp = GetIconBitmap(command.IconName);
-                //if(bmp == null)
-                //    continue;
+                var bmp = GetIconBitmap(command.IconName);
+                if (bmp == null)
+                    continue;
                 var menuItem = new MenuItem
                 {
-                    Header = command.Name
-                    //Icon = new Avalonia.Controls.Image
-                    //{
-                    //    Source = bmp
-                    //}
+                    Header = new MenuItemHeader(command.Name, bmp),
+                    HeaderTemplate = (DataTemplate)Application.Current.Resources["MenuItemHeaderTemplate"]
                 };
                 menuItem.Click += (s, e) => command.Execute(null);
                 menuItems.Add(menuItem);
@@ -62,31 +61,25 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
             else
             {
                 var cmd = cmds.First();
-                //var bmp = GetIconBitmap(cmd.IconName);
-                //if(bmp == null)
-                //    continue;
+                var bmp = GetIconBitmap(cmd.IconName);
+                if (bmp == null)
+                    continue;
                 var groupMenuItem = new MenuItem
                 {
-                    Header = cmd.GroupName
-                    //Icon = new Avalonia.Controls.Image
-                    //{
-                    //    Source = bmp
-                    //},
+                    Header = new MenuItemHeader(cmd.GroupName, bmp),
+                    HeaderTemplate = (DataTemplate)Application.Current.Resources["MenuItemHeaderTemplate"]
                 };
 
                 // Add submenu items
                 foreach (var subCommand in cmds)
                 {
-                    //var bmp2 = GetIconBitmap(subCommand.IconName);
-                    //if(bmp2 == null)
-                    //    continue;
+                    var bmp2 = GetIconBitmap(subCommand.IconName);
+                    if (bmp2 == null)
+                        continue;
                     var subMenuItem = new MenuItem
                     {
-                        Header = subCommand.Name
-                        //Icon = new Avalonia.Controls.Image
-                        //{
-                        //    Source = bmp2
-                        //}
+                        Header = new MenuItemHeader(subCommand.Name, bmp2),
+                        HeaderTemplate = (DataTemplate)Application.Current.Resources["MenuItemHeaderTemplate"]
                     };
                     subMenuItem.Click += (s, e) => subCommand.Execute(null);
                     groupMenuItem.Items.Add(subMenuItem);
@@ -110,7 +103,7 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
 
         var name = Assembly.GetExecutingAssembly().GetName().Name;
 
-        var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"{name}.Resources.svg.{iconName}");
+        var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"{name}.svg.{iconName}");
 
         if (stream == null)
             return null;

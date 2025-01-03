@@ -1,11 +1,11 @@
 ﻿using Avalonia.Controls;
-using Svg.Editor.Sample.Avalon.Dialog;
+using iCL.Modules.UserInteraction;
 using Svg.Editor.Tools;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Svg.Editor.Sample.Avalon.Services
+namespace Svg.Editor.CrossSample.Avalon.Services
 {
     public class MarkerOptionsInputService : IMarkerOptionsInputService
     {
@@ -15,14 +15,16 @@ namespace Svg.Editor.Sample.Avalon.Services
 
 
             var mso = markerStartOptions.ToList();
-            var start = await ActionSheetDialog.ShowActionSheet(StrokeStyleOptionsInputService.GetWindow(), "Start", "cancel", mso.ToArray());
+            var start = await UserInteractionServiceExt.UserInteractionInst.ActionSheetAsync(title, mso.ToArray());
+
+            await UserInteractionServiceExt.UserInteractionInst.ActionSheetAsync(title, mso.ToArray());
 
             var startIndex = mso.IndexOf(start);
             if (start == null || startIndex < 0)
                 return new[] { markerStartSelected, markerEndSelected };
 
             var meo = markerEndOptions.ToList();
-            var end = await ActionSheetDialog.ShowActionSheet(StrokeStyleOptionsInputService.GetWindow(), "End", "cancel", mso.ToArray());
+            var end = await UserInteractionServiceExt.UserInteractionInst.ActionSheetAsync(title, mso.ToArray());
 
             var endIndex = meo.IndexOf(end);
             if (end == null || endIndex < 0)

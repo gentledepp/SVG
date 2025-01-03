@@ -1,9 +1,8 @@
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Svg.Editor.Avalon.Forms;
-using Svg.Interfaces;
+using Svg.Editor.Avalon.Forms.ToolBar;
 
 namespace Svg.Editor.CrossSample.Avalon;
 
@@ -17,6 +16,9 @@ public partial class App : Application
 
     public override async void OnFrameworkInitializationCompleted()
     {
+        DataTemplates.Add(new MenuItemHeaderTemplate());
+
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow();
@@ -26,8 +28,6 @@ public partial class App : Application
             singleViewPlatform.MainView = new MainView();
         }
 
-
-
-            base.OnFrameworkInitializationCompleted();
+        base.OnFrameworkInitializationCompleted();
     }
 }

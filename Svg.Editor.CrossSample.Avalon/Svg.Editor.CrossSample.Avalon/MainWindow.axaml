@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:avalon="clr-namespace:Svg.Editor.CrossSample.Avalon;assembly=Svg.Editor.CrossSample.Avalon"
         xmlns:forms="clr-namespace:Svg.Editor.Avalon.Forms;assembly=Svg.Editor.Avalon.Forms"
+        xmlns:toolBar="clr-namespace:Svg.Editor.Avalon.Forms.ToolBar;assembly=Svg.Editor.Avalon.Forms"
         x:Class="Svg.Editor.CrossSample.Avalon.MainWindow"
 		x:DataType="avalon:MainViewModel"
         Title="Window">
@@ -11,7 +12,7 @@
         <avalon:MainViewModel />
     </Window.DataContext>
     <Window.Resources>
-        <forms:ToolCommandsToToolbarItemsConverter x:Key="ToolCommandsToToolbarItemsConverter"/>
+        <toolBar:ToolCommandsToToolbarItemsConverter x:Key="ToolCommandsToToolbarItemsConverter"/>
     </Window.Resources>
 	<StackPanel
 		VerticalAlignment="Top"

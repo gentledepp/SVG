@@ -3,7 +3,7 @@ using Svg.Editor.Gestures;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Tools;
 
-namespace Svg.Editor.Sample.Forms.Tools
+namespace Svg.Editor.CrossSample.Avalon.Tools
 {
 	public class AddItemTool : ToolBase
 	{
