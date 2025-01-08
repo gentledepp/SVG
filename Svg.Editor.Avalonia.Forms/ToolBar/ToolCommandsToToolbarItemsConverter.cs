@@ -99,14 +99,14 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
         if(Application.Current.TryGetResource(Path.GetFileNameWithoutExtension(iconName), out var value))
         {
             var image = value as DrawingGroup;
-            PrepareIcons(command, image);
+            PrepareIcons(command, image, iconName);
 
             return image;
         }
         return null;
     }
 
-    private void PrepareIcons(IToolCommand command, DrawingGroup? icon)
+    private void PrepareIcons(IToolCommand command, DrawingGroup? icon, string iconName)
     {
         if (icon == null)
             return;
@@ -130,7 +130,7 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
             }
         }
 
-        if (command.Tool is PolygonTool polygonTool)
+        if (command.Tool is PolygonTool polygonTool || iconName == "ic_polygon.svg")
         {
             var element = icon?.Children.OfType<GeometryDrawing>().First();
             if (element != null)

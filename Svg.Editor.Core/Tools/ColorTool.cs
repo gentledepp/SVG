@@ -357,12 +357,6 @@ namespace Svg.Editor.Tools
 				}));
 			}
 
-			public override string IconName => SvgCachingService?.GetCachedPng(Tool.IconName,
-				new SaveAsPngOptions()
-				{
-					CustomPostFix = (key, op) => StringifyColor(Color.Create(Tool.SelectableColors.ElementAtOrDefault(Tool.SelectedColorIndex) ?? "#000000")),
-					ImageDimension = Tbi.Value?.GetSize()
-				});
 		}
 
 		#endregion

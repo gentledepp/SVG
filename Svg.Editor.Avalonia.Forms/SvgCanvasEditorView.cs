@@ -24,13 +24,6 @@ namespace Svg.Editor.Avalon.Forms
             base.OnInitialized();
         }
 
-        //protected override void OnDataContextChanged(EventArgs e)
-        //{
-        //    UnregisterCallbacks();
-        //    RegisterCallbacks();
-        //    base.OnDataContextChanged(e);
-        //}
-
         protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
         {
             UnregisterCallbacks();
