@@ -121,12 +121,26 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
             drawing.Brush = new SolidColorBrush(Colors.White);
         }
 
-        if (command.Tool is ColorTool tool)
+        if (command.Tool is ColorTool colorTool)
         {
             var element = icon?.Children.OfType<GeometryDrawing>().First();
             if (element != null)
             {
-                element.Brush = new SolidColorBrush(Color.Parse(tool.SelectableColors[tool.SelectedColorIndex]));
+                element.Brush = new SolidColorBrush(Color.Parse(colorTool.SelectableColors[colorTool.SelectedColorIndex]));
+            }
+        }
+
+        if (command.Tool is PolygonTool polygonTool)
+        {
+            var element = icon?.Children.OfType<GeometryDrawing>().First();
+            if (element != null)
+            {
+                element.Brush = new SolidColorBrush(Colors.Transparent);
+                element.Pen = new Avalonia.Media.Pen()
+                {
+                    Brush = new SolidColorBrush(Colors.White),
+                    Thickness = 2
+                };
             }
         }
     }
