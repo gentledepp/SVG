@@ -48,7 +48,10 @@ namespace Svg.Editor.CrossSample.Avalon.Services
                 sizeIndex = sizeIndex >= 0 ? sizeIndex : textSizeSelected;
             }
 
-            return new TextTool.TextProperties { FontSizeIndex = sizeIndex, LineHeight = 12f, Text = "Test Text" };
+            return new TextTool.TextProperties
+            {
+                FontSizeIndex = sizeIndex, LineHeight = 12f, Text = text
+            };
         }
     }
 }

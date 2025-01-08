@@ -4,26 +4,27 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:avalon="clr-namespace:Svg.Editor.CrossSample.Avalon;assembly=Svg.Editor.CrossSample.Avalon"
 			 xmlns:toolBar="clr-namespace:Svg.Editor.Avalon.Forms.ToolBar;assembly=Svg.Editor.Avalon.Forms"
-			 x:Class="Svg.Editor.CrossSample.Avalon.MainView"
-			 x:DataType="avalon:MainViewModel">
-	<UserControl.DataContext>
-		<avalon:MainViewModel />
-	</UserControl.DataContext>
-	<UserControl.Resources>
-		<toolBar:ToolCommandsToToolbarItemsConverter x:Key="ToolCommandsToToolbarItemsConverter"/>
-	</UserControl.Resources>
+             x:Class="Svg.Editor.CrossSample.Avalon.MainView"
+             x:DataType="avalon:MainViewModel">
+    <UserControl.DataContext>
+        <avalon:MainViewModel />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <toolBar:ToolCommandsToToolbarItemsConverter x:Key="ToolCommandsToToolbarItemsConverter" />
+    </UserControl.Resources>
     <Grid Margin="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
-		<Menu 
+
+        <Menu
             Margin="10"
             Grid.Row="1"
             ItemsSource="{Binding DrawingCanvas.ToolCommands, 
         Converter={StaticResource ToolCommandsToToolbarItemsConverter}}" />
 
         <avalon:SvgEditorView
-                              DataContext="{Binding DrawingCanvas}"/>
+            DataContext="{Binding DrawingCanvas}" />
     </Grid>
 </UserControl>

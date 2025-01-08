@@ -1,24 +1,11 @@
-﻿
-using System;
-using System.Collections.Generic;
-using Avalonia.Controls;
-using Avalonia.Controls.Templates;
-using Avalonia.Data;
-using Avalonia.Layout;
-using Svg;
-using Svg.Editor.Avalon.Forms.ToolBar;
+﻿using System.Collections.Generic;
 using Svg.Editor.CrossSample.Avalon.Services;
 using Svg.Editor.CrossSample.Avalon.Tools;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Sample.Avalon.Resources.svg;
 
 
-//using Svg.Editor.Sample.Avalon.Services;
-using Svg.Editor.Services;
 using Svg.Editor.Tools;
-using Svg.Interfaces;
-using Svg.Platform;
-
 
 namespace Svg.Editor.CrossSample.Avalon
 {

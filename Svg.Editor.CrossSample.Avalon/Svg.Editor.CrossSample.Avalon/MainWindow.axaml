@@ -5,13 +5,13 @@
         xmlns:avalon="clr-namespace:Svg.Editor.CrossSample.Avalon;assembly=Svg.Editor.CrossSample.Avalon"
         xmlns:toolBar="clr-namespace:Svg.Editor.Avalon.Forms.ToolBar;assembly=Svg.Editor.Avalon.Forms"
         x:Class="Svg.Editor.CrossSample.Avalon.MainWindow"
-		x:DataType="avalon:MainViewModel"
+        x:DataType="avalon:MainViewModel"
         Title="Window">
-	<Window.DataContext>
+    <Window.DataContext>
         <avalon:MainViewModel />
     </Window.DataContext>
     <Window.Resources>
-        <toolBar:ToolCommandsToToolbarItemsConverter x:Key="ToolCommandsToToolbarItemsConverter"/>
+        <toolBar:ToolCommandsToToolbarItemsConverter x:Key="ToolCommandsToToolbarItemsConverter" />
     </Window.Resources>
     <Grid Margin="0">
         <Grid.RowDefinitions>
@@ -19,11 +19,10 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <Menu Margin="0"
-            ItemsSource="{Binding DrawingCanvas.ToolCommands, 
-        Converter={StaticResource ToolCommandsToToolbarItemsConverter}}" />
+        <Menu Margin="0 5 0 -15" ItemsSource="{Binding DrawingCanvas.ToolCommands, 
+            Converter={StaticResource ToolCommandsToToolbarItemsConverter}}" />
 
-        <avalon:SvgEditorView Grid.Row="1" 
-            DataContext="{Binding DrawingCanvas}"/>
+        <avalon:SvgEditorView Grid.Row="1"
+                              DataContext="{Binding DrawingCanvas}" />
     </Grid>
 </Window>

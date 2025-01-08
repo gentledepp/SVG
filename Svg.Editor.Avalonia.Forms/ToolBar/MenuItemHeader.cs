@@ -1,15 +1,21 @@
-﻿using Avalonia.Media;
+﻿using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media;
 
 namespace Svg.Editor.Avalon.Forms.ToolBar;
 
 public class MenuItemHeader
 {
-    public MenuItemHeader(string title, StreamGeometry icon)
+    public MenuItemHeader(DrawingGroup icon)
+    {
+        Icon = new DrawingImage(icon);
+    }
+    public MenuItemHeader(string title, DrawingGroup icon)
     {
         Title = title;
-        Icon = icon;
+        Icon = new DrawingImage(icon);
     }
 
     public string Title { get; set; }
-    public StreamGeometry Icon { get; set; }
+    public DrawingImage Icon { get; set; }
 }

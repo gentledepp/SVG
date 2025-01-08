@@ -94,7 +94,7 @@ namespace Svg.Editor.Tools
 		public ColorTool(IDictionary<string, object> properties, IUndoRedoService undoRedoService) : base("Color", properties,
 			undoRedoService)
 		{
-			IconName = "Svg.Editor.Resources.svg.ic_format_color_fill.svg";
+			IconName = "ic_format_color_fill";
 			ToolType = ToolType.Modify;
 		}
 
@@ -127,9 +127,7 @@ namespace Svg.Editor.Tools
 					// local config
 					if (_iconDimensions != null)
 						options.ImageDimension = _iconDimensions;
-
-					cachingService.GetCachedPng(IconName, options);
-				}
+                }
 			}
 
 			// add tool commands
@@ -305,13 +303,6 @@ namespace Svg.Editor.Tools
 					t.Canvas.FireToolCommandsChanged();
 				}));
 			}
-
-			public override string IconName => SvgCachingService?.GetCachedPng(Tool.IconName,
-				new SaveAsPngOptions()
-				{
-					CustomPostFix = (key, op) => StringifyColor(Color.Create(Tool.SelectableColors.ElementAtOrDefault(Tool.SelectedColorIndex) ?? "#000000")),
-					ImageDimension = Tbi.Value?.GetSize()
-				});
 		}
 
 		private class ChangeTextColorCommand : ToolCommand

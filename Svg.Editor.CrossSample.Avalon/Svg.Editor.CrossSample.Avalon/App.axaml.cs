@@ -1,6 +1,8 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Primitives;
 using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 using Svg.Editor.Avalon.Forms;
 using Svg.Editor.Avalon.Forms.ToolBar;
 
@@ -27,6 +29,8 @@ public partial class App : Application
         {
             singleViewPlatform.MainView = new MainView();
         }
+
+        Application.Current.RequestedThemeVariant = ThemeVariant.Dark;
 
         base.OnFrameworkInitializationCompleted();
     }

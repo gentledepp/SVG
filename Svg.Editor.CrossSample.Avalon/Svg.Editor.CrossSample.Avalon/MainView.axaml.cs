@@ -12,17 +12,4 @@ public partial class MainView : UserControl
     {
         InitializeComponent();
     }
-
-    private bool _isDarkMode = false;
-
-    public void ClickHandler(object sender, RoutedEventArgs args)
-    {
-        _isDarkMode = !_isDarkMode;
-
-        var theme = _isDarkMode
-            ? ThemeVariant.Dark
-            : ThemeVariant.Light;
-
-        Application.Current.RequestedThemeVariant = theme;
-    }
 }

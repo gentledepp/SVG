@@ -13,7 +13,6 @@ namespace Svg.Editor.Avalon.Views.InputDetector
     public class InputEventDetector : IInputDetector, IGestureRecognizer, IDisposable
     {
         private const float MaxMouseWheelStep = 12;
-        public const int InvalidPointerId = -1;
         private float _lastTouchX;
         private float _lastTouchY;
         private float _pointerDownX;
@@ -150,6 +149,9 @@ namespace Svg.Editor.Avalon.Views.InputDetector
             var relativeDeltaX = x - _lastTouchX;
             var relativeDeltaY = y - _lastTouchY;
             if (_thirdContact != null) return;
+            if(_firstContact == null ) return;
+
+
             var uie = new MoveEvent(PointF.Create(_pointerDownX, _pointerDownY),
                 PointF.Create(_lastTouchX, _lastTouchY), PointF.Create(x, y),
                 PointF.Create(relativeDeltaX, relativeDeltaY),
