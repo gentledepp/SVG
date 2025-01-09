@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;MonoAndroid12.0;Xamarin.iOS10;uap10.0.18362;net462</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version>2.5.0-avalonia</Version>
+    <Version>2.5.0-avalonia-test</Version>
     <Authors>gentledpp,bruzkovsky</Authors>
     <Company>Opti-Q GmbH</Company>
     <PackageReleaseNotes>

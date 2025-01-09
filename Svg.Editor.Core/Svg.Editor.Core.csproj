@@ -109,7 +109,7 @@
 	<ItemGroup>
 		<PackageReference Include="FileSystemHelper" Version="1.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-		<PackageReference Include="Svg" Version="2.4.4.11" />
+		<PackageReference Include="Svg" Version="2.5.0-avalonia-test" />
 		<PackageReference Include="System.Reactive" Version="4.0.0" />
 		<PackageReference Include="Avalonia" Version="11.2.1" />
 		<PackageReference Include="Avalonia.Skia" Version="11.2.1" />
