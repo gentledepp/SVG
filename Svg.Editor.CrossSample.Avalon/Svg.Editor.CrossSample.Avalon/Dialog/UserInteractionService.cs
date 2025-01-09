@@ -6,6 +6,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Labs.Controls;
+using Avalonia.Media;
 using Avalonia.Threading;
 using Svg.Editor.CrossSample.Avalon.Dialog.Views;
 
@@ -146,6 +147,34 @@ public class UserInteractionService : IUserInteraction
             return new InputResponse(false, null);
         });
     }
+
+    public Task<Color> ColorPickerAsync(string? title = null, string okButton = "OK",
+        string cancelButton = "Cancel", string? initialText = null, string? placeholder = null, bool cancellable = true)
+    {
+        return Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            var d = new ContentDialog()
+            {
+                Title = title,
+                // Can be anything though (It is a simple content control)
+                IsSecondaryButtonEnabled = false,
+                PrimaryButtonText = okButton,
+                CloseButtonText = cancellable ? cancelButton : null,
+            };
+            var vm = new ColorPickerDialogViewModel();
+
+            vm.Initialize(d);
+
+            d.Content = new ColorPickerDialog() { DataContext = vm };
+
+            var r = await d.ShowAsync();
+
+            if (r == ContentDialogResult.Primary)
+                return vm.GetResult();
+            return Colors.Black;
+        });
+    }
+
     public Task<string> ActionSheetAsync(string message, IEnumerable<string> options, string? title = null, string cancelButton = "Cancel", CancellationToken? cancelToken = null, bool cancellable = false)
     {
         return Dispatcher.UIThread.InvokeAsync(async() =>

@@ -12,13 +12,14 @@ namespace Svg.Editor.Avalon.Forms.ToolBar;
 
 public class MenuItemHeaderTemplate : IDataTemplate
 {
+    private StackPanel _panel;
 
     public Control? Build(object? param)
-    {
+    { 
         var sizeProvider = SvgEngine.TryResolve<IToolbarIconSizeProvider>();
         var size = sizeProvider != null ? sizeProvider.GetSize() : FormsToolBarIconSizeProvider.GetSize() ;
 
-        var panel = new StackPanel
+        _panel = new StackPanel
         {
             Orientation = Orientation.Horizontal,
             Spacing = 5,
@@ -38,8 +39,10 @@ public class MenuItemHeaderTemplate : IDataTemplate
                 }
             }
         };
-        return panel;
+
+        return _panel;
     }
+
 
     public bool Match(object data)
     {

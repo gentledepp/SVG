@@ -4,6 +4,8 @@
     <TargetFramework>net8.0-ios18</TargetFramework>
     <SupportedOSPlatformVersion>13.0</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
+    <ProvisioningType>manual</ProvisioningType>
+    <CodesignKey>iPhone Developer</CodesignKey>
   </PropertyGroup>
 
   <ItemGroup>

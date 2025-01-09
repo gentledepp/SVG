@@ -21,6 +21,7 @@ namespace Svg.Editor.CrossSample.Avalon
             SvgEngine.Register<ITextInputService>(() => new TextInputService());
             SvgEngine.Register<IPickImageService>(() => new FormsPickImageService());
             SvgEngine.Register<IPinInputService>(() => new PinInputService());
+            SvgEngine.Register<IToolTipInfoService>(() => new ToolTipInfoService());
 
             SvgEngine.Resolve<ISvgCachingService>().Clear();
 

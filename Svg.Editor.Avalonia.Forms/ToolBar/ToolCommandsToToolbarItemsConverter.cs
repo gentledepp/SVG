@@ -11,13 +11,12 @@ using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
+using Svg.Editor.Avalon.Views.CustomGestureRecognizer;
 
 namespace Svg.Editor.Avalon.Forms.ToolBar;
 
 public class ToolCommandsToToolbarItemsConverter : IValueConverter
 {
-    private Lazy<IImageSourceProvider> _imageSourceProvider = new(SvgEngine.TryResolve<IImageSourceProvider>);
-
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         var commandLists = value as IEnumerable<IEnumerable<IToolCommand>>;
@@ -38,6 +37,7 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
 
                 var menuItem = GetGroupMenuItem(command.Name, icon);
                 menuItem.Click += (s, e) => command.Execute(null);
+                menuItem.GestureRecognizers.Add(new LongPressTipGestureRecognizer(menuItem ,command.Description));
                 menuItems.Add(menuItem);
             }
             // multiple commands => create a submenu
@@ -46,9 +46,7 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
                 var cmd = cmds.First();
                 var icon = GetDrawingGroup(cmd, cmd.GroupIconName);
 
-                var headerItem = GetGroupMenuItem(cmd.GroupName, icon);
-
-                var groupMenuItem = headerItem;
+                var groupMenuItem = GetGroupMenuItem(cmd.GroupName, icon);
 
                 // Add submenu items
                 foreach (var subCommand in cmds)
@@ -60,9 +58,11 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
                         Header = new MenuItemHeader(subCommand.Name, subIcon),
                     };
                     subMenuItem.Click += (s, e) => subCommand.Execute(null);
+
                     groupMenuItem.Items.Add(subMenuItem);
                 }
 
+                groupMenuItem.GestureRecognizers.Add(new LongPressTipGestureRecognizer(groupMenuItem ,cmd.Description));
                 menuItems.Add(groupMenuItem);
             }
         }

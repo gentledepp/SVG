@@ -42,7 +42,7 @@ namespace Svg.Editor.CrossSample.Avalon.Tools
                     }
 
                 }, 
-                (obj) => ws.Document != null, sortFunc: (x)=>1),
+                (obj) => ws.Document != null, sortFunc: (x)=>1, description: "Click to save your SVG file and preserve all changes made to your design."),
                 new ToolCommand(this, "Load", (obj) =>
                 {
                     var fs = SvgEngine.Resolve<IFileSystem>();
@@ -62,11 +62,11 @@ namespace Svg.Editor.CrossSample.Avalon.Tools
                     var path = fs.GetDefaultStoragePath();
                     var storagePath = fs.PathCombine(path, _fileName());
                     return fs.FileExists(storagePath);
-                }),
+                }, description: "Click to load last saved SVG file and continue editing your design."),
                 new ToolCommand(this, "Clear", (obj) =>
                 {
                     ws.Document = new SvgDocument();
-                })
+                }, description: "Click to clear the canvas and remove all current design elements.")
 
             };
 

@@ -1,7 +1,5 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="using:Svg.Editor.CrossSample.Avalon"
-             xmlns:forms="clr-namespace:Svg.Editor.Avalon.Forms;assembly=Svg.Editor.Avalonia.Forms"
              xmlns:controls="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
              x:Class="Svg.Editor.CrossSample.Avalon.App"
              RequestedThemeVariant="Default">

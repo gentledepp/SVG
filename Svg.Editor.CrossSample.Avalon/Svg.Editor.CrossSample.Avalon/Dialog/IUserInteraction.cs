@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Media;
 
 namespace iCL.Modules.UserInteraction;
 
@@ -11,6 +12,9 @@ public interface IUserInteraction
 
     Task AlertAsync(string message, string? title = null, string okButton = "OK");
 
+    public Task<Color> ColorPickerAsync(string? title = null, string okButton = "OK",
+        string cancelButton = "Cancel", string? initialText = null, string? placeholder = null,
+        bool cancellable = true);
     Task<string?> PromptAsync(string message, string? title = null, string okButton = "OK", string cancelButton = "Cancel", bool cancellable = true);
     
     Task<InputResponse> InputAsync(
