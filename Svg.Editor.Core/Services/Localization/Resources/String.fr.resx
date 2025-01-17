@@ -52,4 +52,15 @@
     <data name="Svg.Editor.LineTool.LineEndings.Description" xml:space="preserve">
         <value>Modifier l'extrémité et la pointe de la forme de la ligne.</value>
     </data>
+    <data name="Svg.Editor.ChooseTool.Description" xml:space="preserve">
+        <value>Sélectionnez un outil pour dessiner sur le canevas. 
+            Select: faire glisser et sélectionner des dessins dans la zone. 
+            Text: Cliquez à l'endroit où vous souhaitez écrire un texte. 
+            Line: faites glisser pour créer une ligne. 
+            Elipse: Faites glisser pour créer un cercle. 
+            Rectangle: Faites glisser pour créer un rectangle. 
+            Free drawing (dessin libre): Dessinez comme vous le souhaitez. 
+            Polygone: Placez des points jusqu'à ce que le dernier point rejoigne le premier.
+            Pin: Placez un pin.</value>
+    </data>
 </root>

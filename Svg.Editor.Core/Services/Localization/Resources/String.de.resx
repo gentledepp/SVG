@@ -52,4 +52,15 @@
     <data name="Svg.Editor.LineTool.LineEndings.Description" xml:space="preserve">
         <value>Ändern Sie das Ende und die Spitze der Linienform.</value>
     </data>
+    <data name="Svg.Editor.ChooseTool.Description" xml:space="preserve">
+        <value>Wählen Sie ein Werkzeug, mit dem Sie auf der Leinwand zeichnen können. 
+            Select: Ziehen und wählen Sie Zeichnungen im Bereich aus. 
+            Text: Klicken Sie auf die Stelle, an der Sie einen Text schreiben möchten. 
+            Line: Ziehen Sie, um eine Linie zu erstellen. 
+            Elipse: Ziehen Sie, um einen Kreis zu erstellen. 
+            Rectangle: Ziehen Sie, um ein Rechteck zu erstellen. 
+            Free drawing: Zeichnen Sie, wie Sie wollen. 
+            Polygon: Setzen Sie Punkte, bis sich der letzte Punkt mit dem ersten Punkt schließt.
+            Pin: Platzieren Sie eine Pin.</value>
+    </data>
 </root>

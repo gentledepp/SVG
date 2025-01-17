@@ -51,4 +51,15 @@
     <data name="Svg.Editor.LineTool.LineEndings.Description" xml:space="preserve">
         <value>Change end and the tip of the line shape.</value>
     </data>
+    <data name="Svg.Editor.ChooseTool.Description" xml:space="preserve">
+        <value>Choose a tool to use on the canvas to draw. 
+            Select: drag and select drawings in the area. 
+            Text: click on the place where to write a text. 
+            Line: drag to create a line. 
+            Ellipse: drag to create a circle. 
+            Rectangle: drag to create a rectangle. 
+            Free draw: draw however the movement is. 
+            Polygon: put points until the last closes with the first point.
+            Pin: place a pin.</value>
+    </data>
 </root>
