@@ -1,4 +1,6 @@
-﻿using Svg.Editor.Avalon.Forms.Services;
+﻿using Avalonia.Controls.Templates;
+using Svg.Editor.Avalon.Forms.Services;
+using Svg.Editor.Avalon.Forms.ToolBar;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Tools;
 using System.Threading;
@@ -10,7 +12,7 @@ public class SvgEditorForms
     private static bool _initialized;
     private static readonly SemaphoreSlim Lock = new SemaphoreSlim(1, 1);
 
-    public static void Init()
+    public static void Init(Avalonia.Application app)
     {
 
         if (_initialized) return;
@@ -28,6 +30,8 @@ public class SvgEditorForms
             SvgEngine.Register<IPickImageService>(() => new FormsPickImageService());
             SvgEngine.Register<IPinInputService>(() => new PinInputService());
             SvgEngine.Register<IToolTipInfoService>(() => new ToolTipInfoService());
+
+            app.DataTemplates.Add(new MenuItemHeaderTemplate());
 
             _initialized = true;
         }

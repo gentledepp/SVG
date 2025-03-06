@@ -5,7 +5,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FileSystemHelper.Platforms;
 using Svg.DeepZoom;
 using Svg.Editor.Extensions;
 using Svg.Editor.Interfaces;

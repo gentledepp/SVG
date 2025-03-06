@@ -15,7 +15,7 @@ namespace Svg.Platform
         /// </summary>
         public SkiaMatrix()
         {
-            _m = SKMatrix.MakeIdentity();
+            _m = SKMatrix.CreateIdentity();
         }
 
         public SkiaMatrix(SKMatrix src)

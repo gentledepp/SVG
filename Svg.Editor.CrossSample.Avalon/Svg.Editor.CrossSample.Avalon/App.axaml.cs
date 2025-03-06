@@ -12,15 +12,12 @@ public partial class App : Application
 {
     public override void Initialize()
     {
-        SvgEditorForms.Init();
+        SvgEditorForms.Init(this);
         AvaloniaXamlLoader.Load(this);
     }
 
     public override async void OnFrameworkInitializationCompleted()
     {
-        DataTemplates.Add(new MenuItemHeaderTemplate());
-
-
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow();

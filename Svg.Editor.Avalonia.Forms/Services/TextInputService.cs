@@ -12,12 +12,12 @@ namespace Svg.Editor.Avalon.Forms.Services
         public async Task<TextTool.TextProperties> GetUserInput(string title, string textValue = "",
             IEnumerable<string> textSizeOptions = null, int textSizeSelected = 0, int maxTextLength = -1)
         {
-            var result = await UserInteractionServiceExt.UserInteractionInst.InputAsync("Text edit", title, "Ok", "Cancel", textValue ?? "Enter text...");
+            var result = await UserInteractionServiceExt.UserInteractionInst.InputAsync("Text edit", title, "Ok", "Cancel", textValue, placeholder: "Enter text");
             if (maxTextLength != -1)
             {
                 while (result.Text.Length > 2)
                 {
-                    result = await UserInteractionServiceExt.UserInteractionInst.InputAsync("Text edit", title, "Ok", "Cancel", textValue ?? "Enter text...");
+                    result = await UserInteractionServiceExt.UserInteractionInst.InputAsync("Text edit", title, "Ok", "Cancel", textValue, placeholder: "Enter text");
                 }
             }
             var defaultResult = new TextTool.TextProperties

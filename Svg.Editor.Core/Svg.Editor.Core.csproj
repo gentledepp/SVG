@@ -4,7 +4,7 @@
     <AssemblyName>Svg.Editor</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFramework>netstandard2.0</TargetFramework>
-	  <Version>3.0.0-alpha-avalonia</Version>
+	  <Version>3.0.2-alpha-avalonia</Version>
 	  <LangVersion>latest</LangVersion>
 	  <PackageReleaseNotes>
 		  #3.0.0-alpha-avalonia
@@ -118,7 +118,6 @@
 		<EmbeddedResource Include="Resources\svg\ic_crop_square.svg" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="FileSystemHelper" Version="1.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 		<PackageReference Include="System.Reactive" Version="4.0.0" />
 		<PackageReference Include="Avalonia" Version="11.2.1" />
