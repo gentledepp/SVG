@@ -180,6 +180,8 @@ namespace Svg.Editor.Tools
 
             if (!IsActive) return;
 
+            System.Diagnostics.Debug.WriteLine(longPress.Position);
+
             var relativePosition = Canvas.ScreenToCanvas(longPress.Position);
             var pin = CreatePin(SelectedPinSize, relativePosition);
 

@@ -22,7 +22,7 @@ namespace Svg.Editor.Avalon.Views
 
         private static readonly Vector Dpi = new Vector(96, 96);
         private WriteableBitmap? _writeableBitmap = default;
-        private bool _IgnorePixelScaling = true;
+        private bool _IgnorePixelScaling;
         private int _pixelWidth;
         private int _pixelHeight;
         private double _scale = 1;
@@ -182,6 +182,9 @@ namespace Svg.Editor.Avalon.Views
         protected override void OnSizeChanged(SizeChangedEventArgs e)
         {
             base.OnSizeChanged(e);
+            //var bounds = e.NewSize;
+            //_pixelWidth = (int)bounds.Width;
+            //_pixelHeight = (int)bounds.Height;
             InvalidateSurface();
             return;
         }

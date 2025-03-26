@@ -24,7 +24,8 @@
             Converter={StaticResource ToolCommandsToToolbarItemsConverter}}" />
 
             <avalon:SvgEditorView Grid.Row="1"
-                                  DataContext="{Binding DrawingCanvas}" />
+                                  DataContext="{Binding DrawingCanvas}"
+                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
         </Grid>
     </UserControl>
    

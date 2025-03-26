@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using HarfBuzzSharp;
 using Svg.Editor.Extensions;
 using Svg.Editor.Gestures;
 using Svg.Editor.Interfaces;
@@ -81,6 +82,7 @@ namespace Svg.Editor.Tools
 
             var canvasStartPosition = Canvas.ScreenToCanvas(drag.Start);
             var canvasPointerPosition = Canvas.ScreenToCanvas(drag.Position);
+            System.Diagnostics.Debug.WriteLine(drag.Position);
 
             if (_currentPath == null)
             {
