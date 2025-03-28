@@ -65,9 +65,14 @@ namespace Svg.Editor.Avalon.Views.InputDetector
 
         }
 
+        private Point TransformOffset(Point point)
+        {
+            return new Point(point.X, (point.Y - _owner.Bounds.Y));
+        }
+
         private void OnDrag(object? sender, PointerEventArgs e)
         {
-            var point = e.GetPosition(_owner);
+            var point = TransformOffset(e.GetPosition(_owner));
             var x = (float)point.X;
             var y = (float)point.Y;
             var relativeDeltaX = x - _lastTouchX;
@@ -94,13 +99,13 @@ namespace Svg.Editor.Avalon.Views.InputDetector
 
         private void ElementOnDoubleTapped(object sender, TappedEventArgs args)
         {
-            var position = args.GetPosition(_owner);
+            var position = TransformOffset(args.GetPosition(_owner));
             _gesturesSubject.OnNext(new DoubleTapGesture(PointF.Create((float)position.X, (float)position.Y)));
         }
 
         private void ElementOnTapped(object sender, TappedEventArgs args)
         {
-            var position = args.GetPosition(_owner);
+            var position = TransformOffset(args.GetPosition(_owner));
             _gesturesSubject.OnNext(new TapGesture(PointF.Create((float)position.X, (float)position.Y)));
         }
 
@@ -132,7 +137,7 @@ namespace Svg.Editor.Avalon.Views.InputDetector
 
         private void OnZoomEnd(object? sender, PointerReleasedEventArgs e)
         {
-            var point = e.GetPosition(_owner);
+            var point = TransformOffset(e.GetPosition(_owner));
             var x = (float)point.X;
             var y = (float)point.Y;
             var s = new ScaleEvent(ScaleStatus.End, (float)_previousScale, x, y);
@@ -142,14 +147,14 @@ namespace Svg.Editor.Avalon.Views.InputDetector
         private void OnZoomStart(object? sender, PointerPressedEventArgs e)
         {
             _previousScale = 1;
-            var point = e.GetPosition(_owner);
+            var point = TransformOffset(e.GetPosition(_owner));
             var s = new ScaleEvent(ScaleStatus.Start, 1, (float)point.X, (float)point.Y);
             _detectedGestures.OnNext(s);
         }
 
         private void OnPointerPressed(object sender, PointerEventArgs e)
         {
-            var point = e.GetPosition(_owner);
+            var point = TransformOffset(e.GetPosition(_owner));
             var x = (float)point.X;
             var y = (float)point.Y;
             var uie = new PointerEvent(EventType.PointerDown, PointF.Create(_pointerDownX, _pointerDownY),
@@ -166,7 +171,7 @@ namespace Svg.Editor.Avalon.Views.InputDetector
 
         private void OnPointerMoved(object sender, PointerEventArgs e)
         {
-            var point = e.GetPosition(_owner);
+            var point = TransformOffset(e.GetPosition(_owner));
             var x = (float)point.X;
             var y = (float)point.Y;
             var relativeDeltaX = x - _lastTouchX;
@@ -188,7 +193,7 @@ namespace Svg.Editor.Avalon.Views.InputDetector
 
         private void OnPointerReleased(object sender, PointerEventArgs e)
         {
-            var point = e.GetPosition(_owner);
+            var point = TransformOffset(e.GetPosition(_owner));
             var x = (float)point.X;
             var y = (float)point.Y;
             var uie = new PointerEvent(EventType.PointerUp, PointF.Create(_pointerDownX, _pointerDownY),

@@ -16,16 +16,18 @@
     <UserControl>
         <Grid Margin="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <Menu Margin="0 5 0 -15" ItemsSource="{Binding DrawingCanvas.ToolCommands, 
-            Converter={StaticResource ToolCommandsToToolbarItemsConverter}}" />
+            <Menu ItemsSource="{Binding DrawingCanvas.ToolCommands, 
+            Converter={StaticResource ToolCommandsToToolbarItemsConverter}}"/>
 
-            <avalon:SvgEditorView Grid.Row="1"
+
+            <avalon:SvgEditorView Grid.Row="1" IgnorePixelScaling="true"
                                   DataContext="{Binding DrawingCanvas}"
-                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+			</avalon:SvgEditorView>
         </Grid>
     </UserControl>
    

@@ -5,6 +5,7 @@ using Svg.Editor.Services;
 using System;
 using Svg.Editor.Avalon.Views;
 using Svg.Editor.Avalon.Views.InputDetector;
+using SkiaSharp;
 
 namespace Svg.Editor.Avalon.Forms
 {
@@ -75,6 +76,7 @@ namespace Svg.Editor.Avalon.Forms
         protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
         {
             base.OnPaintSurface(e);
+
             DrawingCanvas?.OnDraw(new SKCanvasRenderer(e.Surface, e.Info.Width, e.Info.Height));
         }
     }
