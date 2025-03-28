@@ -50,6 +50,24 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
 
                 var groupMenuItem = GetGroupMenuItem(cmd.GroupName, icon);
 
+                if (selectedCommand != null)
+                {
+                    groupMenuItem.GestureRecognizers.Add(
+                        new LongPressTipGestureRecognizer(groupMenuItem, selectedCommand.Description));
+                    var selectedMenuItem = new MenuItem()
+                    {
+                        Header = new MenuItemHeader(selectedCommand.Name, icon)
+                    };
+                    selectedMenuItem.Click += (sender, args) => selectedCommand.Execute(null);
+
+                    groupMenuItem.Items.Add(selectedMenuItem);
+                }
+                else
+                {
+                    groupMenuItem.GestureRecognizers.Add(new LongPressTipGestureRecognizer(groupMenuItem, cmd.Description));
+                }
+
+
                 // Add submenu items
                 foreach (var subCommand in cmds)
                 {
@@ -64,15 +82,6 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
                     groupMenuItem.Items.Add(subMenuItem);
                 }
 
-                if(selectedCommand != null)
-                {
-                    groupMenuItem.GestureRecognizers.Add(
-                        new LongPressTipGestureRecognizer(groupMenuItem, selectedCommand.Description));
-                }
-                else
-                {
-                    groupMenuItem.GestureRecognizers.Add(new LongPressTipGestureRecognizer(groupMenuItem ,cmd.Description));
-                }
                 menuItems.Add(groupMenuItem);
             }
         }
