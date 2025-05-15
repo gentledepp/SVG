@@ -1,10 +1,14 @@
-﻿using System.Reactive.Concurrency;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using Microsoft.Reactive.Testing;
 using NUnit.Framework;
 using Svg.Editor.Events;
 using Svg.Editor.Interfaces;
 using Svg.Editor.Services;
+using Svg.Editor.Tools;
 using Svg.Interfaces;
 
 namespace Svg.Editor.Core.Test
@@ -26,8 +30,20 @@ namespace Svg.Editor.Core.Test
             SvgEngine.Register<IFileLoader>(() => new FileLoader());
 
             Canvas = new SvgDrawingCanvas();
-
+            Canvas.LoadTools(GetTools().ToArray());
             SetupOverride();
+        }
+
+        private IEnumerable<Func<ITool>> GetTools()
+        {
+            var undoRedoService = SvgEngine.Resolve<IUndoRedoService>();
+
+            var freeDrawToolProperties = new Dictionary<string, object>
+            {
+                { FreeDrawingTool.DefaultStrokeWidthKey, 12 }
+            };
+
+            yield return () => new FreeDrawingTool(freeDrawToolProperties, undoRedoService);
         }
 
         protected virtual void SetupOverride()
