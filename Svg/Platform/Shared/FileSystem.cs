@@ -46,7 +46,7 @@ namespace Svg
 
         public virtual string GetDefaultStoragePath()
         {
-#if WINDOWS_UWP
+#if UWP || WINDOWS
             return Windows.Storage.ApplicationData.Current.LocalFolder.Path;
 #else
             return System.Environment.GetFolderPath(Environment.SpecialFolder.Personal);

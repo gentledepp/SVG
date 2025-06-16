@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
-		<Version>3.0.6-alpha-avalonia</Version>
+		<Version>3.0.6-alpha-avalonia-test</Version>
 		<PackageReleaseNotes>
 			#3.0.0-alpha-avalonia
 			migrate to avalonia
