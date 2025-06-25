@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net462;net9.0-windows10.0.19041.0</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version>3.0.6-alpha-avalonia-test</Version>
+    <Version>3.0.7-alpha-avalonia</Version>
     <Authors>gentledpp,bruzkovsky</Authors>
     <Company>Opti-Q GmbH</Company>
     <PackageReleaseNotes>

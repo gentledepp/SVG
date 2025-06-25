@@ -3,7 +3,7 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
-		<Version>3.0.6-alpha-avalonia-test</Version>
+		<Version>3.0.7-alpha-avalonia</Version>
 		<PackageReleaseNotes>
 		#3.0.0-alpha-avalonia
 		migrate to avalonia
