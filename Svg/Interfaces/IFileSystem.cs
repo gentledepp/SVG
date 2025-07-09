@@ -11,8 +11,11 @@ namespace Svg.Interfaces
         Stream OpenRead(string path);
 
         Stream OpenWrite(string path);
+        Stream OpenReadWrite(string path);
 
         string GetFullPath(string path);
+
+        string GetFileName(string path);
 
         string GetDefaultStoragePath();
 

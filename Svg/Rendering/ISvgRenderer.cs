@@ -32,5 +32,7 @@ namespace Svg
 
         FontFamily GetFontFamily(SvgTextBase text);
 
+        int ScreenWidth { get; set; }
+        int ScreenHeight { get; set; }
     }
 }

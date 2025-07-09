@@ -7,6 +7,8 @@ namespace Svg.Converters
 {
     internal class SvgColourConverter : BaseConverter
     {
+
+
         public override object ConvertFromString(string value, Type targetType, SvgDocument document)
         {
             var oldCulture = CultureInfo.DefaultThreadCurrentCulture;

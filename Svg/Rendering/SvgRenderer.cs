@@ -181,6 +181,10 @@ namespace Svg
             return null;
         }
 
+
+        public int ScreenWidth { get; set; }
+        public int ScreenHeight { get; set; }
+
         public IDictionary<string, FontFaceRule> CustomFonts { get; set; }
 
         /// <summary>
@@ -195,7 +199,12 @@ namespace Svg
             //g.PixelOffsetMode = PixelOffsetMode.Half;
             //g.CompositingQuality = CompositingQuality.HighQuality;
             //g.TextContrast = 1;
-            return new SvgRenderer(g);
+
+            return new SvgRenderer(g)
+            {
+                ScreenWidth = image.Width,
+                ScreenHeight = image.Height
+            };
         }
 
         /// <summary>

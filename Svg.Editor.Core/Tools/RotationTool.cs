@@ -81,8 +81,8 @@ namespace Svg.Editor.Tools
 
             Commands = new[]
             {
-                new RotateStepCommand(this, "Rotate right", "ic_rotate_right.svg", RotationStep),
-                new RotateStepCommand(this, "Rotate left", "ic_rotate_left.svg", -RotationStep),
+                new RotateStepCommand(this, "Rotate right", "ic_rotate_right.svg", RotationStep, LocalizationService.GetString("Svg.Editor.Rotate.RightDescription")),
+                new RotateStepCommand(this, "Rotate left", "ic_rotate_left.svg", -RotationStep, LocalizationService.GetString("Svg.Editor.Rotate.LeftDescription")),
             };
         }
 
@@ -222,8 +222,8 @@ namespace Svg.Editor.Tools
         {
             private float Step { get; }
 
-            public RotateStepCommand(RotationTool tool, string name, string iconName, float step)
-                : base(tool, name, o => { }, o => true, iconName: iconName)
+            public RotateStepCommand(RotationTool tool, string name, string iconName, float step, string description = null)
+                : base(tool, name, o => { }, o => true, iconName: iconName, description: description)
             {
                 Step = step;
             }

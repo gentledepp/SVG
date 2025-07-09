@@ -107,7 +107,7 @@ namespace Svg.Editor.Tools
 			// add tool commands
 			Commands = new List<IToolCommand>
 			{
-				new ChangeStrokeStyleCommand(this, "Change stroke")
+				new ChangeStrokeStyleCommand(this, "Change stroke", description: LocalizationService.GetString("Svg.Editor.StrokeStyleTool.ChangeStroke.Description")),
 			};
 		}
 
@@ -199,8 +199,8 @@ namespace Svg.Editor.Tools
 		{
 			private new StrokeStyleTool Tool => (StrokeStyleTool) base.Tool;
 
-			public ChangeStrokeStyleCommand(StrokeStyleTool tool, string name)
-				: base(tool, name, o => { }, iconName: tool.IconName, sortFunc: tc => 500)
+			public ChangeStrokeStyleCommand(StrokeStyleTool tool, string name, string description = null)
+				: base(tool, name, o => { }, iconName: tool.IconName, sortFunc: tc => 500, description: description)
 			{
 			}
 

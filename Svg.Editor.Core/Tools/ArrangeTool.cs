@@ -42,7 +42,7 @@ namespace Svg.Editor.Tools
                             }
                         }), hasOwnUndoRedoScope: false);
                     }
-                }, o => Canvas.SelectedElements.Any(), iconName: "ic_flip_to_front.svg"),
+                }, o => Canvas.SelectedElements.Any(), iconName: "ic_flip_to_front.svg", description: LocalizationService.GetString("Svg.Editor.ArrangeTool.BringToFront.Description")),
                 new ToolCommand(this, "Bring forward", o =>
                 {
                     var children = Canvas.Document.Children;
@@ -66,7 +66,7 @@ namespace Svg.Editor.Tools
                             }), hasOwnUndoRedoScope: false);
                         }
                     }
-                }, o => Canvas.SelectedElements.Any(), iconName: "ic_arrow_upward.svg"),
+                }, o => Canvas.SelectedElements.Any(), iconName: "ic_arrow_upward.svg", description: LocalizationService.GetString("Svg.Editor.ArrangeTool.MoveForward.Description")),
                 new ToolCommand(this, "Send backward", o =>
                 {
                     var children = Canvas.Document.Children;
@@ -89,7 +89,7 @@ namespace Svg.Editor.Tools
                             }), hasOwnUndoRedoScope: false);
                         }
                     }
-                }, o => Canvas.SelectedElements.Any(), iconName: "ic_arrow_downward.svg"),
+                }, o => Canvas.SelectedElements.Any(), iconName: "ic_arrow_downward.svg", description: LocalizationService.GetString("Svg.Editor.ArrangeTool.SendBackward.Description")),
                 new ToolCommand(this, "Send to back", o =>
                 {
                     var children = Canvas.Document.Children;
@@ -118,7 +118,7 @@ namespace Svg.Editor.Tools
                             }
                         }), hasOwnUndoRedoScope: false);
                     }
-                }, o => Canvas.SelectedElements.Any(), iconName: "ic_flip_to_back.svg")
+                }, o => Canvas.SelectedElements.Any(), iconName: "ic_flip_to_back.svg", description: LocalizationService.GetString("Svg.Editor.ArrangeTool.FlipToBack.Description"))
             };
         }
     }

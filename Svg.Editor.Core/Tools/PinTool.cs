@@ -64,20 +64,9 @@ namespace Svg.Editor.Tools
             set { Properties[PinSizeAttributeKey] = value; }
         }
 
-        public int GetDefaultTextColorIndex(int parentColor, string[] selectableColors)
+        public string GetDefaultTextColorIndex(string color)
         {
-            var whiteIndex = Array.IndexOf(selectableColors, "White");
-            var yellowIndex = Array.IndexOf(selectableColors, "Yellow");
-            var blackIndex = Array.IndexOf(selectableColors, "Black");
-
-            if (parentColor == whiteIndex || parentColor == yellowIndex)
-            {
-                return blackIndex;
-            }
-            else
-            {
-                return whiteIndex;
-            }
+            return color;
         }
 
         #endregion
@@ -95,7 +84,7 @@ namespace Svg.Editor.Tools
             // add tool commands
             Commands = new List<IToolCommand>
             {
-                new ChangePinSizeCommand(ws, this, "Change size")
+                new ChangePinSizeCommand(ws, this, "Change size", description:LocalizationService.GetString("Svg.Editor.PinTool.ChangePinSize.Description")),
             };
         }
 
@@ -190,6 +179,8 @@ namespace Svg.Editor.Tools
             await base.OnLongPress(longPress);
 
             if (!IsActive) return;
+
+            System.Diagnostics.Debug.WriteLine(longPress.Position);
 
             var relativePosition = Canvas.ScreenToCanvas(longPress.Position);
             var pin = CreatePin(SelectedPinSize, relativePosition);
@@ -473,8 +464,8 @@ namespace Svg.Editor.Tools
         {
             private readonly ISvgDrawingCanvas _canvas;
 
-            public ChangePinSizeCommand(ISvgDrawingCanvas canvas, PinTool tool, string name)
-                : base(tool, name, o => { }, iconName: tool.PinResizeIconName, sortFunc: tc => 500)
+            public ChangePinSizeCommand(ISvgDrawingCanvas canvas, PinTool tool, string name, string description = null)
+                : base(tool, name, o => { }, iconName: tool.PinResizeIconName, sortFunc: tc => 500, description: description)
             {
                 _canvas = canvas;
             }

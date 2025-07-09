@@ -19,7 +19,7 @@ namespace Svg.Editor
             var t = GetType();
             if (!types.Contains(t))
                 types.Add(t);
-
+            
             _targetTypes = types.OfType<Type>().Reverse().ToList();
         }
 

@@ -375,7 +375,7 @@ namespace Svg.Editor.Tools
 			
 			Commands = new List<IToolCommand>
 			{
-				new ChangeLineStyleCommand(ws, this, "Line endings")
+				new ChangeLineStyleCommand(ws, this, "Line endings", description:LocalizationService.GetString("Svg.Editor.LineTool.LineEndings.Description")),
 			};
 		}
 
@@ -543,8 +543,8 @@ namespace Svg.Editor.Tools
 		{
 			private readonly ISvgDrawingCanvas _canvas;
 
-			public ChangeLineStyleCommand(ISvgDrawingCanvas canvas, LineTool tool, string name)
-				: base(tool, name, o => { }, iconName: tool.LineStyleIconName, sortFunc: tc => 500)
+			public ChangeLineStyleCommand(ISvgDrawingCanvas canvas, LineTool tool, string name, string description = null)
+				: base(tool, name, o => { }, iconName: tool.LineStyleIconName, sortFunc: tc => 500, description: description)
 			{
 				_canvas = canvas;
 			}

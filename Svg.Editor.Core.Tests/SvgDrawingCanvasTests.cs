@@ -59,6 +59,18 @@ namespace Svg.Editor.Core.Test
             Assert.AreSame(t, activeTools.Single());
         }
 
+
+        [Test]
+        public void TestCanvasActiveTool()
+        {
+            var svgPath = new SvgPath();
+            Canvas.SelectedElements.Add(svgPath);
+            var tool = Canvas.Tools.OfType<FreeDrawingTool>().First();
+            Canvas.ActiveTool = tool;
+
+            Assert.That(Canvas.ActiveTool.GetType() == typeof(FreeDrawingTool));
+        }
+
         [Test]
         public void SvgDocumentIsNeverNull()
         {

@@ -1,5 +1,7 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Svg.Converters;
+using Svg.DeepZoom;
 using Svg.Interfaces;
 using Svg.Platform;
 
@@ -24,6 +26,7 @@ namespace Svg
                 if (options?.ServiceLocator != null)
                     SvgEngine.ServiceLocator = options.ServiceLocator;
                 // register base services
+                SvgEngine.Register<ITileGenerator>(() => new TileGenerator());
                 SvgEngine.RegisterSingleton<IMarshal>(() => new SvgMarshal());
                 SvgEngine.RegisterSingleton<ISvgElementAttributeProvider>(
                     () => new SvgElementAttributeProvider());
@@ -35,6 +38,8 @@ namespace Svg
                 SvgEngine.Register<IAlternativeSvgTextRenderer>(() => new SkiaTextRenderer());
                 SvgEngine.Register<ISvgCachingService>(() => new SvgCachingService());
                 SvgEngine.Register<ISvgUnitConverter>(() => new SvgUnitConverterInvariant());
+                SvgEngine.RegisterSingleton<ITileRendererManager>(() => new TileRendererManager());
+                SvgEngine.Register<ITileRenderer>(() => new TileRenderer(1131, 703, new TileCacheOptions(TimeSpan.FromMinutes(1))));
 
                 // register platform specific services
 

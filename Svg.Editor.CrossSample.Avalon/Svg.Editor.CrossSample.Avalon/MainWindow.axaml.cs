@@ -1,0 +1,24 @@
+using Avalonia.Controls;
+using Svg.Editor.Avalon.Forms.Services;
+using Svg.Interfaces;
+
+
+namespace Svg.Editor.CrossSample.Avalon;
+
+public partial class MainWindow : Window
+{
+    public MainWindow()
+    {
+        InitializeComponent();
+        FormsPickImageService.MainWindow = this;
+        SvgEngine.RegisterSingleton<IFileSystem>(() => new UwpFileSystem());
+
+    }
+}
+public class UwpFileSystem : FileSystem
+{
+    public override string GetDefaultStoragePath()
+    {
+        return "./";
+    }
+}

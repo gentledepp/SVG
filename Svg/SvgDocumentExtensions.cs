@@ -67,7 +67,6 @@ public static class SvgDocumentExtensions
         }
     }
 
-
     public static Bitmap CaptureDocumentBitmap(this SvgDocument document, 
         RectangleF constraints = null,
         int maxSize = 4096, 

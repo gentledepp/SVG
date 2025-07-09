@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="Svg.Editor.ColorTool.ChangeColor.Description" xml:space="preserve">
+        <value>Ouvrir le sélecteur de couleur pour choisir une nouvelle couleur dans une palette pour dessiner.</value>
+    </data>
+    <data name="Svg.Editor.StrokeStyleTool.ChangeStroke.Description" xml:space="preserve">
+        <value>Choisissez des options telles que des motifs épais, fins, en pointillés ou en tirets pour personnaliser vos traits.</value>
+    </data>
+    <data name="Svg.Editor.BackgroundTool.ChooseBackgroundImage.Description" xml:space="preserve">
+        <value>Sélectionnez un fichier image pour le définir comme arrière-plan de la zone de dessin.</value>
+    </data>
+    <data name="Svg.Editor.Strokes.Redo" xml:space="preserve">
+        <value>Répétez la dernière action annulée pour rétablir facilement les modifications ou les ajustements.
+</value>
+    </data>
+    <data name="Svg.Editor.Strokes.Undo" xml:space="preserve">
+        <value>Annulez la dernière action pour rétablir votre dessin dans son état précédent.</value>
+    </data>
+    <data name="Svg.Editor.ArrangeTool.BringToFront.Description" xml:space="preserve">
+        <value>Déplacez l'élément sélectionné à travers différents plans dans la zone de dessin.</value>
+    </data>
+    <data name="Svg.Editor.ShowAll.Description" xml:space="preserve">
+        <value>Agrandit le canevas jusqu'à la totalité de l'esquisse.</value>
+    </data>
+    <data name="Svg.Editor.GridTool.ToggleGrid.Description" xml:space="preserve">
+        <value>Affichez ou masquez la superposition de la grille pour aligner les éléments sur le canevas.</value>
+    </data>
+    <data name="Svg.Editor.SaveTool.Description" xml:space="preserve">
+        <value>Cliquez sur pour enregistrer votre fichier SVG et conserver toutes les modifications apportées à votre dessin.</value>
+    </data>
+    <data name="Svg.Editor.PinTool.ChangePinSize.Description" xml:space="preserve">
+        <value>Modifier la taille du stylo.</value>
+    </data>
+    <data name="Svg.Editor.LineTool.LineEndings.Description" xml:space="preserve">
+        <value>Modifier l'extrémité et la pointe de la forme de la ligne.</value>
+    </data>
+    <data name="Svg.Editor.ChooseTool.Description" xml:space="preserve">
+        <value>Sélectionnez un outil pour dessiner sur le canevas. 
+            Select: faire glisser et sélectionner des dessins dans la zone. 
+            Text: Cliquez à l'endroit où vous souhaitez écrire un texte. 
+            Line: faites glisser pour créer une ligne. 
+            Elipse: Faites glisser pour créer un cercle. 
+            Rectangle: Faites glisser pour créer un rectangle. 
+            Free drawing (dessin libre): Dessinez comme vous le souhaitez. 
+            Polygone: Placez des points jusqu'à ce que le dernier point rejoigne le premier.
+            Pin: Placez un pin.</value>
+    </data>
+</root>

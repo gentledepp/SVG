@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using Svg.Editor.Forms;
 using Svg.Editor.Interfaces;
@@ -129,7 +130,7 @@ namespace Svg.Editor.Sample.Forms
 		        () => new PlaceAsBackgroundTool(placeAsBackgroundToolProperties, undoRedoService),
 		        () => new AddItemTool(),
 		        () => new PolygonTool(polygonProperties, undoRedoService),
-                () => new PinTool(pinToolProperties, undoRedoService));
+                () => new PinTool(pinToolProperties, undoRedoService));;
         }
 
         public SvgDrawingCanvas DrawingCanvas { get; set; }

@@ -15,7 +15,7 @@ namespace Svg.Platform
         /// </summary>
         public SkiaMatrix()
         {
-            _m = SKMatrix.MakeIdentity();
+            _m = SKMatrix.CreateIdentity();
         }
 
         public SkiaMatrix(SKMatrix src)
@@ -175,12 +175,12 @@ namespace Svg.Platform
 
         public override void Scale(float width, float height, MatrixOrder order)
         {
-            var m = SKMatrix.MakeScale(width, height);
+            var m = SKMatrix.CreateScale(width, height);
 
-            if (order == MatrixOrder.Append)
-                SKMatrix.PostConcat(ref _m, ref m);
+            if (order == MatrixOrder.Append) 
+                _m = _m.PostConcat(m);
             else
-                SKMatrix.PreConcat(ref _m, ref m);
+                _m = _m.PreConcat(m);
         }
 
         public override void Translate(float left, float top)
@@ -190,12 +190,12 @@ namespace Svg.Platform
 
         public override void Translate(float left, float top, MatrixOrder order)
         {
-            var m = SKMatrix.MakeTranslation(left, top);
+            var m = SKMatrix.CreateTranslation(left, top);
 
             if (order == MatrixOrder.Append)
-                SKMatrix.PostConcat(ref _m, ref m);
-            else
-                SKMatrix.PreConcat(ref _m, ref m);
+                _m = _m.PostConcat(m);
+            else 
+                _m = _m.PreConcat(m);
         }
         
         /// <summary>
@@ -212,29 +212,29 @@ namespace Svg.Platform
             var m = ((SkiaMatrix)matrix).Matrix;
 
             if (order == MatrixOrder.Append)
-                SKMatrix.PostConcat(ref _m, ref m);
+                _m = _m.PostConcat(m);
             else
-                SKMatrix.PreConcat(ref _m, ref m);
+                _m = _m.PreConcat(m);
         }
 
         public override void Rotate(float angleDegrees, MatrixOrder order)
         {
-            var m = SKMatrix.MakeRotationDegrees(angleDegrees);
+            var m = SKMatrix.CreateRotationDegrees(angleDegrees);
 
             if (order == MatrixOrder.Append)
-                SKMatrix.PostConcat(ref _m, ref m);
+                _m = _m.PostConcat(m);
             else
-                SKMatrix.PreConcat(ref _m, ref m);
+                _m = _m.PreConcat(m);
         }
 
         public override void RotateAt(float angleDegrees, PointF midPoint, MatrixOrder order)
         {
-            var m = SKMatrix.MakeRotationDegrees(angleDegrees, midPoint.X, midPoint.Y);
+            var m = SKMatrix.CreateRotationDegrees(angleDegrees, midPoint.X, midPoint.Y);
 
             if (order == MatrixOrder.Append)
-                SKMatrix.PostConcat(ref _m, ref m);
+                _m = _m.PostConcat(m);
             else
-                SKMatrix.PreConcat(ref _m, ref m);
+                _m = _m.PreConcat(m);
         }
 
         public override void Rotate(float angleDegrees)
@@ -244,9 +244,9 @@ namespace Svg.Platform
 
         public override void Shear(float sx, float sy)
         {
-            var m = SKMatrix.MakeSkew(sx, sy);
+            var m = SKMatrix.CreateSkew(sx, sy);
 
-            SKMatrix.PreConcat(ref _m, ref m);
+            _m = _m.PreConcat(m);
         }
 
         public override RectangleF TransformRectangle(RectangleF b)

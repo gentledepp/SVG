@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0-ios18</TargetFramework>
+    <SupportedOSPlatformVersion>13.0</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
+    <ProvisioningType>manual</ProvisioningType>
+    <CodesignKey>iPhone Developer</CodesignKey>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.iOS" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Svg.Editor.Avalonia.Forms\Svg.Editor.Avalon.Forms.csproj" />
+    <ProjectReference Include="..\..\Svg.Editor.Avalonia.Views\Svg.Editor.Avalon.Views.csproj" />
+    <ProjectReference Include="..\Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.csproj" />
+  </ItemGroup>
+</Project>

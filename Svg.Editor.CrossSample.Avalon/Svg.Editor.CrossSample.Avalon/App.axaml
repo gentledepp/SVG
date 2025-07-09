@@ -1,0 +1,23 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+             x:Class="Svg.Editor.CrossSample.Avalon.App"
+             RequestedThemeVariant="Default">
+
+	<Application.Styles>
+        <controls:ControlThemes />
+		<FluentTheme>
+			<FluentTheme.Palettes>
+				<ColorPaletteResources x:Key="Light" Accent="#ff662483" AltHigh="White" AltLow="White" AltMedium="White" AltMediumHigh="White" AltMediumLow="White" BaseHigh="Black" BaseLow="#ff72c02c" BaseMedium="#ff358212" BaseMediumHigh="#ff0c5900" BaseMediumLow="#ff206e09" ChromeAltLow="#ff0c5900" ChromeBlackHigh="Black" ChromeBlackLow="#ff72c02c" ChromeBlackMedium="#ff0c5900" ChromeBlackMediumLow="#ff358212" ChromeDisabledHigh="#ff72c02c" ChromeDisabledLow="#ff358212" ChromeGray="#ff206e09" ChromeHigh="#ff72c02c" ChromeLow="#ffcaabd9" ChromeMedium="#ffb690c8" ChromeMediumLow="#ffcaabd9" ChromeWhite="White" ListLow="#ffb690c8" ListMedium="#ff72c02c" RegionColor="White" />
+				<ColorPaletteResources x:Key="Dark" Accent="#ff72c02c" AltHigh="Black" AltLow="Black" AltMedium="Black" AltMediumHigh="Black" AltMediumLow="Black" BaseHigh="White" BaseLow="#ff662483" BaseMedium="#ffb690c8" BaseMediumHigh="#ffcaabd9" BaseMediumLow="#ff8e5aa5" ChromeAltLow="#ffcaabd9" ChromeBlackHigh="Black" ChromeBlackLow="#ffcaabd9" ChromeBlackMedium="Black" ChromeBlackMediumLow="Black" ChromeDisabledHigh="#ff662483" ChromeDisabledLow="#ffb690c8" ChromeGray="#ffb690c8" ChromeHigh="#ffb690c8" ChromeLow="#ff34074d" ChromeMedium="#ff400e5b" ChromeMediumLow="#ff591d76" ChromeWhite="White" ListLow="#ff400e5b" ListMedium="#ff662483" RegionColor="#ff333333" />
+			</FluentTheme.Palettes>
+		</FluentTheme>
+        <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
+        <StyleInclude Source="avares://Svg.Editor.Avalon.Forms/ToolBar/Resources/Styles.axaml"/>
+
+	</Application.Styles>
+
+    <Application.DataTemplates>
+    </Application.DataTemplates>
+
+</Application>

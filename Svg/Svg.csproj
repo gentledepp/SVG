@@ -1,15 +1,18 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.18362;net462</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462;net9.0-windows10.0.19041.0</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version>2.4.4.12</Version>
-    <Authors>gentledpp,bruzkovsky</Authors>
+
+    <Version>3.0.7-alpha-avalonia</Version>
+    <Authors>gentledepp,zepr</Authors>
     <Company>Opti-Q GmbH</Company>
     <PackageReleaseNotes>
+		#3.0.0-alpha-avalonia
+			migrate to avalonia
 		#2.4.4.12
 		- SvgDocument creates ambient SvgRenderer that can cache Fonts, Brushes etc. for one render/bounds-calculation run
-	    #2.4.4.11
+	  #2.4.4.11
 		- fix: SvgUse now correctly calculates its bounds by forwarding the bounds of its referenced element
 		#2.4.4.10
 		- fix: Svg Plan throws no instance of an object error on drawing pathsegment
@@ -84,12 +87,6 @@
     <DefineConstants>Net4</DefineConstants>
   </PropertyGroup>
 
-
-  <ItemGroup>
-    <Compile Remove="Platforms\**\*.cs" />
-    <None Include="Platforms\**\*.cs" />
-  </ItemGroup>
-
   <ItemGroup Condition=" $(TargetFramework.StartsWith('uap')) ">
     <Compile Include="Platforms\UniversalWindows\**\*.cs" />
   </ItemGroup>
@@ -109,7 +106,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SkiaSharp" Version="1.68.1" />
+	  <PackageReference Include="Avalonia.Skia" Version="11.2.1" />
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
+    <PackageReference Include="System.IO.Compression.ZipFile" Version="4.3.0" />
   </ItemGroup>
 
 
