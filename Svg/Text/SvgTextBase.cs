@@ -271,7 +271,13 @@ namespace Svg
             RectangleF b;
             if (_alternativeTextRenderer != null)
             {
-                b = _alternativeTextRenderer.GetBounds(this, SvgRenderer.FromNull());
+                if (this.OwnerDocument is { } doc)
+                {
+                    using var handle = doc.CreateRendererFromNull();
+                    b = _alternativeTextRenderer.GetBounds(this, handle.Renderer);
+                }
+                else
+                    b = _alternativeTextRenderer.GetBounds(this, SvgRenderer.FromNull());
             }
             else
             {

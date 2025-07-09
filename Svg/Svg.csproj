@@ -3,13 +3,16 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net462;net9.0-windows10.0.19041.0</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+
     <Version>3.0.7-alpha-avalonia</Version>
-    <Authors>gentledpp,bruzkovsky</Authors>
+    <Authors>gentledepp,zepr</Authors>
     <Company>Opti-Q GmbH</Company>
     <PackageReleaseNotes>
 		#3.0.0-alpha-avalonia
 			migrate to avalonia
-		#2.4.4.11
+		#2.4.4.12
+		- SvgDocument creates ambient SvgRenderer that can cache Fonts, Brushes etc. for one render/bounds-calculation run
+	  #2.4.4.11
 		- fix: SvgUse now correctly calculates its bounds by forwarding the bounds of its referenced element
 		#2.4.4.10
 		- fix: Svg Plan throws no instance of an object error on drawing pathsegment
