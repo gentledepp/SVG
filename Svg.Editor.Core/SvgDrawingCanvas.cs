@@ -791,6 +791,11 @@ namespace Svg.Editor
         {
             return Document.CaptureDocumentBitmap(Constraints, maxSize, backgroundColor);
         }
+
+        public Bitmap CaptureScreenBackgroundBitmap(int maxSize = 4096, Color backgroundColor = null)
+        {
+            return Document.CaptureDocumentImageBitmap(Constraints, maxSize, backgroundColor);
+        }
         public Bitmap CaptureScreenBitmap(Color backgroundColor = null)
 		{
 			if (ScreenWidth == 0 || ScreenHeight == 0)

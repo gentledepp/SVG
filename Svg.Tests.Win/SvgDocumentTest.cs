@@ -33,6 +33,24 @@ namespace Svg.Tests.Win
         }
 
         [Test]
+        public void WhenSvgDocumentDrawsAllContent_ThenBitmapHasBoundsSizeOfImage()
+        {
+            // Arrange
+            var rawSvg = $@"
+<svg height=""500"" width=""500"">
+  <path d=""M50 250 L50 50 H300 V250 Z M150 300 L400 400"" fill=""none"" stroke =""black""/>
+  <image x=""50"" y=""100"" width=""300"" height=""200""/>
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            // Act
+            var bounds = svg.CalculateDocumentImageBounds();
+
+            // Assert
+            ((int)bounds.Width).Should().Be(300);
+            ((int)bounds.Height).Should().Be(200);
+        }
+
+        [Test]
         public void WhenSvgDocumentDrawsAllDocument_ThenBitmapHasOriginalSize()
         {
             // Arrange

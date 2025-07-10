@@ -9,6 +9,8 @@
     <PackageReleaseNotes>
 		#3.0.0-alpha-avalonia
 			migrate to avalonia
+		#2.4.4.12
+		- SvgDocument creates ambient SvgRenderer that can cache Fonts, Brushes etc. for one render/bounds-calculation run
 		#2.4.4.11
 		- fix: SvgUse now correctly calculates its bounds by forwarding the bounds of its referenced element
 		#2.4.4.10
