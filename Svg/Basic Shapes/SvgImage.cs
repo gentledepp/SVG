@@ -316,7 +316,7 @@ namespace Svg
                 using (var stream = SvgEngine.Resolve<IWebRequest>().GetResponse(uri))
                 {
                     stream.Position = 0;
-                    if (uri.LocalPath.ToLowerInvariant().EndsWith(".svg"))
+                    if (uri.IsAbsoluteUri && uri.LocalPath.ToLowerInvariant().EndsWith(".svg"))
                     {
                         var doc = SvgDocument.Open<SvgDocument>(stream);
                         doc.BaseUri = uri;

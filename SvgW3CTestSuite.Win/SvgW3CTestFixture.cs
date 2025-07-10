@@ -67,6 +67,7 @@ namespace SvgW3CTestSuite.Win
                         // Assert
                         using (var c = ImageCompare(svgBitmap, pngBitmap))
                         {
+                            System.Diagnostics.Debug.WriteLine($"Test '{svgPath}': {c.Similarity}% similarity");
                             if (c.Similarity < 90)
                                 Assert.Inconclusive($"not done yet '{svgPath}' {c.Similarity}%");
 

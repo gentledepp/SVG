@@ -9,7 +9,9 @@
       "Bash(grep:*)",
       "Bash(timeout 30 dotnet test ./SvgW3CTestSuite.Win/SvgW3CTestSuite.Win.csproj --filter \"Name~struct-use\" --logger:console --verbosity minimal)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(timeout:*)",
+      "Bash(rg:*)"
     ],
     "deny": []
   }

@@ -39,7 +39,7 @@ public static class SvgImageExtensions
         using (var stream = SvgEngine.Resolve<IWebRequest>().GetResponse(href))
         {
             stream.Position = 0;
-            if (href.LocalPath.ToLowerInvariant().EndsWith(".svg"))
+            if (href.IsAbsoluteUri && href.LocalPath.ToLowerInvariant().EndsWith(".svg"))
             {
                 var doc = SvgDocument.Open<SvgDocument>(stream);
                 doc.BaseUri = href;

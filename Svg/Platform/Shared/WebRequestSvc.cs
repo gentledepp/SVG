@@ -11,7 +11,7 @@ namespace Svg
     {
         public Stream GetResponse(Uri uri)
         {
-            if (string.Equals(uri.Scheme, "file", StringComparison.OrdinalIgnoreCase))
+            if (uri.IsAbsoluteUri && string.Equals(uri.Scheme, "file", StringComparison.OrdinalIgnoreCase))
             {
                 var filePath = EnsureFullPath(uri.OriginalString);
                 return File.OpenRead(filePath);

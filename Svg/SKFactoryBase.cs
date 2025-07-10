@@ -109,7 +109,7 @@ namespace Svg
 
         public virtual PathGradientBrush CreatePathGradientBrush(GraphicsPath path)
         {
-            throw new NotImplementedException("pathgradientbrushs are not supported");
+            return new SkiaPathGradientBrush(path);
         }
 
         public virtual StringFormat CreateStringFormatGenericTypographic()
