@@ -168,7 +168,7 @@ namespace Svg
             set { this.Attributes["gradientTransform"] = value; }
         }
 
-        protected Matrix EffectivePatternTransform
+        private Matrix EffectivePatternTransform
         {
             get
             {

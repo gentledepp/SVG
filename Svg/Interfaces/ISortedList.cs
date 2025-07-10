@@ -7,7 +7,7 @@ namespace Svg.Interfaces
 {
     public interface ISortedList<TKey, TValue> : IDictionary<TKey, TValue>
     {
-        IList<TValue> Values { get; }
-        IList<TKey> Keys { get; }
+        new IList<TValue> Values { get; }
+        new IList<TKey> Keys { get; }
     }
 }

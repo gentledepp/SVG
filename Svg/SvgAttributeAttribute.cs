@@ -58,6 +58,11 @@ namespace Svg
             return String.Compare(indicator.Name, this.Name) == 0;
         }
 
+        public override int GetHashCode()
+        {
+            return Name?.GetHashCode() ?? 0;
+        }
+
 		/// <summary>
 		/// Gets the name of the SVG attribute.
 		/// </summary>

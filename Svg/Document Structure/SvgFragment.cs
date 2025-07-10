@@ -45,8 +45,8 @@ namespace Svg
 
         private SvgUnit _x;
         private SvgUnit _y;
-        private SvgAttributeCollection.InheritedAttribute<float?> _fontSize;
-        private SvgAttributeCollection.InheritedAttribute<string> _fontFamily;
+        private new SvgAttributeCollection.InheritedAttribute<float?> _fontSize;
+        private new SvgAttributeCollection.InheritedAttribute<string> _fontFamily;
         private SvgAttributeCollection.Attribute<SvgUnit> _width;
         private SvgAttributeCollection.Attribute<SvgOverflow> _overflow;
         private SvgAttributeCollection.Attribute<SvgUnit> _height;

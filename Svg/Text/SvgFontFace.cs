@@ -67,7 +67,7 @@
         /// Indicates which font family is to be used to render the text.
         /// </summary>
         [SvgAttribute("font-family")]
-        public virtual string FontFamily
+        public new virtual string FontFamily
         {
             get { return (_fontFamily ??= this.Attributes.GetInheritedAttribute<object>("font-family")).GetValue() as string; }
             set { this.Attributes["font-family"] = value; }
@@ -77,7 +77,7 @@
         /// Refers to the size of the font from baseline to baseline when multiple lines of text are set solid in a multiline layout environment.
         /// </summary>
         [SvgAttribute("font-size")]
-        public virtual SvgUnit FontSize
+        public new virtual SvgUnit FontSize
         {
             get { return (_fontSize ??= this.Attributes.GetInheritedAttribute<object>("font-size")).GetValue() is { } val ? (SvgUnit)val: SvgUnit.Empty; }
             set { this.Attributes["font-size"] = value; }
@@ -87,7 +87,7 @@
         /// Refers to the style of the font.
         /// </summary>
         [SvgAttribute("font-style")]
-        public virtual SvgFontStyle FontStyle
+        public new virtual SvgFontStyle FontStyle
         {
             get { return (_fontStyle ??= this.Attributes.GetInheritedAttribute<object>("font-style")).GetValue() is { } val ? (SvgFontStyle)val: SvgFontStyle.All; }
             set { this.Attributes["font-style"] = value; }
@@ -97,7 +97,7 @@
         /// Refers to the varient of the font.
         /// </summary>
         [SvgAttribute("font-variant")]
-        public virtual SvgFontVariant FontVariant
+        public new virtual SvgFontVariant FontVariant
         {
             get { return (_fontVariant ??= this.Attributes.GetInheritedAttribute<object>("font-variant")).GetValue() is { } val ? (SvgFontVariant)val: SvgFontVariant.Inherit; }
             set { this.Attributes["font-variant"] = value; }
@@ -107,7 +107,7 @@
         /// Refers to the boldness of the font.
         /// </summary>
         [SvgAttribute("font-weight")]
-        public virtual SvgFontWeight FontWeight
+        public new virtual SvgFontWeight FontWeight
         {
             get { return (_fontWeight ??= this.Attributes.GetInheritedAttribute<object>("font-weight")).GetValue() is { } val ? (SvgFontWeight)val: SvgFontWeight.Inherit; }
             set { this.Attributes["font-weight"] = value; }

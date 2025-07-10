@@ -7,12 +7,8 @@ namespace Svg.Platform
 {
     public class SkiaLinearGradientBrush : SkiaBrushBase, LinearGradientBrush, IDisposable
     {
-        private readonly Color[] _colors;
-        private readonly float[] _colorPositions;
         private PointF _start;
         private PointF _end;
-        private Color _colorStart;
-        private Color _colorEnd;
         private SKShader _shader;
         private ColorBlend _interpolationColors;
         private WrapMode _wrapMode;

@@ -57,6 +57,11 @@ namespace Svg
             return Elements.SequenceEqual(matrix.Elements);
         }
 
+        public override int GetHashCode()
+        {
+            return Elements?.GetHashCode() ?? 0;
+        }
+
         public float RotationDegrees
         {
             get { return (float)RadianToDegree(Math.Atan(SkewY/ScaleY)); }

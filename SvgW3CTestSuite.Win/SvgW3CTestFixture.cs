@@ -16,7 +16,6 @@ namespace SvgW3CTestSuite.Win
     public class W3CTestFixture
     {
         private static int _testCount = 0;
-        private static int _succeededCount = 0;
 
 
         public static object[][] SvgTestCases = { };
@@ -114,10 +113,10 @@ namespace SvgW3CTestSuite.Win
 
                         NotifySuccess(name);
                     }
-                    catch (Exception x)
+                    catch (Exception)
                     {
                         NotifyError(name);
-                        throw x;
+                        throw;
                     }
 
                 }, cancel.Token);

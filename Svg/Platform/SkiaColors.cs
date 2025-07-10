@@ -8,9 +8,6 @@ namespace Svg.Platform
 {
     public class SkiaColors : Colors
     {
-        private Color _black;
-        private Color _transparent;
-        private Color _white;
 
         private readonly Dictionary<string, Color> _colorsByName;
 
