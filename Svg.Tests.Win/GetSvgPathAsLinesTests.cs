@@ -1,7 +1,6 @@
 ﻿using System.Linq;
-using FluentAssertions;
-using FluentAssertions.Common;
 using NUnit.Framework;
+using Shouldly;
 using Svg.Interfaces;
 using Svg.Pathing;
 
@@ -40,7 +39,7 @@ namespace Svg.Tests.Win
             var actual = svgPathSegmentList.GetLines();
 
             //Assert
-            actual.Should().Equal(expected);
+            actual.ShouldBe(expected);
 
         }
     }

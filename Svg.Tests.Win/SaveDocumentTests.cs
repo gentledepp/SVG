@@ -2,14 +2,22 @@
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
+using Shouldly;
 using Svg.Editor.Tests;
 using Svg.Interfaces;
 
 namespace Svg.Tests.Win
 {
+    /// <summary>
+    /// Tests for document saving functionality, ensuring that attributes, inheritance,
+    /// and document structure are preserved during save/load operations.
+    /// </summary>
     [TestFixture]
     public class SaveDocumentTests
     {
+        /// <summary>
+        /// Initializes the SVG platform and registers the file loader before each test.
+        /// </summary>
         [SetUp]
         public void SetUp()
         {
@@ -17,6 +25,10 @@ namespace Svg.Tests.Win
             Svg.SvgEngine.Register<IFileLoader>(() => new FileLoader());
         }
 
+        /// <summary>
+        /// Verifies that when saving a document with inherited attributes, the inheritance
+        /// is preserved and the computed values are correctly applied to child elements.
+        /// </summary>
         [Test]
         public void SavingDocument_KeepsInheritedAttributesIntact()
         {
@@ -58,27 +70,31 @@ namespace Svg.Tests.Win
             }
 
             // Assert
-            Assert.IsNotNull(doc2);
+            doc2.ShouldNotBeNull();
             var g = doc2.Children.OfType<SvgVisualElement>().Single();
-            Assert.AreEqual("#ff0000", g.Fill.ToString());
-            Assert.AreEqual("3 3", g.StrokeDashArray.ToString());
-            Assert.AreEqual("#00ff00", g.Stroke.ToString());
+            g.Fill.ToString().ShouldBe("#ff0000");
+            g.StrokeDashArray.ToString().ShouldBe("3 3");
+            g.Stroke.ToString().ShouldBe("#00ff00");
 
             var r = g.Children.OfType<SvgRectangle>().Single();
-            Assert.AreEqual(100, r.X.Value);
-            Assert.AreEqual(150, r.Y.Value);
-            Assert.AreEqual(300, r.Width.Value);
-            Assert.AreEqual(50, r.Height.Value);
-            Assert.AreEqual("#ff0000", r.Fill.ToString());
-            Assert.AreEqual("3 3", r.StrokeDashArray.ToString());
-            Assert.AreEqual("#00ff00", r.Stroke.ToString());
+            r.X.Value.ShouldBe(100);
+            r.Y.Value.ShouldBe(150);
+            r.Width.Value.ShouldBe(300);
+            r.Height.Value.ShouldBe(50);
+            r.Fill.ToString().ShouldBe("#ff0000");
+            r.StrokeDashArray.ToString().ShouldBe("3 3");
+            r.Stroke.ToString().ShouldBe("#00ff00");
             AssertInheritedAttribute(r, "stroke");
             AssertInheritedAttribute(r, "fill");
             AssertInheritedAttribute(r, "stroke-dasharray");
         }
 
+        /// <summary>
+        /// Verifies that when saving a document with unset attributes (null values),
+        /// the inheritance behavior is correctly preserved after save/load operations.
+        /// </summary>
         [Test]
-        public void SavingDocument_KeepsUnserAttributesIntact()
+        public void SavingDocument_KeepsUnsetAttributesIntact()
         {
             // Arrange
             var doc = new SvgDocument()
@@ -118,25 +134,29 @@ namespace Svg.Tests.Win
             }
 
             // Assert
-            Assert.IsNotNull(doc2);
+            doc2.ShouldNotBeNull();
             var g = doc2.Children.OfType<SvgVisualElement>().Single();
-            Assert.AreEqual("#ff0000", g.Fill.ToString());
-            Assert.AreEqual("3 3", g.StrokeDashArray.ToString());
-            Assert.AreEqual("#00ff00", g.Stroke.ToString());
+            g.Fill.ToString().ShouldBe("#ff0000");
+            g.StrokeDashArray.ToString().ShouldBe("3 3");
+            g.Stroke.ToString().ShouldBe("#00ff00");
 
             var r = g.Children.OfType<SvgRectangle>().Single();
-            Assert.AreEqual(100, r.X.Value);
-            Assert.AreEqual(150, r.Y.Value);
-            Assert.AreEqual(300, r.Width.Value);
-            Assert.AreEqual(50, r.Height.Value);
-            Assert.AreEqual("#ff0000", r.Fill.ToString());
-            Assert.AreEqual("3 3", r.StrokeDashArray.ToString());
-            Assert.AreEqual("#00ff00", r.Stroke.ToString());
+            r.X.Value.ShouldBe(100);
+            r.Y.Value.ShouldBe(150);
+            r.Width.Value.ShouldBe(300);
+            r.Height.Value.ShouldBe(50);
+            r.Fill.ToString().ShouldBe("#ff0000");
+            r.StrokeDashArray.ToString().ShouldBe("3 3");
+            r.Stroke.ToString().ShouldBe("#00ff00");
             AssertInheritedAttribute(r, "stroke");
             AssertInheritedAttribute(r, "fill");
             AssertInheritedAttribute(r, "stroke-dasharray");
         }
 
+        /// <summary>
+        /// Verifies that when an element explicitly sets attributes to "none",
+        /// this value is preserved during save/load operations rather than being inherited.
+        /// </summary>
         [Test]
         public void SavingDocument_KeepsNoneIfNoneIsSetExplicitly()
         {
@@ -176,30 +196,31 @@ namespace Svg.Tests.Win
             }
 
             // Assert
-            Assert.IsNotNull(doc2);
+            doc2.ShouldNotBeNull();
             var g = doc2.Children.OfType<SvgVisualElement>().Single();
-            Assert.AreEqual("#ff0000", g.Fill.ToString());
-            Assert.AreEqual("#00ff00", g.Stroke.ToString());
+            g.Fill.ToString().ShouldBe("#ff0000");
+            g.Stroke.ToString().ShouldBe("#00ff00");
 
             var r = g.Children.OfType<SvgRectangle>().Single();
-            Assert.AreEqual(100, r.X.Value);
-            Assert.AreEqual(150, r.Y.Value);
-            Assert.AreEqual(300, r.Width.Value);
-            Assert.AreEqual(50, r.Height.Value);
-            Assert.AreSame(SvgPaintServer.None, r.Fill);
-            Assert.AreSame(SvgPaintServer.None, r.Stroke);
+            r.X.Value.ShouldBe(100);
+            r.Y.Value.ShouldBe(150);
+            r.Width.Value.ShouldBe(300);
+            r.Height.Value.ShouldBe(50);
+            r.Fill.ShouldBeSameAs(SvgPaintServer.None);
+            r.Stroke.ShouldBeSameAs(SvgPaintServer.None);
             AssertInheritedAttribute(r, "stroke");
             AssertInheritedAttribute(r, "fill");
             AssertInheritedAttribute(r, "stroke-dasharray");
         }
-        
-        /*
-         * style="fill:none;fill-opacity:0;stroke:none"
-         */
 
+        /// <summary>
+        /// Verifies that XML namespaces are preserved during save/load operations,
+        /// ensuring compatibility with tools like Inkscape and Sodipodi.
+        /// </summary>
         [Test]
         public void WhenSavingDocument_KeepNamespacesIntact()
         {
+            // Arrange
             var fileLoader = SvgEngine.Resolve<IFileLoader>();
             var document = fileLoader.Load("Bends_01.svg");
             SvgDocument doc2 = null;
@@ -212,9 +233,15 @@ namespace Svg.Tests.Win
                 doc2 = SvgDocument.Open<SvgDocument>(ms);
             }
 
-            Assert.True(doc2.Children.First(c => c.ElementName == "sodipodi:namedview").Children.Any(c => c.ElementName == "inkscape:grid"));
+            // Assert
+            doc2.Children.First(c => c.ElementName == "sodipodi:namedview")
+                .Children.ShouldContain(c => c.ElementName == "inkscape:grid");
         }
 
+        /// <summary>
+        /// Verifies that an empty SVG document can be saved and produces the expected XML output
+        /// with all necessary namespace declarations and default attributes.
+        /// </summary>
         [Test]
         public void CanSaveEmptyDocument()
         {
@@ -234,15 +261,20 @@ namespace Svg.Tests.Win
             }
 
             // Assert
-            Assert.IsNotNull(doc2);
-            Assert.AreEqual(expectedSvg, svg);
+            doc2.ShouldNotBeNull();
+            svg.ShouldBe(expectedSvg);
         }
 
+        /// <summary>
+        /// Verifies that documents can be loaded, saved, and reloaded while maintaining
+        /// identical XML output, ensuring no data loss during round-trip operations.
+        /// </summary>
         [Ignore("test case file got lost... 🤷‍♂️")]
         [Test]
         [TestCase("nested_transformed_text.svg")]
         public void CanLoad_Save_AndReload_Document(string testFile)
         {
+            // Arrange
             var fileLoader = SvgEngine.Resolve<IFileLoader>();
             var document = fileLoader.Load(testFile);
             SvgDocument document2 = null;
@@ -265,14 +297,20 @@ namespace Svg.Tests.Win
                 saved2 = Encoding.UTF8.GetString(ms.ToArray());
             }
 
-            Assert.AreEqual(saved1, saved2);
+            // Assert
+            saved1.ShouldBe(saved2);
         }
 
+        /// <summary>
+        /// Asserts that the specified attribute on the given rectangle element
+        /// has the value "inherit" when retrieved from the raw XML attributes.
+        /// </summary>
+        /// <param name="r">The rectangle element to check</param>
+        /// <param name="attributeName">The name of the attribute to verify</param>
         private static void AssertInheritedAttribute(SvgRectangle r, string attributeName)
         {
-            string val;
-            if (r.TryGetAttribute("attributeName", out val))
-                Assert.AreEqual("inherit", val);
+            if (r.TryGetAttribute(attributeName, out string val))
+                val.ShouldBe("inherit");
         }
     }
 }

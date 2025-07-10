@@ -1,5 +1,5 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using Shouldly;
 using Svg.Interfaces;
 
 namespace Svg.Tests.Win
@@ -50,7 +50,7 @@ namespace Svg.Tests.Win
             // Act
 
             // Assert
-            rect.Fill.Should().Be(expectedFill);
+            rect.Fill.ShouldBe(expectedFill);
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace Svg.Tests.Win
 
 
             // Assert
-            rect.Fill.Should().Be(group.Fill, "must change when parent fill changes");
+            rect.Fill.ShouldBe(group.Fill, "must change when parent fill changes");
         }
 
         [Test]
@@ -117,7 +117,7 @@ namespace Svg.Tests.Win
             rect.Attributes["visibility"] = false;
 
             // Assert
-            rect.Visible.Should().Be(false, "cached attribute must reset when attribute changes");
+            rect.Visible.ShouldBe(false, "cached attribute must reset when attribute changes");
         }
     }
 }

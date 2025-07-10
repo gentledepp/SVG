@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 using Svg.Interfaces;
 
 namespace Svg.Tests.Win
@@ -42,9 +42,9 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
-                result.Should().HaveCount(1);
+                result.Count().ShouldBe(1);
         }
 
         [TestCase("outside tap w/o fill", SelectionType.Intersect, 120, 350, 10, "none", false)]
@@ -83,9 +83,9 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
-                result.Should().HaveCount(1);
+                result.Count().ShouldBe(1);
         }
     }
 }

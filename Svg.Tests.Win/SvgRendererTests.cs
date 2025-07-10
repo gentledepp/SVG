@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using Shouldly;
 using Moq;
 using NUnit.Framework;
 using Svg.Interfaces;
@@ -64,7 +64,7 @@ namespace Svg.Tests.Win
 
             // Assert 2
             rcem.Verify(s => s.Dispose(), Times.Once());
-            rect.RenderCacheEntryMocks.Count.Should().Be(1, "only one cache entry should be created and then cached!");
+            rect.RenderCacheEntryMocks.Count.ShouldBe(1, "only one cache entry should be created and then cached!");
         }
 
         [Test]
@@ -111,7 +111,7 @@ namespace Svg.Tests.Win
             doc.Draw(renderer2);
 
             // Assert
-            rect.RenderCacheEntryMocks.Count.Should().Be(2, "only one cache entry per renderer should be created and then cached!");
+            rect.RenderCacheEntryMocks.Count.ShouldBe(2, "only one cache entry per renderer should be created and then cached!");
             var r1 = rect.RenderCacheEntryMocks[0];
             var r2 = rect.RenderCacheEntryMocks[1];
             r1.VerifySet(s => s.StrokeBrush = It.IsAny<Brush>(), Times.Exactly(1), "once per renderer");
@@ -165,7 +165,7 @@ namespace Svg.Tests.Win
             doc.Draw(renderer);
 
             // Assert
-            rect.GetAttributeChangeToken().Should().Be(Guid.Empty);
+            rect.GetAttributeChangeToken().ShouldBe(Guid.Empty);
         }
 
         [Test]
@@ -209,7 +209,7 @@ namespace Svg.Tests.Win
 
             // Assert
             var act = rect.GetAttributeChangeToken();
-            act.Should().NotBe(Guid.Empty);
+            act.ShouldNotBe(Guid.Empty);
             rect.RenderCacheEntryMocks.Single().Verify(s => s.SetAttributeChangeToken(act), Times.Once(), "must be called so it can reset its disposable properties");
         }
 
@@ -255,7 +255,7 @@ namespace Svg.Tests.Win
 
             // Assert
             var act = rect.GetAttributeChangeToken();
-            act.Should().NotBe(Guid.Empty);
+            act.ShouldNotBe(Guid.Empty);
             rect.RenderCacheEntryMocks.Single().Verify(s => s.SetAttributeChangeToken(act), Times.Once(), "must be called so it can reset its disposable properties");
         }
 
@@ -301,7 +301,7 @@ namespace Svg.Tests.Win
 
             // Assert
             var act = rect.GetAttributeChangeToken();
-            act.Should().NotBe(Guid.Empty);
+            act.ShouldNotBe(Guid.Empty);
             rect.RenderCacheEntryMocks.Single().Verify(s => s.SetAttributeChangeToken(act), Times.Once(), "must be called so it can reset its disposable properties");
         }
 

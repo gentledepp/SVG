@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using Shouldly;
 using NUnit.Framework;
 using Svg.Editor.Tests;
 using Svg.Interfaces;
@@ -29,7 +29,7 @@ namespace Svg.Tests.Win
             var actual = svg.GetDescendants().ToArray().OfType<SvgVisualElement>().Count(element => element is SvgTextBase);
 
             // Assert
-            actual.Should().Be(3);
+            actual.ShouldBe(3);
         }
 
         [Test]
@@ -50,9 +50,12 @@ namespace Svg.Tests.Win
 
             // Assert
             var actual = svg.GetDescendants().OfType<SvgTextBase>().ToArray().Select(text => text.FontSize).FirstOrDefault();
-            actual.Should().Be(new SvgUnit(SvgUnitType.Pixel, 16));
+            actual.ShouldBe(new SvgUnit(SvgUnitType.Pixel, 16));
         }
-
+        /// <summary>
+        /// Verifies that when loading a document, text spans are properly parsed and positioned,
+        /// even when they don't have explicit font size definitions.
+        /// </summary>
         [Test]
         public void WhenLoadingDocument_TextSpanHasNoFontSize()
         {
@@ -64,13 +67,14 @@ namespace Svg.Tests.Win
 
             // Assert
             var texts = document.GetDescendants().OfType<SvgTextBase>().ToArray();
-            Assert.True(texts.Any(element => element.Content == "m"));
-            Assert.True(texts.Any(element => element.Content == "01"));
-            Assert.True(texts.Any(element => element.Content == "TOP "));
-            texts.FirstOrDefault(element => element.Content == "TOP ")?.X.FirstOrDefault().Value.Should()
-                .Be(0); 
-            texts.FirstOrDefault(element => element.Content == "TOP ")?.Y.FirstOrDefault().Value.Should()
-                .Be(0); 
+            texts.ShouldContain(element => element.Content == "m");
+            texts.ShouldContain(element => element.Content == "01");
+            texts.ShouldContain(element => element.Content == "TOP ");
+
+            var topElement = texts.FirstOrDefault(element => element.Content == "TOP ");
+            topElement.ShouldNotBeNull();
+            topElement.X.Single().Value.ShouldBe(0);
+            topElement.Y.Single().Value.ShouldBe(0);
         }
 
         [Test]

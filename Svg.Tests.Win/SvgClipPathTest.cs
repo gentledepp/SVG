@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 using SkiaSharp;
 using Svg.Interfaces;
 using Svg.Pathing;
@@ -79,7 +79,7 @@ public class SvgClipPathTest
 
         var clip = svgDoc.Children.First().Children.OfType<SvgClipPath>().First();
 
-        Assert.AreEqual(clip.Bounds.Width, 200);
-        Assert.AreEqual(clip.Bounds.Height, 50);
+       clip.Bounds.Width.ShouldBe(200);
+       clip.Bounds.Height.ShouldBe(50);
     }
 }

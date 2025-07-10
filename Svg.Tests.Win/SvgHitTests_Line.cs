@@ -1,5 +1,6 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
 using NUnit.Framework;
+using Shouldly;
 using Svg.Interfaces;
 
 namespace Svg.Tests.Win
@@ -36,9 +37,9 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
-                result.Should().HaveCount(1);
+                result.Count().ShouldBe(1);
         }
 
         [TestCase("outside tap", SelectionType.Intersect, 75, 75, 10, false)]
@@ -67,9 +68,9 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
-                result.Should().HaveCount(1);
+                result.Count().ShouldBe(1);
         }
 
         [TestCase("outside tap", SelectionType.Intersect, 75, 75, 10, false)]
@@ -90,9 +91,9 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
-                result.Should().HaveCount(1);
+                result.Count().ShouldBe(1);
         }
 
         [TestCase("outside tap", SelectionType.Intersect, 75, 75, 10, false)]
@@ -120,9 +121,9 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
-                result.Should().HaveCount(1);
+                result.Count().ShouldBe(1);
         }
 
         [TestCase("outside tap", SelectionType.Intersect, 75, 75, 10, false)]
@@ -144,9 +145,9 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
-                result.Should().HaveCount(1);
+                result.Count().ShouldBe(1);
         }
 
         [TestCase("outside tap", SelectionType.Intersect, 75, 75, 10, false)]
@@ -175,9 +176,9 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
-                result.Should().HaveCount(1);
+                result.Count().ShouldBe(1);
         }
     }
 }

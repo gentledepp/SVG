@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 using Svg.Interfaces;
-using FluentAssertions;
+using Shouldly;
 
 namespace Svg.Tests.UWP
 {
@@ -35,9 +35,9 @@ namespace Svg.Tests.UWP
 
             // Assert
             if (isRooted)
-                result.Should().Be(expected);
+                result.ShouldBe(expected);
             else
-                result.Should().Be(defaultStoragePath + expected);
+                result.ShouldBe(defaultStoragePath + expected);
         }
     }
 }

@@ -1,11 +1,11 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shouldly;
 
 namespace Svg.Tests.Win
 {
@@ -40,8 +40,8 @@ namespace Svg.Tests.Win
             // Assert
             // should not throw exception
             var r = (SvgRectangle)svg.Children[0];
-            r.Fill.Should().NotBeNull();
-            r.Fill.ToString().Should().Be("#ff0000","all is red");
+            r.Fill.ShouldNotBeNull();
+            r.Fill.ToString().ShouldBe("#ff0000","all is red");
         }
     }
 }

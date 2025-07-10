@@ -1,6 +1,6 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System.Linq;
+using Shouldly;
 
 namespace Svg.Tests.Win
 {
@@ -28,8 +28,8 @@ namespace Svg.Tests.Win
             var bitMap =  svg.DrawAllContents();
 
             // Assert
-            bitMap.Width.Should().Be((int)bounds.Width);
-            bitMap.Height.Should().Be((int)bounds.Height);
+            bitMap.Width.ShouldBe((int)bounds.Width);
+            bitMap.Height.ShouldBe((int)bounds.Height);
         }
 
         [Test]
@@ -46,8 +46,8 @@ namespace Svg.Tests.Win
             var bitMap =  svg.DrawDocument();
 
             // Assert
-            bitMap.Width.Should().Be((int)svg.Width.Value);
-            bitMap.Height.Should().Be((int)svg.Height.Value);
+            bitMap.Width.ShouldBe((int)svg.Width.Value);
+            bitMap.Height.ShouldBe((int)svg.Height.Value);
         }
 
         [Test]
@@ -65,10 +65,10 @@ namespace Svg.Tests.Win
             var bitMap2 =  svg.DrawDocument(maxWidthHeight:1000);
 
             // Assert
-            bitMap.Width.Should().Be((int)100);
-            bitMap.Height.Should().Be((int)100);
-            bitMap2.Width.Should().Be((int)svg.Width);
-            bitMap2.Height.Should().Be((int)svg.Height);
+            bitMap.Width.ShouldBe((int)100);
+            bitMap.Height.ShouldBe((int)100);
+            bitMap2.Width.ShouldBe((int)svg.Width);
+            bitMap2.Height.ShouldBe((int)svg.Height);
         }
 
         [Test]
@@ -86,8 +86,8 @@ namespace Svg.Tests.Win
             var bitMap =  svg.DrawDocument();
 
             // Assert
-            bitMap.Width.Should().Be((int)bounds.Width);
-            bitMap.Height.Should().Be((int)bounds.Height);
+            bitMap.Width.ShouldBe((int)bounds.Width);
+            bitMap.Height.ShouldBe((int)bounds.Height);
         }
 
         [Test]
@@ -105,8 +105,8 @@ namespace Svg.Tests.Win
             var bitMap =  svg.DrawDocument();
 
             // Assert
-            bitMap.Width.Should().Be((int)svg.Width);
-            bitMap.Height.Should().Be((int)svg.Height);
+            bitMap.Width.ShouldBe((int)svg.Width);
+            bitMap.Height.ShouldBe((int)svg.Height);
         }
 
         [Test]
@@ -124,8 +124,8 @@ namespace Svg.Tests.Win
             svg.AdaptCanvasSizeToElementBounds();
 
             // Assert
-            svg.Width.Value.Should().Be((int)bounds.Width + 20);
-            svg.Height.Value.Should().Be((int)bounds.Height + 20);
+            svg.Width.Value.ShouldBe((int)bounds.Width + 20);
+            svg.Height.Value.ShouldBe((int)bounds.Height + 20);
         }
 
         [Test]
@@ -149,12 +149,12 @@ namespace Svg.Tests.Win
             // Assert
             var children = svg.GetDescendants().OfType<SvgTextBase>().ToArray();
             var actualFontSize = children.Select(text => text.FontSize).ToArray();
-            actualFontSize[0].Should().Be(new SvgUnit(SvgUnitType.Pixel, 16));
-            actualFontSize[1].Should().Be(new SvgUnit(SvgUnitType.Pixel, 11));
+            actualFontSize[0].ShouldBe(new SvgUnit(SvgUnitType.Pixel, 16));
+            actualFontSize[1].ShouldBe(new SvgUnit(SvgUnitType.Pixel, 11));
 
             var actualFontFamily = children.Select(text => text.FontFamily).ToArray();
-            actualFontFamily[0].Should().Be("sans-serif");
-            actualFontFamily[1].Should().Be("");
+            actualFontFamily[0].ShouldBe("sans-serif");
+            actualFontFamily[1].ShouldBe("");
         }
 
         [Test]
@@ -165,8 +165,8 @@ namespace Svg.Tests.Win
 
             var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\" + svgPath);
 
-            Assert.AreEqual(200, svgDoc.CalculateDocumentBounds().Width);
-            Assert.AreEqual(50, svgDoc.CalculateDocumentBounds().Height);
+            svgDoc.CalculateDocumentBounds().Width.ShouldBe(200);
+            svgDoc.CalculateDocumentBounds().Height.ShouldBe(50);
         }
         
         [Test]
@@ -189,8 +189,8 @@ namespace Svg.Tests.Win
 
             var bounds = svg.CalculateDocumentBounds();
 
-            bounds.Height.Should().Be(100);
-            bounds.Width.Should().Be(200);
+            bounds.Height.ShouldBe(100);
+            bounds.Width.ShouldBe(200);
         }
     }
 }

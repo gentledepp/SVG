@@ -5,6 +5,7 @@ using Svg.Platform;
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using Shouldly;
 
 namespace Svg.Tests.Win
 {
@@ -137,7 +138,7 @@ namespace Svg.Tests.Win
                     res.ActualResult, SKEncodedImageFormat.Png, 100);
                 Console.WriteLine($"Saved heatmap in {Path.Combine(Environment.CurrentDirectory, $"{testMethodName}{postFix}_difference.png")}");
             }
-            Assert.GreaterOrEqual(res.Similarity, similarity);
+            res.Similarity.ShouldBeGreaterThanOrEqualTo(similarity);
         }
     }
 
