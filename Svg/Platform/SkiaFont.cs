@@ -42,7 +42,7 @@ namespace Svg.Platform
             set
             {
                 _style = value;
-                _paint.Typeface = SKTypeface.FromTypeface(_fontFamily.Typeface, value.ToSKTypefaceStyle());
+                _paint.Typeface = SKTypeface.FromFamilyName(_fontFamily.Name, value.ToSKFontStyle());
             }
         }
 

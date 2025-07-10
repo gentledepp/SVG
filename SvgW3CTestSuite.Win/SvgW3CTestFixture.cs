@@ -1,38 +1,25 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using NUnit.Framework;
 using SkiaSharp;
 using Svg;
 using Svg.Interfaces;
 using Svg.Platform;
 using SvgW3CTestSuite.Assets;
-#if xUNIT
-using Xunit;
-#elif WIN
-using NUnit.Framework;
-#else
-using NUnit.Framework;
-using Xamarin.Forms;
-using Plugin.Toasts;
-#endif
 
-
-namespace SvgW3CTestSuite
+namespace SvgW3CTestSuite.Win
 {
-#if xUNIT
-#else
     [TestFixture]
-#endif
     public class W3CTestFixture
     {
         private static int _testCount = 0;
         private static int _succeededCount = 0;
 
-       
-        public static object[][] SvgTestCases = {};
+
+        public static object[][] SvgTestCases = { };
         public static Func<string, ISvgSource> FileSourceProvider { get; set; }
         static W3CTestFixture()
         {
@@ -46,21 +33,10 @@ namespace SvgW3CTestSuite
                                                         AssetHelper.GetPngForSvg(path)
                                                     })
                                                     .ToArray();
-#if WINDOWS_UWP
-            FileSourceProvider =
-                path =>
-                    EmbeddedResourceSource.Create(path, typeof(AssetHelper).GetTypeInfo().Assembly);
-#else
             FileSourceProvider = (path) => Svg.Platform.EmbeddedResourceSource.Create(path, typeof(AssetHelper).Assembly);
-#endif
         }
 
-#if xUNIT
-        [Theory]
-        [MemberData(nameof(SvgTestCases), MemberType=typeof(W3CTestFixture))]
-#else
         [Test, TestCaseSource(nameof(SvgTestCases))]
-#endif
         public async Task W3CTestSuiteCompare(string svgPath, string pngPath)
         {
             await RunTest(() =>
@@ -74,14 +50,10 @@ namespace SvgW3CTestSuite
                         // Assert
                         using (var c = ImageCompare(svgBitmap, pngBitmap))
                         {
-#if xUNIT
-                            Assert.True(c.Similarity >= 90, $"{svgPath}");
-#else
                             if (c.Similarity < 90)
                                 Assert.Inconclusive($"not done yet '{svgPath}' {c.Similarity}%");
 
                             //Assert.GreaterOrEqual(c.Similarity, 90, $"{svgPath}");
-#endif
                         }
                     }
                 }
@@ -120,7 +92,7 @@ namespace SvgW3CTestSuite
                         Interlocked.Increment(ref _testCount);
                         System.Diagnostics.Debug.Write($"starting test #{_testCount} '{name}#'");
                         test();
-                        
+
 
                         NotifySuccess(name);
                     }
@@ -136,56 +108,54 @@ namespace SvgW3CTestSuite
             catch (TaskCanceledException)
             {
                 NotifyError(name);
-#if xUNIT
-                Assert.True(false, $"test {name} took too much time");
-#else
                 Assert.Fail($"test {name} took too much time");
-#endif
             }
         }
 
         private static void NotifySuccess(string svgPath)
         {
-#if !WINDOWS_UWP && !WIN
-            Xamarin.Forms.Device.BeginInvokeOnMainThread(async () =>
-            {
-                Interlocked.Increment(ref _succeededCount);
-
-                var message = $"{svgPath} succeeded ({_succeededCount}/ {_testCount})";
-                System.Diagnostics.Debug.Write(message);
-                var notificator = DependencyService.Get<IToastNotificator>();
-                await notificator.Notify(new NotificationOptions { Title = "Finished test", Description=message});
-            });
-#endif
         }
 
         private static void NotifyError(string svgPath)
         {
-#if !WINDOWS_UWP && !WIN
-            Xamarin.Forms.Device.BeginInvokeOnMainThread(async () =>
-            {
-                var message = $"{svgPath} failed ({_succeededCount} / {_testCount})";
-                System.Diagnostics.Debug.Write(message);
-                var notificator = DependencyService.Get<IToastNotificator>();
-                await notificator.Notify(new NotificationOptions {Title = "Finished test", Description = message});
-            });
-#endif
         }
 
+        /// <summary>
+        /// Renders an SVG document to a bitmap with the specified dimensions.
+        /// </summary>
+        /// <param name="svgPath">The path to the SVG file to render.</param>
+        /// <param name="width">The width of the output bitmap in pixels.</param>
+        /// <param name="height">The height of the output bitmap in pixels.</param>
+        /// <returns>An SKBitmap containing the rendered SVG content.</returns>
         private static SKBitmap RenderSvg(string svgPath, int width, int height)
         {
             var src = FileSourceProvider(svgPath);
 
             using (SvgDocument doc = SvgDocument.Open<SvgDocument>(src))
-            using (var surface = SKSurface.Create(width, height, SKImageInfo.PlatformColorType, SKAlphaType.Premul))
             {
-                doc.Draw(SvgRenderer.FromGraphics(new SkiaGraphics(surface)));
-                var img = surface.Snapshot();
+                // Create image info for the surface
+                var imageInfo = new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
 
-                using (var s = new SKManagedStream(img.Encode().AsStream()))
+                using (var surface = SKSurface.Create(imageInfo))
                 {
-                    SKBitmap b = new SKBitmap();
-                    return SKBitmap.Decode(s);
+                    // Render the SVG to the surface
+                    doc.Draw(SvgRenderer.FromGraphics(new SkiaGraphics(surface)));
+
+                    // Get the image from the surface
+                    using (var image = surface.Snapshot())
+                    {
+                        // Encode the image to PNG format
+                        using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+                        {
+                            // Create a stream from the encoded data
+                            using (var stream = data.AsStream())
+                            using (var managedStream = new SKManagedStream(stream))
+                            {
+                                // Decode the stream back to a bitmap
+                                return SKBitmap.Decode(managedStream);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -194,11 +164,7 @@ namespace SvgW3CTestSuite
         {
             if (i1.Height != i2.Height || i1.Width != i2.Width)
             {
-#if xUNIT
-                Assert.True(false, $"SKBitmap dimensions differ! rendered:{i1.Width}x{i1.Height} vs png:{i2.Width}x{i2.Height}");
-#else
                 Assert.Fail($"SKBitmap dimensions differ! rendered:{i1.Width}x{i1.Height} vs png:{i2.Width}x{i2.Height}");
-#endif
             }
 
             float correctPixel = 0;

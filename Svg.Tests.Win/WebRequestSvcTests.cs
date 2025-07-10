@@ -1,8 +1,8 @@
 ﻿using NUnit.Framework;
-using Svg.Interfaces;
 using Shouldly;
+using Svg.Interfaces;
 
-namespace Svg.Tests.UWP
+namespace Svg.Tests.Win
 {
     [TestFixture]
     public class WebRequestSvcTests

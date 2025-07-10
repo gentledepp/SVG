@@ -12,7 +12,7 @@ namespace Svg.Platform
             {
                 return new List<FontFamily>()
                 {
-                    new SkiaFontFamily(SKTypeface.FromFamilyName(string.Empty, SKTypefaceStyle.Normal), "Default"), GenericSerif, GenericSansSerif, GenericMonospace,
+                    new SkiaFontFamily(SKTypeface.FromFamilyName(string.Empty), "Default"), GenericSerif, GenericSansSerif, GenericMonospace,
                 };
             }
         }

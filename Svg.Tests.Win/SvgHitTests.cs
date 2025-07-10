@@ -386,7 +386,7 @@ namespace Svg.Tests.Win
                 else if (hitTestResultMode == HitTestResultMode.ReturnRootElementOnly)
                 {
                     result.Count().ShouldBe(1);
-                    result.ShouldAllBeOfType<SvgGroup>();
+                    result.ShouldAllBe(g => g is SvgGroup);
                 }
             }
         }

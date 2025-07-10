@@ -1,114 +1,114 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.18362;net462</TargetFrameworks>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version>2.4.4.11</Version>
-    <Authors>gentledpp,bruzkovsky</Authors>
-    <Company>Opti-Q GmbH</Company>
-    <PackageReleaseNotes>
-		#2.4.4.11
-		- fix: SvgUse now correctly calculates its bounds by forwarding the bounds of its referenced element
-		#2.4.4.10
-		- fix: Svg Plan throws no instance of an object error on drawing pathsegment
-		#2.4.4.9
-		- fix: rendering Drawing Clippaths with canvas transformation
-		#2.4.4.8
-		- fix: Drawing Clippaths
-    #2.4.4.7
-    - fix: RectangleTool's icon
-	    #2.4.4.6
-	    - fix: TextTool, when text edit, textspan renders not with bound from last textspan
-	    - fix: TextTool, removing lines until one remains, updates 
-	    #2.4.4.5
-		- fix: arrow tips too large
-		#2.4.4.4.4
-		- fix: Arrow tips of lines are not filled (transparent)
-		#2.4.4.3
-		- fix: can not parse 4-digit color values
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net4.8;net8.0</TargetFrameworks>
+        <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+        <Version>2.4.4.11</Version>
+        <Authors>gentledpp,bruzkovsky</Authors>
+        <Company>Opti-Q GmbH</Company>
+        <PackageReleaseNotes>
+            #2.4.4.11
+            - fix: SvgUse now correctly calculates its bounds by forwarding the bounds of its referenced element
+            #2.4.4.10
+            - fix: Svg Plan throws no instance of an object error on drawing pathsegment
+            #2.4.4.9
+            - fix: rendering Drawing Clippaths with canvas transformation
+            #2.4.4.8
+            - fix: Drawing Clippaths
+            #2.4.4.7
+            - fix: RectangleTool's icon
+            #2.4.4.6
+            - fix: TextTool, when text edit, textspan renders not with bound from last textspan
+            - fix: TextTool, removing lines until one remains, updates
+            #2.4.4.5
+            - fix: arrow tips too large
+            #2.4.4.4
+            - fix: Arrow tips of lines are not filled (transparent)
+            #2.4.4.3
+            - fix: can not parse 4-digit color values
 
-		#2.4.4.2
-		- fix: SvgDocument.DeepCopy&lt;T&gt; also copies stylesheets
-	    
-	    #2.4.4.1
-		- major performance improvements by caching pens and paints
-		- support for custom OTF fonts
-		- text rendering improvements
-		
-		#2.4.3.16
-		- Render tspan in textrenderer
+            #2.4.4.2
+            - fix: SvgDocument.DeepCopy&lt;T&gt; also copies stylesheets
 
-		#2.4.3.15
-		- Render tspan in textrenderer
+            #2.4.4.1
+            - major performance improvements by caching pens and paints
+            - support for custom OTF fonts
+            - text rendering improvements
 
+            #2.4.3.16
+            - Render tspan in textrenderer
 
-		#2.4.3.14
-		- DrawAllContents with Original SvgDocument size
-
-		#2.4.3.13
-		- Texterendering renders with default size when no size available
-
-		#2.4.3.10 - 11
-		- add OnScreenSet event in SvgDrawingCanvas after Screen properties set in OnDraw method
-
-		# 2.4.3.9
-		- fix WebRequestSvc to handle path correctly (for real this time)
-
-		# 2.4.3.7
-		- bumped version for 2.4.3.6
-
-		# 2.4.3.6
-		- fix WebRequestSvc to handle path correctly
-
-		# 2.4.3.5
-		- changed "Href" property of SvgImage from Uri to string, as System.Uri throws in case a url is too long
-
-		# 2.4.3.4
-		- antialiasing on by default
-
-		# 2.4.3.3
-		- netstandard multiplatform
-	</PackageReleaseNotes>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$(Configuration) == 'Release'">
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <IncludeSource>True</IncludeSource>
-    <IncludeSymbols>True</IncludeSymbols>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$(TargetFramework.StartsWith('net4')) ">
-    <DefineConstants>Net4</DefineConstants>
-  </PropertyGroup>
+            #2.4.3.15
+            - Render tspan in textrenderer
 
 
-  <ItemGroup>
-    <Compile Remove="Platforms\**\*.cs" />
-    <None Include="Platforms\**\*.cs" />
-  </ItemGroup>
+            #2.4.3.14
+            - DrawAllContents with Original SvgDocument size
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('uap')) ">
-    <Compile Include="Platforms\UniversalWindows\**\*.cs" />
-  </ItemGroup>
+            #2.4.3.13
+            - Texterendering renders with default size when no size available
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
-    <Compile Include="Platforms\Android\**\*.cs" />
-    <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.0" />
+            #2.4.3.10 - 11
+            - add OnScreenSet event in SvgDrawingCanvas after Screen properties set in OnDraw method
 
-  </ItemGroup>
+            # 2.4.3.9
+            - fix WebRequestSvc to handle path correctly (for real this time)
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
-    <Compile Include="Platforms\iOS\**\*.cs" />
-  </ItemGroup>
+            # 2.4.3.7
+            - bumped version for 2.4.3.6
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
-    <Compile Include="Platforms\Win\**\*.cs" />
-  </ItemGroup>
+            # 2.4.3.6
+            - fix WebRequestSvc to handle path correctly
 
-  <ItemGroup>
-    <PackageReference Include="SkiaSharp" Version="1.68.1" />
-  </ItemGroup>
+            # 2.4.3.5
+            - changed "Href" property of SvgImage from Uri to string, as System.Uri throws in case a url is too long
+
+            # 2.4.3.4
+            - antialiasing on by default
+
+            # 2.4.3.3
+            - netstandard multiplatform
+        </PackageReleaseNotes>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$(Configuration) == 'Release'">
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IncludeSource>True</IncludeSource>
+        <IncludeSymbols>True</IncludeSymbols>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$(TargetFramework.StartsWith('net4')) ">
+        <DefineConstants>Net4</DefineConstants>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <Compile Remove="Platforms\**\*.cs" />
+        <None Include="Platforms\**\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" $(TargetFramework.StartsWith('uap')) ">
+        <Compile Include="Platforms\UniversalWindows\**\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+        <Compile Include="Platforms\Android\**\*.cs" />
+        <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.0" />
+
+    </ItemGroup>
+
+    <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
+        <Compile Include="Platforms\iOS\**\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
+        <Compile Include="Platforms\Win\**\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="SkiaSharp" Version="3.119.0" />
+    </ItemGroup>
 
 
 </Project>

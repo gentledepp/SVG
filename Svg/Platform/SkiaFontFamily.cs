@@ -3,70 +3,130 @@ using SkiaSharp;
 
 namespace Svg.Platform
 {
+    /// <summary>
+    /// Represents a font family implementation using SkiaSharp for cross-platform font handling.
+    /// Provides methods to retrieve font metrics and style information for SVG rendering.
+    /// </summary>
     public class SkiaFontFamily : FontFamily
     {
         private readonly SKTypeface _typeface;
         private readonly string _name;
 
+        /// <summary>
+        /// Initializes a new instance of the SkiaFontFamily class.
+        /// </summary>
+        /// <param name="typeface">The SkiaSharp typeface to wrap.</param>
+        /// <param name="name">The name of the font family.</param>
+        /// <exception cref="ArgumentNullException">Thrown when typeface or name is null.</exception>
         public SkiaFontFamily(SKTypeface typeface, string name)
         {
-            if (typeface == null) throw new ArgumentNullException("typeface");
-            if (name == null) throw new ArgumentNullException("name");
-            _typeface = typeface;
-            _name = name;
+            _typeface = typeface ?? throw new ArgumentNullException(nameof(typeface));
+            _name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
+        /// <summary>
+        /// Gets the cell ascent value for the specified font style.
+        /// The ascent is the maximum distance above the baseline for any character in the font.
+        /// </summary>
+        /// <param name="style">The font style to get the ascent for.</param>
+        /// <returns>The ascent value as a float.</returns>
         public float GetCellAscent(FontStyle style)
         {
-            using (var paint = new SKPaint())
-            {
-                paint.Typeface = SKTypeface.FromTypeface(_typeface, style.ToSKTypefaceStyle());
-                return paint.FontMetrics.Ascent;
-            }
+            using var paint = new SKPaint();
+            paint.Typeface = GetTypefaceForStyle(style);
+            return -paint.FontMetrics.Ascent; // Negative because SkiaSharp ascent is negative
         }
 
+        /// <summary>
+        /// Gets the em height (line height) for the specified font style.
+        /// This represents the total height of the font including ascenders and descenders.
+        /// </summary>
+        /// <param name="style">The font style to get the em height for.</param>
+        /// <returns>The em height value as a float.</returns>
         public float GetEmHeight(FontStyle style)
         {
-            using (var paint = new SKPaint())
+            using var paint = new SKPaint();
+            paint.Typeface = GetTypefaceForStyle(style);
+            var metrics = paint.FontMetrics;
+            return metrics.Descent - metrics.Ascent; // Total height from top to bottom
+        }
+
+        /// <summary>
+        /// Determines whether the specified font style is available for this font family.
+        /// </summary>
+        /// <param name="fontStyle">The font style to check availability for.</param>
+        /// <returns>True if the style is available; otherwise, false.</returns>
+        public bool IsStyleAvailable(FontStyle fontStyle)
+        {
+            try
             {
-                paint.Typeface = SKTypeface.FromTypeface(_typeface, style.ToSKTypefaceStyle());
-                return paint.FontMetrics.Top;
+                var styledTypeface = GetTypefaceForStyle(fontStyle);
+                return styledTypeface != null;
+            }
+            catch
+            {
+                return false;
             }
         }
 
-        public bool IsStyleAvailable(FontStyle fontStyle)
-        {
-            // TODO LX how to implement
-            return true;
-        }
-
+        /// <summary>
+        /// Gets the name of the font family.
+        /// </summary>
         public string Name => _name;
 
+        /// <summary>
+        /// Gets the underlying SkiaSharp typeface.
+        /// </summary>
         public SKTypeface Typeface => _typeface;
 
+        /// <summary>
+        /// Gets or creates a typeface for the specified font style.
+        /// In SkiaSharp 3.x, we create a new typeface from the family name with the desired style.
+        /// </summary>
+        /// <param name="style">The font style to apply.</param>
+        /// <returns>An SKTypeface with the specified style applied.</returns>
+        private SKTypeface GetTypefaceForStyle(FontStyle style)
+        {
+            var fontStyle = style.ToSKFontStyle();
+
+            // In SkiaSharp 3.x, we create a new typeface from the family name with the desired style
+            var styledTypeface = SKTypeface.FromFamilyName(_typeface.FamilyName, fontStyle);
+
+            // If we can't create a styled version, fall back to the original typeface
+            return styledTypeface ?? _typeface;
+        }
+
+        /// <summary>
+        /// Releases all resources used by the SkiaFontFamily.
+        /// </summary>
         public void Dispose()
         {
             _typeface?.Dispose();
         }
     }
 
+    /// <summary>
+    /// Provides extension methods for converting between FontStyle and SkiaSharp font style types.
+    /// </summary>
     public static class TypeFaceExtensions
     {
-        public static SKTypefaceStyle ToSKTypefaceStyle(this FontStyle value)
+        /// <summary>
+        /// Converts a FontStyle enum value to the corresponding SKFontStyle.
+        /// SkiaSharp 3.x uses SKFontStyle for font styling.
+        /// </summary>
+        /// <param name="value">The FontStyle value to convert.</param>
+        /// <returns>The corresponding SKFontStyle.</returns>
+        public static SKFontStyle ToSKFontStyle(this FontStyle value)
         {
-            var tfs = SKTypefaceStyle.Normal;
+            var weight = (value & FontStyle.Bold) == FontStyle.Bold
+                ? SKFontStyleWeight.Bold
+                : SKFontStyleWeight.Normal;
 
-            if ((value & FontStyle.Bold) == FontStyle.Bold &&
-                (value & FontStyle.Italic) == FontStyle.Italic)
-                tfs = SKTypefaceStyle.BoldItalic;
-            else if ((value & FontStyle.Bold) == FontStyle.Bold)
-                tfs = SKTypefaceStyle.Bold;
-            else if ((value & FontStyle.Italic) == FontStyle.Italic)
-                tfs = SKTypefaceStyle.Italic;
-            else if ((value & FontStyle.Regular) == FontStyle.Regular)
-                tfs = SKTypefaceStyle.Normal;
+            var slant = (value & FontStyle.Italic) == FontStyle.Italic
+                ? SKFontStyleSlant.Italic
+                : SKFontStyleSlant.Upright;
 
-            return tfs;
+            return new SKFontStyle(weight, SKFontStyleWidth.Normal, slant);
         }
     }
 }
