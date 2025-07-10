@@ -7,6 +7,7 @@ using System.Linq;
 using ExCSS;
 using Svg.Css;
 using System.Globalization;
+using Svg.Platform;
 using Svg.Interfaces;
 using Svg.Interfaces.Xml;
 using Svg.Transforms;
@@ -507,23 +508,25 @@ namespace Svg
         {
             try
             {
-                using (var renderer = SvgRenderer.FromImage(bitmap))
-                {
-                    if (backgroundColor != null)
-                        renderer.FillBackground(backgroundColor);
+                // we need a renderer for caching
+                using var rendererHandle = CreateRendererFromImage(bitmap);
 
-                    renderer.SetBoundable(new GenericBoundable(0, 0, bitmap.Width, bitmap.Height));
+                var renderer = rendererHandle.Renderer;
 
-                    //EO, 2014-12-05: Requested to ensure proper zooming (draw the svg in the bitmap size, ==> proper scaling)
-                    //EO, 2015-01-09, Added GetDimensions to use its returned size instead of this.Width and this.Height (request of Icarrere).
-                    var size = this.GetDimensions();
-                    renderer.ScaleTransform(bitmap.Width / size.Width, bitmap.Height / size.Height);
+                if (backgroundColor != null)
+                    renderer.FillBackground(backgroundColor);
 
-                    //EO, 2014-12-05: Requested to ensure proper zooming out (reduce size). Otherwise it clip the image.
-                    this.Overflow = SvgOverflow.Auto;
+                renderer.SetBoundable(new GenericBoundable(0, 0, bitmap.Width, bitmap.Height));
 
-                    this.Render(renderer);
-                }
+                //EO, 2014-12-05: Requested to ensure proper zooming (draw the svg in the bitmap size, ==> proper scaling)
+                //EO, 2015-01-09, Added GetDimensions to use its returned size instead of this.Width and this.Height (request of Icarrere).
+                var size = this.GetDimensions();
+                renderer.ScaleTransform(bitmap.Width / size.Width, bitmap.Height / size.Height);
+
+                //EO, 2014-12-05: Requested to ensure proper zooming out (reduce size). Otherwise it clip the image.
+                this.Overflow = SvgOverflow.Auto;
+
+                this.Render(renderer);
             }
             catch
             {
@@ -753,6 +756,9 @@ namespace Svg
 
         private RectangleF CalculateBounds(IEnumerable<SvgVisualElement> elements)
         {
+            // we need a renderer for caching
+            using var renderer = CreateRendererFromNull();
+
             RectangleF documentSize = null;
 
             foreach (var element in elements)
@@ -862,5 +868,48 @@ namespace Svg
                 c.Dispose();
             base.DisposeOverride();
         }
+
+        #region SvgRenderer caching/handling
+
+        internal ISvgRenderer CurrentRenderer { get; private set; }
+
+        internal class SvgRendererHandle : IDisposable
+        {
+            private readonly SvgDocument _owner;
+            private readonly bool _isCreatorHandle;
+            public ISvgRenderer Renderer { get; }
+
+            public SvgRendererHandle(ISvgRenderer renderer, SvgDocument owner, bool isCreatorHandle)
+            {
+                _owner = owner;
+                _isCreatorHandle = isCreatorHandle;
+                Renderer = renderer;
+            }
+
+            public void Dispose()
+            {
+                if (!_isCreatorHandle)
+                    return;
+
+                _owner.CurrentRenderer = null;
+                Renderer?.Dispose();
+            }
+        }
+
+        internal SvgRendererHandle CreateRendererFromImage(Bitmap bitmap)
+        {
+            if (CurrentRenderer != null)
+                return new SvgRendererHandle(CurrentRenderer, this, false);
+
+            CurrentRenderer = SvgRenderer.FromImage(bitmap);
+            return new SvgRendererHandle(CurrentRenderer, this, true);
+        }
+
+        internal SvgRendererHandle CreateRendererFromNull()
+        {
+            return CreateRendererFromImage(Bitmap.Create(1, 1));
+        }
+
+        #endregion
     }
 }
