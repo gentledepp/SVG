@@ -67,13 +67,29 @@ public static class SvgDocumentExtensions
         }
     }
 
-    public static Bitmap CaptureDocumentBitmap(this SvgDocument document, 
+    public static Bitmap CaptureDocumentImageBitmap(this SvgDocument document,
+        RectangleF constraints = null,
+        int maxSize = 4096,
+        Color backgroundColor = null)
+    {
+        return CaptureDocumentBitmapInternal(document, document.CalculateDocumentImageBounds(), constraints, maxSize,
+            backgroundColor);
+    }
+
+    public static Bitmap CaptureDocumentBitmap(this SvgDocument document,
+        RectangleF constraints = null,
+        int maxSize = 4096,
+        Color backgroundColor = null)
+    {
+        return CaptureDocumentBitmapInternal(document, document.CalculateDocumentBounds(), constraints, maxSize,
+            backgroundColor);
+    }
+
+    private static Bitmap CaptureDocumentBitmapInternal(SvgDocument document,RectangleF documentBounds, 
         RectangleF constraints = null,
         int maxSize = 4096, 
         Color backgroundColor = null)
     {
-        var documentBounds = document.CalculateDocumentBounds();
-
         // determine width and height of the bitmap by the minimum of the whole document's and the constraint's size
         var drawingWidth = (int)Math.Round(Math.Min(documentBounds.Width, constraints?.Width ?? float.MaxValue));
         var drawingHeight =

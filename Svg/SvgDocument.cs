@@ -21,7 +21,7 @@ namespace Svg
     {
         public static readonly int PointsPerInch = 96;
 
-    private SvgElementIdManager _idManager;
+        private SvgElementIdManager _idManager;
 
         private Dictionary<string, IEnumerable<SvgFontFace>> _fontDefns = null;
         private IFileSystem _fileSystem;
@@ -33,9 +33,11 @@ namespace Svg
             if (_fontDefns == null)
             {
                 _fontDefns = (from f in Descendants().OfType<SvgFontFace>()
-                              group f by f.FontFamily into family
-                              select family).ToDictionary(f => f.Key, f => (IEnumerable<SvgFontFace>) f);
+                    group f by f.FontFamily
+                    into family
+                    select family).ToDictionary(f => f.Key, f => (IEnumerable<SvgFontFace>)f);
             }
+
             return _fontDefns;
         }
 
@@ -171,7 +173,8 @@ namespace Svg
             }
         }
 
-        static partial void OpenPartial<T>(string path, Dictionary<string, string> entities, OpenResult<T> result) where T : SvgDocument, new();
+        static partial void OpenPartial<T>(string path, Dictionary<string, string> entities, OpenResult<T> result)
+            where T : SvgDocument, new();
 
         /// <summary>
         /// Attempts to open an SVG document from the specified <see cref="Stream"/>.
@@ -316,6 +319,7 @@ namespace Svg
                             {
                                 styles.Add(unknown);
                             }
+
                             break;
                         case XmlNodeType.CDATA:
                         case XmlNodeType.Text:
@@ -329,6 +333,7 @@ namespace Svg
                                 element = elementStack.Peek();
                                 element.Nodes.Add(new SvgContentNode() { Content = reader.Value });
                             }
+
                             break;
                         case XmlNodeType.SignificantWhitespace:
                             if (elementStack.Count > 0 && elementStack.Peek() is SvgTextSpan)
@@ -336,6 +341,7 @@ namespace Svg
                                 element = elementStack.Peek();
                                 element.Nodes.Add(new SvgContentNode() { Content = reader.Value });
                             }
+
                             break;
                         case XmlNodeType.EntityReference:
                             reader.ResolveEntity();
@@ -468,7 +474,7 @@ namespace Svg
             //Trace.TraceInformation("Begin Render");
 
             var size = GetDimensions();
-            var bitmap = Bitmap.Create((int) Math.Round(size.Width), (int) Math.Round(size.Height));
+            var bitmap = Bitmap.Create((int)Math.Round(size.Width), (int)Math.Round(size.Height));
             // 	bitmap.SetResolution(300, 300);
             try
             {
@@ -528,21 +534,22 @@ namespace Svg
         public Bitmap DrawAllContents(Color backgroundColor = null, SizeF padding = null)
         {
             var bounds = CalculateDocumentBounds();
-            return DrawAllContents((int) bounds.Width, (int) bounds.Height, backgroundColor, padding);
+            return DrawAllContents((int)bounds.Width, (int)bounds.Height, backgroundColor, padding);
         }
 
         public Bitmap DrawDocument(Color backgroundColor = null, SizeF padding = null, int maxWidthHeight = 0)
         {
-            if(Width.Type != SvgUnitType.Percentage && Height.Type != SvgUnitType.Percentage)
+            if (Width.Type != SvgUnitType.Percentage && Height.Type != SvgUnitType.Percentage)
             {
                 var rect = RectangleF.Create();
-                rect.Width = Width; 
+                rect.Width = Width;
                 rect.Height = Height;
 
                 var bitmap = GetScaledBitMap(rect, maxWidthHeight);
                 DrawDocument(bitmap, backgroundColor, padding, maxWidthHeight);
                 return bitmap;
             }
+
             AdaptCanvasSizeToElementBoundsWithoutPadding();
             return DrawAllContents(maxWidthHeight, backgroundColor, padding);
         }
@@ -562,6 +569,7 @@ namespace Svg
                     height = height * factor;
                     width = maxWidth;
                 }
+
                 if (height > maxHeight)
                 {
                     var factor = maxHeight / height;
@@ -569,7 +577,7 @@ namespace Svg
                     height = maxHeight;
                 }
 
-                bitmap = Bitmap.Create((int) width, (int) height);
+                bitmap = Bitmap.Create((int)width, (int)height);
                 DrawAllContents(bitmap, backgroundColor, padding);
                 return bitmap;
             }
@@ -589,7 +597,7 @@ namespace Svg
 
                 var bounds = CalculateDocumentBounds();
                 bitmap = GetScaledBitMap(bounds, maxWidthHeight);
-                
+
                 DrawAllContents(bitmap, backgroundColor, padding);
                 return bitmap;
             }
@@ -606,6 +614,7 @@ namespace Svg
             {
                 return Bitmap.Create((int)bounds.Width, (int)bounds.Height);
             }
+
             var width = bounds.Width;
             var height = bounds.Height;
 
@@ -628,6 +637,7 @@ namespace Svg
                     height = maxWidthHeight;
                 }
             }
+
             return Bitmap.Create((int)width, (int)height);
         }
 
@@ -643,7 +653,7 @@ namespace Svg
 
         private void AdaptCanvasSizeToElementBoundsWithoutPadding()
         {
-            AdaptCanvasSizeToElementBounds(0,0);
+            AdaptCanvasSizeToElementBounds(0, 0);
         }
 
         private void AdaptCanvasSizeToElementBounds(int x, int y)
@@ -681,6 +691,7 @@ namespace Svg
                 Y = oldY;
             }
         }
+
         public void DrawDocument(Bitmap bitmap, Color backgroundColor, SizeF padding, int maxWidthHeight)
         {
             // draw document
@@ -695,7 +706,7 @@ namespace Svg
                 var bounds = RectangleF.Create();
                 bounds.Width = Width;
                 bounds.Height = Height;
-                bounds.X = X; 
+                bounds.X = X;
                 bounds.Y = Y;
 
                 DrawAllContentsInBoundary(bitmap, bounds, backgroundColor, padding);
@@ -728,12 +739,25 @@ namespace Svg
 
         public RectangleF CalculateDocumentBounds()
         {
+            return CalculateBounds(Children.OfType<SvgVisualElement>());
+        }
+
+        public RectangleF CalculateDocumentImageBounds()
+        {
+            var imageElements = Children.OfType<SvgImage>();
+            if (!imageElements.Any())
+                return CalculateDocumentBounds();
+
+            return CalculateBounds(imageElements);
+        }
+
+        private RectangleF CalculateBounds(IEnumerable<SvgVisualElement> elements)
+        {
             RectangleF documentSize = null;
 
-            foreach (var element in Children.OfType<SvgVisualElement>())
+            foreach (var element in elements)
             {
                 var bounds = element.GetBoundingBox();
-
                 if (documentSize == null)
                     documentSize = bounds;
                 else
@@ -744,13 +768,12 @@ namespace Svg
 
             if (!Transforms.Any())
                 return documentSize;
-            
+
             var m = Matrix.Create();
-            foreach(var transform in Transforms)
+            foreach (var transform in Transforms)
                 transform.ApplyTo(m);
 
             return m.TransformRectangle(documentSize);
-
         }
 
         public override void Write(IXmlTextWriter writer)
@@ -769,7 +792,8 @@ namespace Svg
             //xmlWriter.WriteDocType("svg", "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd", null);
 
             if (!String.IsNullOrEmpty(this.ExternalCSSHref))
-                xmlWriter.WriteProcessingInstruction("xml-stylesheet", String.Format("type=\"text/css\" href=\"{0}\"", this.ExternalCSSHref));
+                xmlWriter.WriteProcessingInstruction("xml-stylesheet",
+                    String.Format("type=\"text/css\" href=\"{0}\"", this.ExternalCSSHref));
 
             this.Write(xmlWriter);
 
@@ -811,7 +835,7 @@ namespace Svg
             this.X += new SvgUnit(SvgUnitType.Pixel, x);
             this.Y += new SvgUnit(SvgUnitType.Pixel, y);
         }
-        
+
         public override SvgElement DeepCopy()
         {
             return DeepCopy<SvgDocument>();
