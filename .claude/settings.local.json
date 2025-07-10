@@ -4,7 +4,12 @@
       "Bash(find:*)",
       "Bash(ls:*)",
       "Bash(dotnet build:*)",
-      "Bash(./build.ps1 -Target Build)"
+      "Bash(./build.ps1 -Target Build)",
+      "Bash(dotnet test:*)",
+      "Bash(grep:*)",
+      "Bash(timeout 30 dotnet test ./SvgW3CTestSuite.Win/SvgW3CTestSuite.Win.csproj --filter \"Name~struct-use\" --logger:console --verbosity minimal)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }

@@ -15,6 +15,7 @@ namespace Svg
         private SvgAttributeCollection.Attribute<SvgUnit> _y;
         private SvgAttributeCollection.Attribute<SvgUnit> _width;
         private SvgAttributeCollection.Attribute<SvgUnit> _height;
+        private bool _isRendering = false;
 
         [SvgAttribute("href", SvgAttributeAttribute.XLinkNamespace)]
         public virtual Uri ReferencedElement
@@ -70,16 +71,19 @@ namespace Svg
             renderer.TranslateTransform(this.X.ToDeviceValue(renderer, UnitRenderingType.Horizontal, this),
                                         this.Y.ToDeviceValue(renderer, UnitRenderingType.Vertical, this));
 
-            var element = this.OwnerDocument.IdManager.GetElementById(this.ReferencedElement) as SvgVisualElement;
-            if (element != null)
+            if (!_isRendering) // Only calculate scale if we're not already in a render cycle
             {
-                var childBounds = element.Bounds;
-                var scaleX = this.Width != SvgUnit.None ? this.Width / childBounds.Width : 1;
-                var scaleY = this.Height != SvgUnit.None ? this.Height / childBounds.Height : 1;
-                
-                //renderer.ScaleTransform(scaleX, scaleY);
-                var scale = Math.Min(scaleX, scaleY);
-                renderer.ScaleTransform(scale, scale);
+                var element = this.OwnerDocument?.IdManager?.GetElementById(this.ReferencedElement) as SvgVisualElement;
+                if (element != null && element != this)
+                {
+                    var childBounds = element.Bounds;
+                    var scaleX = this.Width != SvgUnit.None ? this.Width / childBounds.Width : 1;
+                    var scaleY = this.Height != SvgUnit.None ? this.Height / childBounds.Height : 1;
+                    
+                    //renderer.ScaleTransform(scaleX, scaleY);
+                    var scale = Math.Min(scaleX, scaleY);
+                    renderer.ScaleTransform(scale, scale);
+                }
             }
 
             return true;
@@ -96,48 +100,71 @@ namespace Svg
 
         public override GraphicsPath Path(ISvgRenderer renderer)
         {
-            SvgVisualElement element = (SvgVisualElement)this.OwnerDocument.IdManager.GetElementById(this.ReferencedElement);
-            return (element != null) ? element.Path(renderer) : null;
+            if (_isRendering) return null; // Prevent recursion
+            SvgVisualElement element = (SvgVisualElement)this.OwnerDocument?.IdManager?.GetElementById(this.ReferencedElement);
+            return (element != null && element != this) ? element.Path(renderer) : null;
         }
 
         protected internal override bool Renderable { get { return false; } }
 
+        private bool IsCircularReference(SvgVisualElement element)
+        {
+            var current = this.Parent;
+            while (current != null)
+            {
+                if (current == element)
+                    return true;
+                if (current is SvgUse use && use.ReferencedElement?.Fragment == this.ReferencedElement?.Fragment)
+                    return true;
+                current = current.Parent;
+            }
+            return false;
+        }
+
         protected override void Render(ISvgRenderer renderer)
         {
-            if (this.Visible && this.Displayable && this.PushTransforms(renderer))
+            if (this.Visible && this.Displayable && !_isRendering && this.PushTransforms(renderer))
             {
-                this.SetClip(renderer);
-
-                var element = this.OwnerDocument.IdManager.GetElementById(this.ReferencedElement) as SvgVisualElement;
-                if (element != null)
+                _isRendering = true;
+                try
                 {
-                    this.ResetClip(renderer);
-                    var origParent = element.Parent;
-                    element._parent = this;
-                    element.RenderElement(renderer);
-                    element._parent = origParent;
-                    this.PopTransforms(renderer);
+                    this.SetClip(renderer);
 
+                    var element = this.OwnerDocument?.IdManager?.GetElementById(this.ReferencedElement) as SvgVisualElement;
+                    if (element != null && element != this && !IsCircularReference(element))
+                    {
+                        this.ResetClip(renderer);
+                        var origParent = element.Parent;
+                        element._parent = this;
+                        element.RenderElement(renderer);
+                        element._parent = origParent;
+                        this.PopTransforms(renderer);
+                    }
+                    else
+                    {
+                        this.ResetClip(renderer);
+                        this.PopTransforms(renderer);
+                    }
                 }
-                else
+                finally
                 {
-                    this.ResetClip(renderer);
-                    this.PopTransforms(renderer);
+                    _isRendering = false;
                 }
             }
         }
 
         public override PointF[] GetTransformedPoints(Matrix transform = null)
         {
+            if (_isRendering) return Array.Empty<PointF>(); // Prevent recursion
+            
             if (transform == null)
                 transform = Matrix.Create();
             else
                 transform = transform.Clone();
             
+            var element = this.OwnerDocument?.IdManager?.GetElementById(this.ReferencedElement) as SvgVisualElement;
             
-            var element = this.OwnerDocument.IdManager.GetElementById(this.ReferencedElement) as SvgVisualElement;
-            
-             if(element is null)
+             if(element is null || element == this)
                 return Array.Empty<PointF>();
             
             return element.GetTransformedElementPoints(transform);

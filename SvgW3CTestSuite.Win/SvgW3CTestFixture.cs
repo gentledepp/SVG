@@ -27,13 +27,30 @@ namespace SvgW3CTestSuite.Win
 
             var svgFiles = AssetHelper.GetAllSvgFiles()/*.Where(s => !s.StartsWith("struct-image"))*/;
 
+            System.Diagnostics.Debug.WriteLine($"Found {svgFiles.Count()} SVG files");
+            foreach (var file in svgFiles.Take(5))
+            {
+                System.Diagnostics.Debug.WriteLine($"SVG: {file}");
+            }
+
             SvgTestCases = svgFiles.Select(path => new object[]
                                                     {
                                                         path,
                                                         AssetHelper.GetPngForSvg(path)
                                                     })
                                                     .ToArray();
+            
+            System.Diagnostics.Debug.WriteLine($"Created {SvgTestCases.Length} test cases");
+            
             FileSourceProvider = (path) => Svg.Platform.EmbeddedResourceSource.Create(path, typeof(AssetHelper).Assembly);
+        }
+
+        [Test]
+        public void DebugTest()
+        {
+            var svgFiles = AssetHelper.GetAllSvgFiles();
+            System.Diagnostics.Debug.WriteLine($"Found {svgFiles.Count()} SVG files in DebugTest");
+            Assert.That(svgFiles.Count(), Is.GreaterThanOrEqualTo(1), "Should find at least one SVG file");
         }
 
         [Test, TestCaseSource(nameof(SvgTestCases))]
