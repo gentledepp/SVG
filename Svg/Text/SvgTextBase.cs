@@ -475,8 +475,9 @@ namespace Svg
             }
             else
             {
+                // According to SVG spec, for xml:space="default": normalize whitespace, collapse sequences to single space, strip leading/trailing
                 var convValue = MultipleSpaces.Replace(value.Replace("\r", "").Replace("\n", "").Replace('\t', ' '), " ");
-                return convValue;
+                return convValue.Trim();
             }
         }
 
@@ -832,7 +833,9 @@ namespace Svg
             {
                 var drawPath = _currPath;
                 if (rotation != 0.0f) drawPath = SvgEngine.Factory.CreateGraphicsPath();
-                font.AddStringToPath(Renderer, drawPath, value, PointF.Create(location.X, location.Y - fontBaselineHeight));
+                // For embedded SVG fonts, don't subtract baseline height as they handle positioning internally
+                var adjustedLocation = font is SvgFontDefn ? location : PointF.Create(location.X, location.Y - fontBaselineHeight);
+                font.AddStringToPath(Renderer, drawPath, value, adjustedLocation);
                 if (rotation != 0.0f && drawPath.PointCount > 0)
                 {
                     using (var matrix = SvgEngine.Factory.CreateMatrix())

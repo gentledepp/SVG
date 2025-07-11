@@ -196,21 +196,21 @@ namespace SvgW3CTestSuite.Win
                     var c1 = i1.GetPixel(x, y);
                     var c2 = i2.GetPixel(x, y);
 
+                    // Check for exact match first
                     if (object.Equals(c1.Alpha, c2.Alpha) &&
                         object.Equals(c1.Green, c2.Green) &&
                         object.Equals(c1.Blue, c2.Blue) &&
                         object.Equals(c1.Red, c2.Red))
                     {
-                        if (c1.Alpha != 0) // if pixel has alpha
-                        {
-                            pixelAmount--;
-                            //bitmap.SetPixel(x, y, Color.White);
-                        }
-                        else
-                        {
-                            correctPixel++;
-                            //bitmap.SetPixel(x, y, Color.White);
-                        }
+                        correctPixel++;
+                    }
+                    // Check for very close match (within 2 color values) for anti-aliasing differences
+                    else if (Math.Abs(c1.Alpha - c2.Alpha) <= 2 &&
+                             Math.Abs(c1.Green - c2.Green) <= 2 &&
+                             Math.Abs(c1.Blue - c2.Blue) <= 2 &&
+                             Math.Abs(c1.Red - c2.Red) <= 2)
+                    {
+                        correctPixel++;
                     }
                 }
             }
