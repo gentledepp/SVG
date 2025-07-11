@@ -31,14 +31,19 @@ namespace Svg
         /// <exception cref="T:System.Exception">There is a runtime error (for example, an interrupted server connection). </exception>
         public override object GetEntity(Uri absoluteUri, string role, Type ofObjectToReturn)
         {
-            if (absoluteUri.ToString().IndexOf("svg", StringComparison.OrdinalIgnoreCase) > -1)
+            var uriString = absoluteUri.ToString();
+            if (uriString.IndexOf("svg", StringComparison.OrdinalIgnoreCase) > -1)
             {
-                return this.GetType().GetTypeInfo().Assembly.GetManifestResourceStream("Svg.Resources.svg11.dtd");
+                // Handle both full SVG 1.1 and basic SVG 1.1 DTDs
+                var dtdStream = this.GetType().GetTypeInfo().Assembly.GetManifestResourceStream("Svg.Resources.svg11.dtd");
+                if (dtdStream != null)
+                {
+                    return dtdStream;
+                }
             }
-            else
-            {
-                return base.GetEntity(absoluteUri, role, ofObjectToReturn);
-            }
+            
+            // For external DTDs we can't resolve, return an empty stream to avoid errors
+            return new System.IO.MemoryStream();
         }
     }
 }

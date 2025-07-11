@@ -187,7 +187,8 @@ namespace Svg
             for (int i = 0; i < colourBlends; i++)
             {
                 var currentStop = this.Stops[radial ? this.Stops.Count - 1 - actualStops : actualStops];
-                var boundWidth = renderer.GetBoundable().Bounds.Width;
+                var boundable = renderer.GetBoundable();
+                var boundWidth = boundable?.Bounds.Width ?? 1.0f;
 
                 mergedOpacity = opacity * currentStop.GetOpacity();
                 position =

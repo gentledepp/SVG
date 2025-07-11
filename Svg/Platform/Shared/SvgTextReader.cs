@@ -22,9 +22,13 @@ namespace Svg
                 XmlResolver = new SvgDtdResolver(),
 #endif
                 IgnoreWhitespace = false,
-                DtdProcessing = DtdProcessing.Ignore,
+                DtdProcessing = DtdProcessing.Parse,
+                ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None,
+                ValidationType = System.Xml.ValidationType.None,
                 //WhitespaceHandling = WhitespaceHandling.Significant,
             };
+            // Ignore DTD validation errors
+            settings.ValidationEventHandler += (sender, e) => { /* ignore */ };
             if (stream.Length == stream.Position)
                 throw new InvalidOperationException("The provided streams position is at EOF! Cannot load svg document");
             _xml = XmlReader.Create(stream, settings);
@@ -39,9 +43,13 @@ namespace Svg
                 XmlResolver = new SvgDtdResolver(),
 #endif
                 IgnoreWhitespace = false,
-                DtdProcessing = DtdProcessing.Ignore,
+                DtdProcessing = DtdProcessing.Parse,
+                ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None,
+                ValidationType = System.Xml.ValidationType.None,
                 //WhitespaceHandling = WhitespaceHandling.Significant,
             };
+            // Ignore DTD validation errors
+            settings.ValidationEventHandler += (sender, e) => { /* ignore */ };
             _xml = XmlReader.Create(reader, settings);
             _entities = entities;
         }

@@ -239,7 +239,9 @@ namespace Svg
 
                 using (var patternMatrix = SvgEngine.Factory.CreateMatrix())
                 {
-                    var bounds = renderer.GetBoundable().Bounds;
+                    var boundable = renderer.GetBoundable();
+                    if (boundable == null) return null;
+                    var bounds = boundable.Bounds;
                     var xScale = (patternUnits == SvgCoordinateUnits.ObjectBoundingBox ? bounds.Width : 1);
                     var yScale = (patternUnits == SvgCoordinateUnits.ObjectBoundingBox ? bounds.Height : 1);
 

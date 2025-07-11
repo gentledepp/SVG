@@ -163,3 +163,25 @@ Tools follow a consistent pattern:
 - Use caching for frequently accessed elements
 - Optimize rendering by minimizing state changes
 - Consider using background threads for heavy operations
+
+## Testing Guidelines
+
+- **Test Reporting**: 
+  - Before any summary, run all tests first and include in the summary:
+    - Total number of tests run
+    - Number of tests succeeded
+    - Number of tests failed
+    - Number of tests inconclusive
+  - Include a comparison to previous test runs, showing changes in test results
+    - Example: 200 succeeded (+12), 13 failed (-12)
+
+## Git Commit Message Guidelines
+
+- Always include the following sections in git commit messages:
+  - **Major issues fixed**: Detailed list of significant problems resolved
+  - **Test Results**: Comprehensive test report including:
+    - Total number of tests run
+    - Tests succeeded
+    - Tests failed
+    - Tests inconclusive
+    - Comparison to previous test runs

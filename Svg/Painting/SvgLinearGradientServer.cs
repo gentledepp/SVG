@@ -105,7 +105,13 @@ namespace Svg
                     SvgUnit.GetDevicePoint(NormalizeUnit(this.X2), NormalizeUnit(this.Y2), renderer, this)
                 };
 
-                var bounds = renderer.GetBoundable().Bounds;
+                var boundable = renderer.GetBoundable();
+                if (boundable == null)
+                {
+                    if (this.GetCallback != null) return GetCallback().GetBrush(renderingElement, renderer, opacity, forStroke);
+                    return null;
+                }
+                var bounds = boundable.Bounds;
                 if (bounds.Width <= 0 || bounds.Height <= 0 || ((points[0].X == points[1].X) && (points[0].Y == points[1].Y))) 
                 {
                     if (this.GetCallback != null) return GetCallback().GetBrush(renderingElement, renderer, opacity, forStroke);

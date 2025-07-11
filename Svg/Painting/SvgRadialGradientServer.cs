@@ -130,7 +130,13 @@ namespace Svg
 
                 using (var transform = EffectiveGradientTransform)
                 {
-                    var bounds = renderer.GetBoundable().Bounds;
+                    var boundable = renderer.GetBoundable();
+                    if (boundable == null)
+                    {
+                        if (this.GetCallback != null) return GetCallback().GetBrush(renderingElement, renderer, opacity, forStroke);
+                        return null;
+                    }
+                    var bounds = boundable.Bounds;
                     transform.Translate(bounds.X, bounds.Y, MatrixOrder.Prepend);
                     if (this.GradientUnits == SvgCoordinateUnits.ObjectBoundingBox)
                     {

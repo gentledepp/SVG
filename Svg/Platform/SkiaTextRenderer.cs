@@ -92,28 +92,28 @@ namespace Svg.Platform
                 }
                 else
                 {
-                    if (parent.X.Count > 0)
+                    if (parent.X?.Count > 0)
                         x = parent.X[0].Value;
-                    if (parent.Y.Count > 0)
+                    if (parent.Y?.Count > 0)
                         y = parent.Y[0].Value;
                 }
             }
 
-            if (txt.X.Count > 0)
+            if (txt.X?.Count > 0)
                 x = txt.X[0].Value;
 
             // note: Dx could contain multiple values, which would stand for each character!
             // see: https://wiki.selfhtml.org/wiki/SVG/Attribute/dx
-            if (txt.Dx.Count > 0)
+            if (txt.Dx?.Count > 0)
                 x += txt.Dx[0].Value;
 
 
-            if (txt.Y.Count > 0)
+            if (txt.Y?.Count > 0)
                 y = txt.Y[0].Value;
 
-            // note: Dx could contain multiple values, which would stand for each character!
-            // see: https://wiki.selfhtml.org/wiki/SVG/Attribute/dx
-            if (txt.Dy.Count > 0)
+            // note: Dy could contain multiple values, which would stand for each character!
+            // see: https://wiki.selfhtml.org/wiki/SVG/Attribute/dy
+            if (txt.Dy?.Count > 0)
                 y += txt.Dy[0].Value;
             
             return (x, y);
@@ -142,9 +142,12 @@ namespace Svg.Platform
         private Brush CreateFillBrush(SvgTextBase txt, ISvgRenderer renderer)
         {
             var brush = txt.Fill.GetBrush(txt, renderer, 1f);
-            var fontFamily = renderer.GetFontFamily(txt);
-            if (fontFamily is { } ff)
-                brush.SetFontFamily(ff);
+            if (brush != null)
+            {
+                var fontFamily = renderer.GetFontFamily(txt);
+                if (fontFamily is { } ff)
+                    brush.SetFontFamily(ff);
+            }
             
             return brush;
         }

@@ -198,7 +198,7 @@ namespace Svg
                     var prevClip = renderer.GetClip();
                     try
                     {
-                        var size = (this.Parent == null ? renderer.GetBoundable().Bounds.Size : GetDimensions());
+                        var size = (this.Parent == null ? (renderer.GetBoundable()?.Bounds.Size ?? SizeF.Create(100, 100)) : GetDimensions());
                         var clip = RectangleF.Create(this.X.ToDeviceValue(renderer, UnitRenderingType.Horizontal, this),
                                                   this.Y.ToDeviceValue(renderer, UnitRenderingType.Horizontal, this),
                                                   size.Width, size.Height);

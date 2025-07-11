@@ -114,7 +114,7 @@ namespace Svg
             {
                 if (current == element)
                     return true;
-                if (current is SvgUse use && use.ReferencedElement?.Fragment == this.ReferencedElement?.Fragment)
+                if (current is SvgUse use && use.ReferencedElement?.IsAbsoluteUri == true && this.ReferencedElement?.IsAbsoluteUri == true && use.ReferencedElement?.Fragment == this.ReferencedElement?.Fragment)
                     return true;
                 current = current.Parent;
             }
