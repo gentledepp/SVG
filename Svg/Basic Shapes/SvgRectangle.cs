@@ -126,14 +126,7 @@ namespace Svg
         [SvgAttribute("rx")]
         public SvgUnit CornerRadiusX
         {
-            get
-            {
-                // If ry has been set and rx hasn't, use it's value
-                if (_cornerRadiusX.Value == 0.0f && _cornerRadiusY.Value > 0.0f)
-                    return _cornerRadiusY;
-
-                return _cornerRadiusX;
-            }
+            get { return _cornerRadiusX; }
             set
             {
                 _cornerRadiusX = value;
@@ -148,14 +141,7 @@ namespace Svg
         [SvgAttribute("ry")]
         public SvgUnit CornerRadiusY
         {
-            get
-            {
-                // If rx has been set and ry hasn't, use it's value
-                if (_cornerRadiusY.Value == 0.0f && _cornerRadiusX.Value > 0.0f)
-                    return _cornerRadiusX;
-
-                return _cornerRadiusY;
-            }
+            get { return _cornerRadiusY; }
             set
             {
                 _cornerRadiusY = value;
@@ -205,8 +191,20 @@ namespace Svg
                     var lineEnd = PointF.Create(0f,0f);
                     var width = Width.ToDeviceValue(renderer, UnitRenderingType.Horizontal, this);
                     var height = Height.ToDeviceValue(renderer, UnitRenderingType.Vertical, this);
-                    var rx = Math.Min(CornerRadiusX.ToDeviceValue(renderer, UnitRenderingType.Horizontal, this) * 2, width);
-                    var ry = Math.Min(CornerRadiusY.ToDeviceValue(renderer, UnitRenderingType.Vertical, this) * 2, height);
+                    // Implement SVG spec: if rx is specified but not ry, ry = rx; if ry is specified but not rx, rx = ry
+                    var rxSpecified = this.Attributes.ContainsKey("rx");
+                    var rySpecified = this.Attributes.ContainsKey("ry");
+                    var rxValue = _cornerRadiusX.ToDeviceValue(renderer, UnitRenderingType.Horizontal, this);
+                    var ryValue = _cornerRadiusY.ToDeviceValue(renderer, UnitRenderingType.Vertical, this);
+                    
+                    if (rxSpecified && !rySpecified)
+                        ryValue = rxValue;
+                    else if (rySpecified && !rxSpecified)
+                        rxValue = ryValue;
+                    
+                    // Then clamp both values
+                    var rx = Math.Min(rxValue * 2, width);
+                    var ry = Math.Min(ryValue * 2, height);
                     var location = Location.ToDeviceValue(renderer, this);
 
                     // Start
