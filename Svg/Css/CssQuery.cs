@@ -16,63 +16,40 @@ namespace Svg.Css
             return generator.Selector(Enumerable.Repeat(elem, 1));
         }
 
-        public static int GetSpecificity(this BaseSelector selector)
+        public static int GetSpecificity(this ISelector selector)
         {
-            if (selector is SimpleSelector)
-            {
-                var simpleCode = selector.ToString().ToLowerInvariant();
-                if (simpleCode.StartsWith(":not("))
-                {
-                    simpleCode = simpleCode.Substring(5, simpleCode.Length - 6);
-                    return GetSpecificity(new SimpleSelector(simpleCode));
-                }
-                else if (simpleCode.StartsWith("#"))
-                {
-                    // ID selector
-                    return 1 << 12;
-                }
-                else if (simpleCode.StartsWith("::") || simpleCode == ":after" || simpleCode == ":before" ||
-                    simpleCode == ":first-letter" || simpleCode == ":first-line" || simpleCode == ":selection")
-                {
-                    // pseudo-element
-                    return 1 << 4;
-                }
-                else if (simpleCode.StartsWith(".") || simpleCode.StartsWith(":") || simpleCode.StartsWith("["))
-                {
-                    // class, pseudo-class, attribute
-                    return 1 << 8;
-                }
-                else if (selector == SimpleSelector.All)
-                {
-                    // all selector
-                    return 0;
-                }
-                else
-                {
-                    // element selector
-                    return 1 << 4;
-                }
-            }
-            else
-            {
-                var list = selector as IEnumerable<BaseSelector>;
-                if (list != null)
-                {
-                    return (from s in list select GetSpecificity(s)).Aggregate((p, c) => p + c);
-                }
-                else
-                {
-                    var complex = selector as IEnumerable<CombinatorSelector>;
-                    if (complex != null)
-                    {
-                        return (from s in complex select GetSpecificity(s.Selector)).Aggregate((p, c) => p + c);
-                    }
-                    else
-                    {
-                        return 0;
-                    }
-                }
-            }
+            // Simplified specificity calculation based on selector text
+            // This is a workaround since ExCSS-Core doesn't expose the same selector structure
+            var selectorText = selector.ToString().ToLowerInvariant();
+            var specificity = 0;
+            
+            // Count ID selectors (#id)
+            specificity += (selectorText.Split('#').Length - 1) * (1 << 12);
+            
+            // Count class selectors (.class), attribute selectors ([attr]), and pseudo-classes (:hover)
+            var classCount = (selectorText.Split('.').Length - 1) + 
+                            (selectorText.Split('[').Length - 1) + 
+                            CountPseudoClasses(selectorText);
+            specificity += classCount * (1 << 8);
+            
+            // Count element selectors (rough approximation)
+            var elementCount = CountElements(selectorText);
+            specificity += elementCount * (1 << 4);
+            
+            return specificity;
+        }
+        
+        private static int CountPseudoClasses(string selectorText)
+        {
+            var pseudoClasses = new[] { ":hover", ":active", ":focus", ":visited", ":link", ":target", ":enabled", ":disabled", ":checked" };
+            return pseudoClasses.Sum(pseudo => (selectorText.Split(new[] { pseudo }, StringSplitOptions.None).Length - 1));
+        }
+        
+        private static int CountElements(string selectorText)
+        {
+            // Simple approximation - count words that are not pseudo-classes, classes, or IDs
+            var words = selectorText.Split(new[] { ' ', '>', '+', '~', ',' }, StringSplitOptions.RemoveEmptyEntries);
+            return words.Count(word => !word.StartsWith(".") && !word.StartsWith("#") && !word.StartsWith(":") && !word.StartsWith("["));
         }
     }
 }

@@ -33,7 +33,7 @@ namespace Svg
 
                 return availableElements;
             });
-        private static Parser cssParser = new Parser();
+        private static StylesheetParser cssParser = new StylesheetParser();
         private static Dictionary<Type, Dictionary<string, List<IPropertyDescriptor>>> _propertyDescriptors = new Dictionary<Type, Dictionary<string, List<IPropertyDescriptor>>>();
         private static object syncLock = new object();
 
@@ -141,13 +141,15 @@ namespace Svg
                 if (attributeName.Equals("style") && !(element is NonSvgElement)) 
                 {
                     var inlineSheet = cssParser.Parse("#a{" + reader.Value + "}");
-                    foreach (var rule in inlineSheet.StyleRules)
+                    // Process inline CSS with ExCSS-Core API
+                    foreach (var rule in inlineSheet.StyleRules.OfType<StyleRule>())
                     {
-                        foreach (var decl in rule.Declarations)
+                        // Access Style property which contains the declarations
+                        foreach (var decl in rule.Style)
                         {
                             if (!Regex.IsMatch(decl.Name, @"^(:|[A-Z]|_|[a-z]|[\u00C0-\u00D6]|[\u00D8-\u00F6]|[\u00F8-\u02FF]|[\u0370-\u037D]|[\u037F-\u1FFF]|[\u200C-\u200D]|[\u2070-\u218F]|[\u2C00-\u2FEF]|[\u3001-\uD7FF]|[\uF900-\uFDCF]|[\uFDF0-\uFFFD])"))
                                 continue;
-                            element.AddStyle(decl.Name, decl.Term?.ToString(), SvgElement.StyleSpecificity_InlineStyle);
+                            element.AddStyle(decl.Name, decl.Value, SvgElement.StyleSpecificity_InlineStyle);
                         }
                     }
                 }

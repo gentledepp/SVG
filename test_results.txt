@@ -1,0 +1,113 @@
+  Determining projects to restore...
+  Restored /mnt/c/code_gh/svg_gd/Svg.Tests.Win/Svg.Tests.Win.csproj (in 637 ms).
+  1 of 2 projects are up-to-date for restore.
+/mnt/c/code_gh/svg_gd/Svg/Basic Shapes/SvgPolyline.cs(42,34): warning CS0168: The variable 'exc' is declared but never used [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Basic Shapes/SvgImage.cs(331,30): warning CS0168: The variable 'ex' is declared but never used [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/Shared/WebRequestSvc.cs(22,35): warning SYSLIB0014: 'WebRequest.Create(Uri)' is obsolete: 'WebRequest, HttpWebRequest, ServicePoint, and WebClient are obsolete. Use HttpClient instead.' (https://aka.ms/dotnet-warnings/SYSLIB0014) [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/SvgDocument.cs(346,34): warning CS0168: The variable 'exc' is declared but never used [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaTextRenderer.cs(281,32): warning CS0618: 'SKPaint.MeasureText(string)' is obsolete: 'Use SKFont.MeasureText() instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaTextRenderer.cs(282,29): warning CS0618: 'SKPaint.MeasureText(string, ref SKRect)' is obsolete: 'Use SKFont.MeasureText() instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaBrushBase.cs(27,17): warning CS0618: 'SKPaint.Typeface' is obsolete: 'Use SKFont.Typeface instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaFont.cs(15,13): warning CS0618: 'SKPaint.Typeface' is obsolete: 'Use SKFont.Typeface instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaFont.cs(29,26): warning CS0618: 'SKPaint.TextSize' is obsolete: 'Use SKFont.Size instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaFont.cs(30,19): warning CS0618: 'SKPaint.TextSize' is obsolete: 'Use SKFont.Size instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaFont.cs(35,26): warning CS0618: 'SKPaint.TextSize' is obsolete: 'Use SKFont.Size instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaFont.cs(36,19): warning CS0618: 'SKPaint.TextSize' is obsolete: 'Use SKFont.Size instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaFont.cs(45,17): warning CS0618: 'SKPaint.Typeface' is obsolete: 'Use SKFont.Typeface instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaFontFamily.cs(36,13): warning CS0618: 'SKPaint.Typeface' is obsolete: 'Use SKFont.Typeface instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaFontFamily.cs(37,21): warning CS0618: 'SKPaint.FontMetrics' is obsolete: 'Use SKFont.Metrics instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaFontFamily.cs(49,13): warning CS0618: 'SKPaint.Typeface' is obsolete: 'Use SKFont.Typeface instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaFontFamily.cs(50,27): warning CS0618: 'SKPaint.FontMetrics' is obsolete: 'Use SKFont.Metrics instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaPen.cs(24,13): warning CS0618: 'SKPaint.TextSize' is obsolete: 'Use SKFont.Size instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Painting/SvgPatternServer.cs(220,48): warning CS8073: The result of the expression is always 'true' since a value of type 'SvgUnit' is never equal to 'null' of type 'SvgUnit?' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Painting/SvgPatternServer.cs(221,49): warning CS8073: The result of the expression is always 'true' since a value of type 'SvgUnit' is never equal to 'null' of type 'SvgUnit?' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Painting/SvgPatternServer.cs(226,44): warning CS8073: The result of the expression is always 'true' since a value of type 'SvgUnit' is never equal to 'null' of type 'SvgUnit?' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Painting/SvgPatternServer.cs(227,44): warning CS8073: The result of the expression is always 'true' since a value of type 'SvgUnit' is never equal to 'null' of type 'SvgUnit?' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaPen.cs(154,26): warning CS0618: 'SKPaint.TextSize' is obsolete: 'Use SKFont.Size instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaPen.cs(155,19): warning CS0618: 'SKPaint.TextSize' is obsolete: 'Use SKFont.Size instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaPen.cs(166,26): warning CS0618: 'SKPaint.TextAlign' is obsolete: 'Use SKTextAlign method overloads instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaPen.cs(167,19): warning CS0618: 'SKPaint.TextAlign' is obsolete: 'Use SKTextAlign method overloads instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaGraphics.cs(94,17): warning CS0618: 'SKCanvas.DrawText(string, float, float, SKPaint)' is obsolete: 'Use DrawText(string text, float x, float y, SKTextAlign textAlign, SKFont font, SKPaint paint) instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaGraphics.cs(115,13): warning CS0618: 'SKCanvas.DrawText(string, float, float, SKPaint)' is obsolete: 'Use DrawText(string text, float x, float y, SKTextAlign textAlign, SKFont font, SKPaint paint) instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaGraphics.cs(123,21): warning CS0618: 'SKPaint.FilterQuality' is obsolete: 'Use SKSamplingOptions instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaGraphics.cs(123,43): warning CS0618: 'SKFilterQuality' is obsolete: 'Use SKSamplingOptions instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaGraphics.cs(129,21): warning CS0618: 'SKPaint.FilterQuality' is obsolete: 'Use SKSamplingOptions instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaGraphics.cs(129,43): warning CS0618: 'SKFilterQuality' is obsolete: 'Use SKSamplingOptions instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaGraphics.cs(135,21): warning CS0618: 'SKPaint.FilterQuality' is obsolete: 'Use SKSamplingOptions instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaGraphics.cs(135,43): warning CS0618: 'SKFilterQuality' is obsolete: 'Use SKSamplingOptions instead.' [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaGraphics.cs(153,17): warning CS0219: The variable 'op' is assigned but its value is never used [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+/mnt/c/code_gh/svg_gd/Svg/Platform/SkiaGraphics.cs(244,32): warning CS9191: The 'ref' modifier for argument 1 corresponding to 'in' parameter is equivalent to 'in'. Consider using 'in' instead. [/mnt/c/code_gh/svg_gd/Svg/Svg.csproj::TargetFramework=net8.0]
+  Svg -> /mnt/c/code_gh/svg_gd/Svg/bin/Debug/net8.0/Svg.dll
+/mnt/c/code_gh/svg_gd/Svg.Tests.Win/TestSkPaint.cs(27,26): warning CS0618: 'SKPaint.TextSize' is obsolete: 'Use SKFont.Size instead.' [/mnt/c/code_gh/svg_gd/Svg.Tests.Win/Svg.Tests.Win.csproj]
+  Svg.Tests.Win -> /mnt/c/code_gh/svg_gd/Svg.Tests.Win/bin/Debug/net8.0/Svg.Tests.Win.dll
+Test run for /mnt/c/code_gh/svg_gd/Svg.Tests.Win/bin/Debug/net8.0/Svg.Tests.Win.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+/mnt/c/code_gh/svg_gd/Svg.Tests.Win/bin/Debug/net8.0/Svg.Tests.Win.dll
+NUnit Adapter 4.6.0.0: Test execution started
+Running all tests in /mnt/c/code_gh/svg_gd/Svg.Tests.Win/bin/Debug/net8.0/Svg.Tests.Win.dll
+   NUnit3TestExecutor discovered 222 of 222 NUnit test cases using Current Discovery mode, Non-Explicit run
+CanLoad_Save_AndReload_Document("nested_transformed_text.svg"): OneTimeSetUp: test case file got lost... 🤷‍♂️
+Unhandled exception. System.TypeInitializationException: The type initializer for 'SkiaSharp.SKObject' threw an exception.
+ ---> System.DllNotFoundException: Unable to load shared library 'libSkiaSharp' or one of its dependencies. In order to help diagnose loading problems, consider using a tool like strace. If you're using glibc, consider setting the LD_DEBUG environment variable: 
+/usr/share/dotnet/shared/Microsoft.NETCore.App/8.0.18/libSkiaSharp.so: cannot open shared object file: No such file or directory
+/mnt/c/code_gh/svg_gd/Svg.Tests.Win/bin/Debug/net8.0/libSkiaSharp.so: cannot open shared object file: No such file or directory
+/usr/share/dotnet/shared/Microsoft.NETCore.App/8.0.18/liblibSkiaSharp.so: cannot open shared object file: No such file or directory
+/mnt/c/code_gh/svg_gd/Svg.Tests.Win/bin/Debug/net8.0/liblibSkiaSharp.so: cannot open shared object file: No such file or directory
+/usr/share/dotnet/shared/Microsoft.NETCore.App/8.0.18/libSkiaSharp: cannot open shared object file: No such file or directory
+/mnt/c/code_gh/svg_gd/Svg.Tests.Win/bin/Debug/net8.0/libSkiaSharp: cannot open shared object file: No such file or directory
+/usr/share/dotnet/shared/Microsoft.NETCore.App/8.0.18/liblibSkiaSharp: cannot open shared object file: No such file or directory
+/mnt/c/code_gh/svg_gd/Svg.Tests.Win/bin/Debug/net8.0/liblibSkiaSharp: cannot open shared object file: No such file or directory
+   at SkiaSharp.SkiaApi.sk_version_get_milestone()
+   at SkiaSharp.SkiaSharpVersion.get_Native()
+   at SkiaSharp.SkiaSharpVersion.CheckNativeLibraryCompatible(Boolean throwIfIncompatible)
+   at SkiaSharp.SKObject..cctor()
+   --- End of inner exception stack trace ---
+   at SkiaSharp.SKObject.DeregisterHandle(IntPtr handle, SKObject instance)
+   at SkiaSharp.SKObject.set_Handle(IntPtr value)
+   at SkiaSharp.SKNativeObject.Dispose(Boolean disposing)
+   at SkiaSharp.SKObject.Dispose(Boolean disposing)
+   at SkiaSharp.SKPath.Dispose(Boolean disposing)
+   at SkiaSharp.SKNativeObject.Finalize()
+  Passed CanInheritAttribute [291 ms]
+  Passed WhenAttributeChanges_ResetsCache [6 ms]
+  Passed WhenInheritedAttributeChanges_ResetsCache [2 ms]
+  Passed GivenSvgPathSegmentList_ReturnsAllVisibleLines [15 ms]
+  Skipped CanLoad_Save_AndReload_Document("nested_transformed_text.svg") [2 ms]
+  Error Message:
+   OneTimeSetUp: test case file got lost... 🤷‍♂️
+  Standard Output Messages:
+ OneTimeSetUp: test case file got lost... 🤷‍♂️
+
+  Passed CanSaveEmptyDocument [60 ms]
+  Passed SavingDocument_KeepsInheritedAttributesIntact [106 ms]
+  Failed SavingDocument_KeepsNoneIfNoneIsSetExplicitly [68 ms]
+  Error Message:
+   Shouldly.ShouldAssertException : val
+    should be
+"inherit"
+    but was
+"none"
+    difference
+Difference     |  |    |    |         |    |    |   
+               | \|/  \|/  \|/       \|/  \|/  \|/  
+Index          | 0    1    2    3    4    5    6    
+Expected Value | i    n    h    e    r    i    t    
+Actual Value   | n    o    n    e                   
+Expected Code  | 105  110  104  101  114  105  116  
+Actual Code    | 110  111  110  101                 
+  Stack Trace:
+     at Svg.Tests.Win.SaveDocumentTests.AssertInheritedAttribute(SvgRectangle r, String attributeName) in /mnt/c/code_gh/svg_gd/Svg.Tests.Win/SaveDocumentTests.cs:line 313
+   at Svg.Tests.Win.SaveDocumentTests.SavingDocument_KeepsNoneIfNoneIsSetExplicitly() in /mnt/c/code_gh/svg_gd/Svg.Tests.Win/SaveDocumentTests.cs:line 211
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+  Passed SavingDocument_KeepsUnsetAttributesIntact [3 ms]
+
+Total tests: Unknown
+     Passed: 7
+     Failed: 1
+    Skipped: 1
+ Total time: 2.3631 Seconds

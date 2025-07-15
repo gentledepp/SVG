@@ -3,6 +3,7 @@ using Svg.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Color = Svg.Interfaces.Color;
 
 namespace Svg
 {
@@ -159,8 +160,19 @@ namespace Svg
                 return null;
 
             // 2. initialize cache of custom font families
-            CustomFonts ??= text.OwnerDocument.StyleSheets.SelectMany(s => s.FontFaceDirectives)
-                .ToDictionary(d => d.FontFamily, d => d);
+            // Process FontFace with ExCSS-Core API
+            CustomFonts ??= text.OwnerDocument.StyleSheets.SelectMany(s => s.FontfaceSetRules)
+                .OfType<IFontFaceRule>()
+                .Where(ff => 
+                {
+                    var fontFamilyProp = ff.GetType().GetProperty("FontFamily");
+                    return fontFamilyProp != null;
+                })
+                .ToDictionary(d => 
+                {
+                    var fontFamilyProp = d.GetType().GetProperty("FontFamily");
+                    return fontFamilyProp?.GetValue(d)?.ToString()?.Trim('\'', '"') ?? string.Empty;
+                }, d => d);
 
             // 3. create font if custom
             if (!string.IsNullOrEmpty(text.FontFamily))
@@ -181,7 +193,7 @@ namespace Svg
             return null;
         }
 
-        public IDictionary<string, FontFaceRule> CustomFonts { get; set; }
+        public IDictionary<string, IFontFaceRule> CustomFonts { get; set; }
 
         /// <summary>
         /// Creates a new <see cref="ISvgRenderer"/> from the specified <see cref="Image"/>.

@@ -10,6 +10,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using ExCSS;
+using Color = Svg.Interfaces.Color;
+using Colors = Svg.Interfaces.Colors;
 
 namespace Svg
 {
@@ -143,19 +146,41 @@ namespace Svg
             if (string.IsNullOrEmpty(fontFamilyName))
                 throw new ArgumentNullException(nameof(fontFamilyName));
             
-            var customFont = doc.StyleSheets.SelectMany(s => s.FontFaceDirectives).FirstOrDefault(ff => ff.FontFamily == fontFamilyName);
-            if (customFont?.Src is { } src)
-            {
-                var m = Base64UrlRegex.Match(src);
-                if (m.Success)
+            // Process FontFace with ExCSS-Core API
+            var customFont = doc.StyleSheets.SelectMany(s => s.FontfaceSetRules)
+                .OfType<IFontFaceRule>()
+                .FirstOrDefault(ff => 
                 {
-                    var base64 = m.Groups["source"].Value;
-                    using var ms = new MemoryStream(Convert.FromBase64String(base64));
-                    ms.Seek(0, SeekOrigin.Begin);
-                    var tf = SKTypeface.FromStream(ms);
-                    if (tf is null)
-                        return null;
-                    return new SkiaFontFamily(tf, fontFamilyName);
+                    // Check if this font face rule has the matching font family
+                    var fontFamilyProp = ff.GetType().GetProperty("FontFamily");
+                    if (fontFamilyProp != null)
+                    {
+                        var fontFamily = fontFamilyProp.GetValue(ff)?.ToString();
+                        return string.Equals(fontFamily?.Trim('\'', '"'), fontFamilyName, StringComparison.OrdinalIgnoreCase);
+                    }
+                    return false;
+                });
+            
+            if (customFont != null)
+            {
+                var srcProp = customFont.GetType().GetProperty("Src");
+                if (srcProp != null)
+                {
+                    var src = srcProp.GetValue(customFont)?.ToString();
+                    if (!string.IsNullOrEmpty(src))
+                    {
+                        var m = Base64UrlRegex.Match(src);
+                        if (m.Success)
+                        {
+                            var base64 = m.Groups["source"].Value;
+                            using var ms = new MemoryStream(Convert.FromBase64String(base64));
+                            ms.Seek(0, SeekOrigin.Begin);
+                            var tf = SKTypeface.FromStream(ms);
+                            if (tf is null)
+                                return null;
+                            return new SkiaFontFamily(tf, fontFamilyName);
+                        }
+                    }
                 }
             }
 

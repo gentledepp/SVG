@@ -11,7 +11,16 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(timeout:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(diff:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(mkdir:*)",
+      "WebFetch(domain:stackoverflow.com)",
+      "Bash(dotnet run)",
+      "Bash(dotnet new:*)",
+      "Bash(rm:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(/usr/bin/dotnet build:*)"
     ],
     "deny": []
   }

@@ -11,6 +11,7 @@ using Svg.Interfaces;
 using Svg.Interfaces.Xml;
 using Svg.Transforms;
 using RectangleF = Svg.Interfaces.RectangleF;
+using Color = Svg.Interfaces.Color;
 
 namespace Svg
 {
@@ -25,7 +26,7 @@ namespace Svg
         private Dictionary<string, IEnumerable<SvgFontFace>> _fontDefns = null;
         private IFileSystem _fileSystem;
 
-        internal List<StyleSheet> StyleSheets = new List<StyleSheet>();
+        internal List<Stylesheet> StyleSheets = new List<Stylesheet>();
 
         internal Dictionary<string, IEnumerable<SvgFontFace>> FontDefns()
         {
@@ -352,33 +353,23 @@ namespace Svg
             if (styles.Any())
             {
                 var cssTotal = styles.Select((s) => s.Content).Aggregate((p, c) => p + Environment.NewLine + c);
-                var cssParser = new Parser();
+                var cssParser = new StylesheetParser();
                 var sheet = cssParser.Parse(cssTotal);
-                AggregateSelectorList aggList;
-                IEnumerable<BaseSelector> selectors;
                 IEnumerable<SvgElement> elemsToStyle;
 
-                foreach (var rule in sheet.StyleRules)
+                // Process CSS rules with ExCSS-Core API
+                foreach (var rule in sheet.StyleRules.OfType<StyleRule>())
                 {
-                    aggList = rule.Selector as AggregateSelectorList;
-                    if (aggList != null && aggList.Delimiter == ",")
+                    // Process selector - ExCSS-Core handles comma-separated selectors automatically
+                    var selector = rule.Selector;
+                    
+                    elemsToStyle = svgDocument.QuerySelectorAll(selector.ToString());
+                    foreach (var elem in elemsToStyle)
                     {
-                        selectors = aggList;
-                    }
-                    else
-                    {
-                        selectors = Enumerable.Repeat(rule.Selector, 1);
-                    }
-
-                    foreach (var selector in selectors)
-                    {
-                        elemsToStyle = svgDocument.QuerySelectorAll(rule.Selector.ToString());
-                        foreach (var elem in elemsToStyle)
+                        // Access Style property which contains the declarations
+                        foreach (var decl in rule.Style)
                         {
-                            foreach (var decl in rule.Declarations)
-                            {
-                                elem.AddStyle(decl.Name, decl.Term.ToString(), rule.Selector.GetSpecificity());
-                            }
+                            elem.AddStyle(decl.Name, decl.Value, selector.GetSpecificity());
                         }
                     }
                 }
@@ -822,7 +813,7 @@ namespace Svg
             newObj.BaseUri = BaseUri;
             newObj.Ppi = Ppi;
             newObj.ExternalCSSHref = ExternalCSSHref;
-            newObj.StyleSheets = new List<StyleSheet>(StyleSheets);
+            newObj.StyleSheets = new List<Stylesheet>(StyleSheets);
             return newObj;
         }
 

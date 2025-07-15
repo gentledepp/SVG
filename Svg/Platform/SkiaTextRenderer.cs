@@ -152,7 +152,7 @@ namespace Svg.Platform
             return brush;
         }
 
-        public Dictionary<string, FontFaceRule> CustomFonts { get; set; }
+        public Dictionary<string, IFontFaceRule> CustomFonts { get; set; }
 
         private Pen CreateFillPen(SvgTextBase txt, Brush brush, ISvgRenderer renderer)
         {

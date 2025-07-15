@@ -174,6 +174,13 @@ Tools follow a consistent pattern:
     - Number of tests inconclusive
   - Include a comparison to previous test runs, showing changes in test results
     - Example: 200 succeeded (+12), 13 failed (-12)
+  - Always compile and run all tests before presenting a summary
+  - Run all tests before starting to work and right before presenting a summary
+  - Show in the summary:
+    - Number of tests run
+    - Number of tests failed
+    - Number of tests succeeded
+    - Difference to the initial test run (+1 failed, -1 succeeded)
 
 ## Git Commit Message Guidelines
 
