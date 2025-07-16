@@ -163,7 +163,7 @@ namespace Svg.Tests.Win
             // Arrange
             var svgPath = "ClipPathBounds.svg";
 
-            var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\" + svgPath);
+            var svgDoc = SvgDocument.Open<SvgDocument>(System.IO.Path.Combine("Assets", svgPath));
 
             svgDoc.CalculateDocumentBounds().Width.ShouldBe(200);
             svgDoc.CalculateDocumentBounds().Height.ShouldBe(50);

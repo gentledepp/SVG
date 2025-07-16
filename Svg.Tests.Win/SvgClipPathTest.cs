@@ -26,7 +26,7 @@ public class SvgClipPathTest
         var pngPath = "test_matrix.png";
         var svgPath = "testBosPlan.svg";
 
-        var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\"+ svgPath);
+        var svgDoc = SvgDocument.Open<SvgDocument>(System.IO.Path.Combine("Assets", svgPath));
 
 
         //var bitMap = svgDoc.Draw();
@@ -75,7 +75,7 @@ public class SvgClipPathTest
         // Arrange
         var svgPath = "ClipPathBounds.svg";
 
-        var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\" + svgPath);
+        var svgDoc = SvgDocument.Open<SvgDocument>(System.IO.Path.Combine("Assets", svgPath));
 
         var clip = svgDoc.Children.First().Children.OfType<SvgClipPath>().First();
 

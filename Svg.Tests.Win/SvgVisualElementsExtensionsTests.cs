@@ -30,7 +30,7 @@ public class SvgVisualElementsExtensionsTests
     {
         // Arrange
         var svgPath = "ClipPathBounds.svg";
-        var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\" + svgPath);
+        var svgDoc = SvgDocument.Open<SvgDocument>(System.IO.Path.Combine("Assets", svgPath));
         var rectangle = svgDoc.Children[1].Children.OfType<SvgRectangle>().FirstOrDefault();
 
         // Act & Assert
@@ -50,7 +50,7 @@ public class SvgVisualElementsExtensionsTests
     {
         // Arrange
         var svgPath = "ClipPathBounds.svg";
-        var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\" + svgPath);
+        var svgDoc = SvgDocument.Open<SvgDocument>(System.IO.Path.Combine("Assets", svgPath));
         var rectangle = svgDoc.Children[2].Children.OfType<SvgRectangle>().FirstOrDefault();
 
         // Act & Assert

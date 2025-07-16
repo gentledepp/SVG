@@ -208,9 +208,9 @@ namespace Svg.Tests.Win
             r.Height.Value.ShouldBe(50);
             r.Fill.ShouldBeSameAs(SvgPaintServer.None);
             r.Stroke.ShouldBeSameAs(SvgPaintServer.None);
-            AssertInheritedAttribute(r, "stroke");
-            AssertInheritedAttribute(r, "fill");
-            AssertInheritedAttribute(r, "stroke-dasharray");
+            AssertNoneAttribute(r, "stroke");
+            AssertNoneAttribute(r, "fill");
+            AssertNoneAttribute(r, "stroke-dasharray");
         }
 
         /// <summary>
@@ -311,6 +311,12 @@ namespace Svg.Tests.Win
         {
             if (r.TryGetAttribute(attributeName, out string val))
                 val.ShouldBe("inherit");
+        }
+
+        private static void AssertNoneAttribute(SvgRectangle r, string attributeName)
+        {
+            if (r.TryGetAttribute(attributeName, out string val))
+                val.ShouldBe("none");
         }
     }
 }

@@ -41,7 +41,8 @@ namespace Svg
             first = first?.Trim() ?? "";
             second = second?.Trim() ?? "";
 
-            return first.TrimEnd('/').TrimEnd('\\') + Path.DirectorySeparatorChar + second.TrimStart('\\').TrimStart('/');
+            // Use Path.Combine for better cross-platform compatibility
+            return Path.Combine(first, second);
         }
 
         public bool IsPathRooted(string path)
