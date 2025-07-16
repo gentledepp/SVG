@@ -172,7 +172,8 @@ namespace Svg
                             {
                                 using (var pen = SvgEngine.Factory.CreatePen(solidBrush, renderingElement.StrokeWidth.ToDeviceValue(renderer, UnitRenderingType.Other, renderingElement)))
                                 {
-                                    renderer.DrawPath(pen, renderPath);
+                                    if (pen != null)
+                                        renderer.DrawPath(pen, renderPath);
                                 }
                             }
                             else

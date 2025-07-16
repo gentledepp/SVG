@@ -161,18 +161,31 @@ namespace Svg
 
             // 2. initialize cache of custom font families
             // Process FontFace with ExCSS-Core API
-            CustomFonts ??= text.OwnerDocument.StyleSheets.SelectMany(s => s.FontfaceSetRules)
-                .OfType<IFontFaceRule>()
-                .Where(ff => 
+            if (CustomFonts == null)
+            {
+                try
                 {
-                    var fontFamilyProp = ff.GetType().GetProperty("FontFamily");
-                    return fontFamilyProp != null;
-                })
-                .ToDictionary(d => 
+                    CustomFonts = text.OwnerDocument.StyleSheets
+                        .Where(s => s != null && s.FontfaceSetRules != null)
+                        .SelectMany(s => s.FontfaceSetRules)
+                        .OfType<IFontFaceRule>()
+                        .Where(ff => 
+                        {
+                            var fontFamilyProp = ff?.GetType().GetProperty("FontFamily");
+                            return fontFamilyProp != null;
+                        })
+                        .ToDictionary(d => 
+                        {
+                            var fontFamilyProp = d.GetType().GetProperty("FontFamily");
+                            return fontFamilyProp?.GetValue(d)?.ToString()?.Trim('\'', '"') ?? string.Empty;
+                        }, d => d);
+                }
+                catch (Exception ex)
                 {
-                    var fontFamilyProp = d.GetType().GetProperty("FontFamily");
-                    return fontFamilyProp?.GetValue(d)?.ToString()?.Trim('\'', '"') ?? string.Empty;
-                }, d => d);
+                    System.Diagnostics.Debug.WriteLine($"Error processing font face rules: {ex.Message}");
+                    CustomFonts = new Dictionary<string, IFontFaceRule>();
+                }
+            }
 
             // 3. create font if custom
             if (!string.IsNullOrEmpty(text.FontFamily))

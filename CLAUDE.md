@@ -36,6 +36,9 @@ dotnet test Svg.Tests.Win/Svg.Tests.Win.csproj
 dotnet test Svg.Editor.Core.Tests/Svg.Editor.Core.Tests.csproj
 ```
 
+### Alternative Test Command
+- Use `dotnet test svg.sln --framework net8.0` to run the tests.
+
 ### Building NuGet Packages
 
 ```bash

@@ -140,17 +140,34 @@ namespace Svg
 
                 if (attributeName.Equals("style") && !(element is NonSvgElement)) 
                 {
-                    var inlineSheet = cssParser.Parse("#a{" + reader.Value + "}");
-                    // Process inline CSS with ExCSS-Core API
-                    foreach (var rule in inlineSheet.StyleRules.OfType<StyleRule>())
+                    try
                     {
-                        // Access Style property which contains the declarations
-                        foreach (var decl in rule.Style)
+                        var inlineSheet = cssParser.Parse("#a{" + reader.Value + "}");
+                        if (inlineSheet != null)
                         {
-                            if (!Regex.IsMatch(decl.Name, @"^(:|[A-Z]|_|[a-z]|[\u00C0-\u00D6]|[\u00D8-\u00F6]|[\u00F8-\u02FF]|[\u0370-\u037D]|[\u037F-\u1FFF]|[\u200C-\u200D]|[\u2070-\u218F]|[\u2C00-\u2FEF]|[\u3001-\uD7FF]|[\uF900-\uFDCF]|[\uFDF0-\uFFFD])"))
-                                continue;
-                            element.AddStyle(decl.Name, decl.Value, SvgElement.StyleSpecificity_InlineStyle);
+                            // Process inline CSS with ExCSS-Core API
+                            foreach (var rule in inlineSheet.StyleRules.OfType<StyleRule>())
+                            {
+                                // Access Style property which contains the declarations
+                                if (rule.Style != null)
+                                {
+                                    foreach (var decl in rule.Style)
+                                    {
+                                        if (decl != null && !string.IsNullOrEmpty(decl.Name))
+                                        {
+                                            if (!Regex.IsMatch(decl.Name, @"^(:|[A-Z]|_|[a-z]|[\u00C0-\u00D6]|[\u00D8-\u00F6]|[\u00F8-\u02FF]|[\u0370-\u037D]|[\u037F-\u1FFF]|[\u200C-\u200D]|[\u2070-\u218F]|[\u2C00-\u2FEF]|[\u3001-\uD7FF]|[\uF900-\uFDCF]|[\uFDF0-\uFFFD])"))
+                                                continue;
+                                            element.AddStyle(decl.Name, decl.Value, SvgElement.StyleSpecificity_InlineStyle);
+                                        }
+                                    }
+                                }
+                            }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log and continue processing
+                        System.Diagnostics.Debug.WriteLine($"Error processing inline CSS: {ex.Message}");
                     }
                 }
                 else if (IsStyleAttribute(attributeName))

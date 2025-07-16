@@ -41,6 +41,8 @@ namespace Svg
 
         public virtual Pen CreatePen(Brush brush, float strokeWidth)
         {
+            if (brush == null)
+                return null;
             return new SkiaPen(brush, strokeWidth);
         }
 
@@ -147,19 +149,31 @@ namespace Svg
                 throw new ArgumentNullException(nameof(fontFamilyName));
             
             // Process FontFace with ExCSS-Core API
-            var customFont = doc.StyleSheets.SelectMany(s => s.FontfaceSetRules)
-                .OfType<IFontFaceRule>()
-                .FirstOrDefault(ff => 
-                {
-                    // Check if this font face rule has the matching font family
-                    var fontFamilyProp = ff.GetType().GetProperty("FontFamily");
-                    if (fontFamilyProp != null)
+            IFontFaceRule customFont = null;
+            try
+            {
+                customFont = doc.StyleSheets
+                    .Where(s => s != null && s.FontfaceSetRules != null)
+                    .SelectMany(s => s.FontfaceSetRules)
+                    .OfType<IFontFaceRule>()
+                    .FirstOrDefault(ff => 
                     {
-                        var fontFamily = fontFamilyProp.GetValue(ff)?.ToString();
-                        return string.Equals(fontFamily?.Trim('\'', '"'), fontFamilyName, StringComparison.OrdinalIgnoreCase);
-                    }
-                    return false;
-                });
+                        if (ff == null) return false;
+                        
+                        // Check if this font face rule has the matching font family
+                        var fontFamilyProp = ff.GetType().GetProperty("FontFamily");
+                        if (fontFamilyProp != null)
+                        {
+                            var fontFamily = fontFamilyProp.GetValue(ff)?.ToString();
+                            return string.Equals(fontFamily?.Trim('\'', '"'), fontFamilyName, StringComparison.OrdinalIgnoreCase);
+                        }
+                        return false;
+                    });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error processing font face rules: {ex.Message}");
+            }
             
             if (customFont != null)
             {

@@ -47,6 +47,9 @@ namespace Svg.Platform
                 cacheEntry.StrokePen ??= CreateStrokePen(txt, cacheEntry.StrokeBrush, renderer);
                 var pen = (SkiaPen)cacheEntry.StrokePen;
 
+                if (pen == null)
+                    return;
+
                 var (x, y) = GetPosition(txt, renderer);
 
                 DrawLines(txt, renderer, x, y, pen);
@@ -66,6 +69,9 @@ namespace Svg.Platform
                 }
                 cacheEntry.FillPen ??= CreateFillPen(txt, cacheEntry.FillBrush, renderer);
                 var pen = (SkiaPen)cacheEntry.FillPen;
+
+                if (pen == null)
+                    return;
 
                 var (x, y) = GetPosition(txt, renderer);
 
@@ -126,7 +132,12 @@ namespace Svg.Platform
         
         private Pen CreateStrokePen(SvgTextBase txt, Brush brush, ISvgRenderer renderer)
         {
+            if (brush == null)
+                return null;
+
             var pen = (SkiaPen)SvgEngine.Factory.CreatePen(brush, txt.StrokeWidth.Value);
+            if (pen == null)
+                return null;
             
             pen.TextSize = txt.FontSize.Value != 0 ? txt.FontSize.Value : pen.TextSize;
             pen.TextAlign = FromAnchor(txt.TextAnchor);
@@ -156,8 +167,12 @@ namespace Svg.Platform
 
         private Pen CreateFillPen(SvgTextBase txt, Brush brush, ISvgRenderer renderer)
         {
+            if (brush == null)
+                return null;
 
             var pen = (SkiaPen)SvgEngine.Factory.CreatePen(brush, 0f);
+            if (pen == null)
+                return null;
             
             pen.TextSize = txt.FontSize.Value != 0 ? txt.FontSize.Value : pen.TextSize;
             pen.TextAlign = FromAnchor(txt.TextAnchor);
@@ -195,6 +210,9 @@ namespace Svg.Platform
                 cacheEntry.FillBrush ??= CreateFillBrush(txt, renderer);
                 cacheEntry.FillPen ??= CreateFillPen(txt, cacheEntry.FillBrush, renderer);
                 var pen = (SkiaPen)cacheEntry.FillPen;
+
+                if (pen == null)
+                    return RectangleF.Create(0f, 0f, 0f, 0f);
 
                 var (x, y) = GetPosition(txt, renderer);
                 var line = txt.ActualText;

@@ -18,9 +18,14 @@ namespace Svg.Css
 
         public static int GetSpecificity(this ISelector selector)
         {
+            if (selector == null) return 0;
+            
             // Simplified specificity calculation based on selector text
             // This is a workaround since ExCSS-Core doesn't expose the same selector structure
-            var selectorText = selector.ToString().ToLowerInvariant();
+            var selectorText = selector.ToString();
+            if (string.IsNullOrEmpty(selectorText)) return 0;
+            
+            selectorText = selectorText.ToLowerInvariant();
             var specificity = 0;
             
             // Count ID selectors (#id)

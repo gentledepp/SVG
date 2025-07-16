@@ -17,6 +17,9 @@ namespace Svg.Platform
 
         public SkiaPen(Brush brush, float strokeWidth)
         {
+            if (brush == null)
+                throw new ArgumentNullException(nameof(brush));
+                
             _brush = (SkiaBrushBase)brush;
 
             _brush.Paint.StrokeWidth = strokeWidth;

@@ -362,15 +362,30 @@ namespace Svg
                 {
                     // Process selector - ExCSS-Core handles comma-separated selectors automatically
                     var selector = rule.Selector;
+                    if (selector == null) continue;
                     
-                    elemsToStyle = svgDocument.QuerySelectorAll(selector.ToString());
-                    foreach (var elem in elemsToStyle)
+                    try
                     {
-                        // Access Style property which contains the declarations
-                        foreach (var decl in rule.Style)
+                        elemsToStyle = svgDocument.QuerySelectorAll(selector.ToString());
+                        foreach (var elem in elemsToStyle)
                         {
-                            elem.AddStyle(decl.Name, decl.Value, selector.GetSpecificity());
+                            // Access Style property which contains the declarations
+                            if (rule.Style != null)
+                            {
+                                foreach (var decl in rule.Style)
+                                {
+                                    if (decl != null && !string.IsNullOrEmpty(decl.Name))
+                                    {
+                                        elem.AddStyle(decl.Name, decl.Value, selector.GetSpecificity());
+                                    }
+                                }
+                            }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log and continue with other rules
+                        System.Diagnostics.Debug.WriteLine($"Error processing CSS rule: {ex.Message}");
                     }
                 }
 

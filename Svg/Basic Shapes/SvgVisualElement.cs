@@ -393,7 +393,8 @@ namespace Svg
                             pen = cacheEntry.StrokePen;
                         }
 
-                        renderer.DrawPath(pen, path);
+                        if (pen != null)
+                            renderer.DrawPath(pen, path);
 
                         return true;
                     }
@@ -406,7 +407,12 @@ namespace Svg
 
         private Pen CreatePen(Brush brush, float strokeWidth, ISvgRenderer renderer)
         {
+            if (brush == null)
+                return null;
+                
             var pen = SvgEngine.Factory.CreatePen(brush, strokeWidth);
+            if (pen == null)
+                return null;
             var strokeDashArray = StrokeDashArray;
             if (!SvgUnitCollection.IsNullOrEmpty(strokeDashArray))
             {

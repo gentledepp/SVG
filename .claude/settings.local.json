@@ -20,7 +20,8 @@
       "Bash(dotnet new:*)",
       "Bash(rm:*)",
       "Bash(dotnet restore:*)",
-      "Bash(/usr/bin/dotnet build:*)"
+      "Bash(/usr/bin/dotnet build:*)",
+      "Bash(dotnet --version)"
     ],
     "deny": []
   }
