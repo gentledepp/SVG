@@ -216,6 +216,11 @@ namespace Svg.Editor.Tools
             _selectionPoint = null;
         }
 
+        public override string GetDescription()
+        {
+            return LocalizationService.GetString("Svg.Editor.SelectionTool.Description");
+        }
+
         #endregion
 
         #region Private helpers

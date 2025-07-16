@@ -87,7 +87,12 @@ namespace Svg.Editor.Tools
 		    }
 	    }
 
-	    protected override void DrawCurrentShape(IRenderer renderer, ISvgDrawingCanvas ws)
+        public override string GetDescription()
+        {
+            return LocalizationService.GetString("Svg.Editor.EllipseTool.Description");
+        }
+
+        protected override void DrawCurrentShape(IRenderer renderer, ISvgDrawingCanvas ws)
 	    {
 		    renderer.Graphics.Save();
 

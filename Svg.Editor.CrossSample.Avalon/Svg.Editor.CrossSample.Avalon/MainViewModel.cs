@@ -32,11 +32,7 @@ namespace Svg.Editor.CrossSample.Avalon
                         { "issnappingenabled", false }
                     };
 
-            var colorToolProperties = new Dictionary<string, object>
-            {
-                { ColorTool.SelectableColorsKey, new [] { "#000000","#FF0000","#00FF00","#0000FF","#FFFF00","#FF00FF","#00FFFF", "#FFFFFF" } },
-                { ColorTool.SelectableColorNamesKey, new [] { "Black","Red","Green","Blue","Yellow","Magenta","Cyan","White" } },
-            };
+            var colorToolProperties = new Dictionary<string, object>();
 
             var strokeStyleToolProperties = new Dictionary<string, object>
             {

@@ -62,4 +62,28 @@
             Polygon: put points until the last closes with the first point.
             Pin: place a pin.</value>
     </data>
+	<data name="Svg.Editor.SelectionTool.Description" xml:space="preserve">
+		<value>drag and select drawings in the area</value>
+	</data>
+	<data name="Svg.Editor.TextTool.Description" xml:space="preserve">
+		<value>click on the place where to write a text.</value>
+	</data>
+	<data name="Svg.Editor.LineTool.Description" xml:space="preserve">
+		<value>drag to create a line</value>
+	</data>
+	<data name="Svg.Editor.EllipseTool.Description" xml:space="preserve">
+		<value>drag to create a circle</value>
+	</data>
+	<data name="Svg.Editor.RectangleTool.Description" xml:space="preserve">
+		<value>drag to create a rectangle</value>
+	</data>
+	<data name="Svg.Editor.FreeDrawingTool.Description" xml:space="preserve">
+		<value>draw however the movement is</value>
+	</data>
+	<data name="Svg.Editor.PolygonTool.Description" xml:space="preserve">
+		<value>put points until the last closes with the first point</value>
+	</data>
+	<data name="Svg.Editor.PinTool.Description" xml:space="preserve">
+		<value>place a pin</value>
+	</data>
 </root>

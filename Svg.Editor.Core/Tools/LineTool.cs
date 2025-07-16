@@ -176,7 +176,12 @@ namespace Svg.Editor.Tools
 
 		#region Overrides
 
-		public override void OnDocumentChanged(SvgDocument oldDocument, SvgDocument newDocument)
+        public override string GetDescription()
+        {
+            return LocalizationService.GetString("Svg.Editor.LineTool.Description");
+        }
+
+        public override void OnDocumentChanged(SvgDocument oldDocument, SvgDocument newDocument)
 		{
 			if (oldDocument != null) UnWatchDocument(oldDocument);
 			WatchDocument(newDocument);
@@ -627,6 +632,7 @@ namespace Svg.Editor.Tools
 			{
 				return Tool.IsActive;
 			}
+
 		}
 
 		private enum MovementHandle

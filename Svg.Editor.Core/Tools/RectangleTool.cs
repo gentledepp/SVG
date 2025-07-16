@@ -99,6 +99,11 @@ namespace Svg.Editor.Tools
             renderer.Graphics.Restore();
         }
 
+        public override string GetDescription()
+        {
+            return LocalizationService.GetString("Svg.Editor.RectangleTool.Description");
+        }
+
         protected override SvgRectangle CreateShape(PointF relativeStart)
         {
             var ellipse = new SvgRectangle

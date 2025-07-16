@@ -852,7 +852,7 @@ namespace Svg.Editor
             if (_toolSelectors == null)
             {
                 _toolSelectors = Tools.Where(t => t.ToolUsage == ToolUsage.Explicit)
-                    .Select(t => new SelectToolCommand(this, t, t.Name, t.IconName, description: t.LocalizationService.GetString("Svg.Editor.ChooseTool.Description")))
+                    .Select(t => new SelectToolCommand(this, t, t.Name, t.IconName, description: t.GetDescription()))
                     .OrderBy(c => c.Sort)
                     .Cast<IToolCommand>()
                     .ToList();

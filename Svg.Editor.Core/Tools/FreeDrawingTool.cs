@@ -61,6 +61,11 @@ namespace Svg.Editor.Tools
 
         #region Overrides
 
+        public override string GetDescription()
+        {
+            return LocalizationService.GetString("Svg.Editor.FreeDrawingTool.Description");
+        }
+
         public override void OnDocumentChanged(SvgDocument oldDocument, SvgDocument newDocument)
         {
             if (oldDocument != null) UnWatchDocument(oldDocument);
