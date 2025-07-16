@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using System.Net;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Svg.Interfaces;
@@ -19,8 +19,8 @@ namespace Svg
 
             return Task.Run(async () =>
             {
-                var httpRequest = WebRequest.Create(uri);
-                return await httpRequest.GetRequestStreamAsync();
+                using var httpClient = new HttpClient();
+                return await httpClient.GetStreamAsync(uri);
             }).Result;
         }
 

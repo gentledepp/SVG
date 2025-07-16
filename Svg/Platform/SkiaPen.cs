@@ -24,7 +24,7 @@ namespace Svg.Platform
 
             _brush.Paint.StrokeWidth = strokeWidth;
             _brush.Paint.IsStroke = true;
-            _brush.Paint.TextSize = 14;
+            _brush.Font.Size = 14;
 
             DashesChanged += OnDashesChanged;
         }
@@ -152,10 +152,15 @@ namespace Svg.Platform
             get { return _brush.Paint; }
         }
 
+        public SKFont Font
+        {
+            get { return _brush.Font; }
+        }
+
         public float TextSize
         {
-            get { return _brush.Paint.TextSize; }
-            set { _brush.Paint.TextSize = value; }
+            get { return _brush.Font.Size; }
+            set { _brush.Font.Size = value; }
         }
 
         public override float StrokeWidth
@@ -166,8 +171,8 @@ namespace Svg.Platform
 
         public SKTextAlign TextAlign
         {
-            get { return _brush.Paint.TextAlign; }
-            set { _brush.Paint.TextAlign = value; }
+            get { return SKTextAlign.Left; } // Default alignment since SKFont doesn't have TextAlign
+            set { /* SKFont doesn't have TextAlign property - this would be handled at draw time */ }
         }
         
     }

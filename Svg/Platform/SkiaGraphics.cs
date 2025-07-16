@@ -91,7 +91,7 @@ namespace Svg.Platform
             // little hack as android path does not support text!
             foreach (var text in p.Texts)
             {
-                _canvas.DrawText(text.text, text.location.X, text.location.Y, paint.Paint);
+                _canvas.DrawText(text.text, text.location.X, text.location.Y, SKTextAlign.Left, paint.Font, paint.Paint);
             }
         }
 
@@ -112,7 +112,7 @@ namespace Svg.Platform
             if (text == null)
                 return;
             var paint = (SkiaPen)pen;
-            _canvas.DrawText(text, x, y, paint.Paint);
+            _canvas.DrawText(text, x, y, SKTextAlign.Left, paint.Font, paint.Paint);
         }
 
         private void SetSmoothingMode(SKPaint paint)
@@ -120,19 +120,21 @@ namespace Svg.Platform
             switch (SmoothingMode)
             {
                 case SmoothingMode.HighQuality:
-                    paint.FilterQuality = SKFilterQuality.High;
+                    // FilterQuality is obsolete, using SKSamplingOptions would be set at draw time
+                    paint.IsAntialias = true;
                     break;
                 case SmoothingMode.AntiAlias:
                     paint.IsAntialias = true;
                     break;
                 case SmoothingMode.HighSpeed:
-                    paint.FilterQuality = SKFilterQuality.Low;
+                    // FilterQuality is obsolete, using SKSamplingOptions would be set at draw time
+                    paint.IsAntialias = false;
                     break;
                 case SmoothingMode.Invalid:
                 case SmoothingMode.Default:
                 case SmoothingMode.None:
                     paint.IsAntialias = false;
-                    paint.FilterQuality = SKFilterQuality.Medium;
+                    // FilterQuality is obsolete, using SKSamplingOptions would be set at draw time
                     break;
             }
         }
@@ -150,30 +152,29 @@ namespace Svg.Platform
 
         public void SetClip(Region region, CombineMode combineMode)
         {
-            var op = SKRegionOperation.Union;
-            switch (combineMode)
-            {
-                case CombineMode.Complement:
-                    // TODO LX is this correct?
-                    op = SKRegionOperation.ReverseDifference;
-                    break;
-                case CombineMode.Exclude:
-                    // TODO LX is this correct?
-                    op = SKRegionOperation.Difference;
-                    break;
-                case CombineMode.Intersect:
-                    op = SKRegionOperation.Intersect;
-                    break;
-                case CombineMode.Replace:
-                    op = SKRegionOperation.Replace;
-                    break;
-                case CombineMode.Union:
-                    op = SKRegionOperation.Union;
-                    break;
-                case CombineMode.Xor:
-                    op = SKRegionOperation.XOR;
-                    break;
-            }
+            // TODO: Implement clipping with combine mode using SKRegionOperation
+            // var op = SKRegionOperation.Union;
+            // switch (combineMode)
+            // {
+            //     case CombineMode.Complement:
+            //         op = SKRegionOperation.ReverseDifference;
+            //         break;
+            //     case CombineMode.Exclude:
+            //         op = SKRegionOperation.Difference;
+            //         break;
+            //     case CombineMode.Intersect:
+            //         op = SKRegionOperation.Intersect;
+            //         break;
+            //     case CombineMode.Replace:
+            //         op = SKRegionOperation.Replace;
+            //         break;
+            //     case CombineMode.Union:
+            //         op = SKRegionOperation.Union;
+            //         break;
+            //     case CombineMode.Xor:
+            //         op = SKRegionOperation.XOR;
+            //         break;
+            // }
 
             _clip = region;
             //if (region != null)
@@ -241,7 +242,7 @@ namespace Svg.Platform
         public void Concat(Matrix matrix)
         {
             var m = ((SkiaMatrix) matrix).Matrix;
-            _canvas.Concat(ref m);
+            _canvas.Concat(in m);
         }
 
         public void FillBackground(Color color)

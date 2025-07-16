@@ -80,6 +80,7 @@
 
     <PropertyGroup Condition="$(TargetFramework.StartsWith('net4')) ">
         <DefineConstants>Net4</DefineConstants>
+        <NoWarn>CS0436</NoWarn>
     </PropertyGroup>
 
 
@@ -104,6 +105,7 @@
 
     <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
         <Compile Include="Platforms\Win\**\*.cs" />
+        <PackageReference Include="Microsoft.Net.Http" Version="2.2.29" />
     </ItemGroup>
 
     <ItemGroup>

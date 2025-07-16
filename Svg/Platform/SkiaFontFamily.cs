@@ -32,9 +32,9 @@ namespace Svg.Platform
         /// <returns>The ascent value as a float.</returns>
         public float GetCellAscent(FontStyle style)
         {
-            using var paint = new SKPaint();
-            paint.Typeface = GetTypefaceForStyle(style);
-            return -paint.FontMetrics.Ascent; // Negative because SkiaSharp ascent is negative
+            using var font = new SKFont();
+            font.Typeface = GetTypefaceForStyle(style);
+            return -font.Metrics.Ascent; // Negative because SkiaSharp ascent is negative
         }
 
         /// <summary>
@@ -45,9 +45,9 @@ namespace Svg.Platform
         /// <returns>The em height value as a float.</returns>
         public float GetEmHeight(FontStyle style)
         {
-            using var paint = new SKPaint();
-            paint.Typeface = GetTypefaceForStyle(style);
-            var metrics = paint.FontMetrics;
+            using var font = new SKFont();
+            font.Typeface = GetTypefaceForStyle(style);
+            var metrics = font.Metrics;
             return metrics.Descent - metrics.Ascent; // Total height from top to bottom
         }
 

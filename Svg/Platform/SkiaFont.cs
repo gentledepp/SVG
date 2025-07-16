@@ -6,34 +6,34 @@ namespace Svg.Platform
     {
         private FontStyle _style;
         private SkiaFontFamily _fontFamily;
-        private SKPaint _paint;
+        private SKFont _font;
 
         public SkiaFont(SkiaFontFamily fontFamily)
         {
             _fontFamily = fontFamily;
-            _paint = new SKPaint();
-            _paint.Typeface =  _fontFamily.Typeface;
+            _font = new SKFont();
+            _font.Typeface = _fontFamily.Typeface;
         }
 
         public void Dispose()
         {
-            if (_paint != null)
+            if (_font != null)
             {
-                _paint.Dispose();
-                _paint = null;
+                _font.Dispose();
+                _font = null;
             }
         }
 
         public float Size
         {
-            get { return _paint.TextSize; }
-            set { _paint.TextSize = value; }
+            get { return _font.Size; }
+            set { _font.Size = value; }
         }
 
         public float SizeInPoints
         {
-            get { return _paint.TextSize; }
-            set { _paint.TextSize = value; }
+            get { return _font.Size; }
+            set { _font.Size = value; }
         }
 
         public FontStyle Style
@@ -42,10 +42,12 @@ namespace Svg.Platform
             set
             {
                 _style = value;
-                _paint.Typeface = SKTypeface.FromFamilyName(_fontFamily.Name, value.ToSKFontStyle());
+                _font.Typeface = SKTypeface.FromFamilyName(_fontFamily.Name, value.ToSKFontStyle());
             }
         }
 
         public FontFamily FontFamily { get { return _fontFamily; } }
+
+        public SKFont Font { get { return _font; } }
     }
 }

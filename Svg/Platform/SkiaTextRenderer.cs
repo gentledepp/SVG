@@ -217,7 +217,7 @@ namespace Svg.Platform
                 var (x, y) = GetPosition(txt, renderer);
                 var line = txt.ActualText;
                 
-                var (width,height) = pen.Paint.MeasureTextWithWhiteSpace(line);
+                var (width,height) = pen.Font.MeasureTextWithWhiteSpace(line);
                 
 
                 SvgTextBase t = txt;
@@ -291,13 +291,23 @@ namespace Svg.Platform
         /// <param name="paint"></param>
         /// <param name="text"></param>
         /// <returns></returns>
+        [System.Obsolete("Use MeasureTextWithWhiteSpace(SKFont, string) instead")]
         public static (float width, float height) MeasureTextWithWhiteSpace(this SKPaint paint, string text)
+        {
+            // Legacy method - users should migrate to the SKFont version
+            #pragma warning disable CS0618
+            using var font = new SKFont(paint.Typeface ?? SKTypeface.Default, paint.TextSize);
+            #pragma warning restore CS0618
+            return MeasureTextWithWhiteSpace(font, text);
+        }
+
+        public static (float width, float height) MeasureTextWithWhiteSpace(this SKFont font, string text)
         {
             SKRect rect = new SKRect();
             
             var wrapper = ".";
-            var wrapperWidth = paint.MeasureText(wrapper);
-            var textWidth = paint.MeasureText(wrapper + text + wrapper, ref rect);
+            var wrapperWidth = font.MeasureText(wrapper);
+            var textWidth = font.MeasureText(wrapper + text + wrapper, out rect);
             textWidth = textWidth - (wrapperWidth + wrapperWidth);
 
             var width = textWidth;

@@ -328,7 +328,7 @@ namespace Svg
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //Trace.TraceError("Error loading image: '{0}', error: {1} ", uri, ex.Message);
                 return null;

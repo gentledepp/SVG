@@ -18,13 +18,13 @@ namespace Svg.Tests.Win
         }
 
         [Test]
-        public void CreateSkPaint_DefaultTextSizeIs12()
+        public void CreateSkFont_DefaultTextSizeIs12()
         {
             //Arrange
-            var paint = new SKPaint();
+            var font = new SKFont();
 
             //Act
-            var actual = paint.TextSize;
+            var actual = font.Size;
 
             //Assert
             actual.ShouldBe(12);

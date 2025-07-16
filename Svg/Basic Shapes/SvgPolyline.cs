@@ -39,7 +39,7 @@ namespace Svg
                         }
                     }
                 }
-                catch (Exception exc)
+                catch (Exception)
                 {
                     //Trace.TraceError("Error rendering points: " + exc.Message);
                 }

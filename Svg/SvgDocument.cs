@@ -344,7 +344,7 @@ namespace Svg
                             break;
                     }
                 }
-                catch (Exception exc)
+                catch (Exception)
                 {
                     //Trace.TraceError(exc.Message);
                 }
