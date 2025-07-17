@@ -21,7 +21,8 @@
       "Bash(rm:*)",
       "Bash(dotnet restore:*)",
       "Bash(/usr/bin/dotnet build:*)",
-      "Bash(dotnet --version)"
+      "Bash(dotnet --version)",
+      "Bash(dotnet run:*)"
     ],
     "deny": []
   }

@@ -39,7 +39,7 @@ namespace Svg.Tests.Win
             var rawSvg = $@"
 <svg height=""500"" width=""500"">
 <style>
-    .tx3bCQc{{font:16px}}
+    .tx3bCQc{{font-size:16px}}
 </style>
   <text x=""360.7884"" y=""179.3841"" class=""tx3bCQc""><tspan class=""tx3bCQc"">TOP </tspan><tspan class=""tx3bCQc"" dx=""-0.1019"">01</tspan></text>
 </svg>";

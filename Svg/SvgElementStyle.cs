@@ -274,24 +274,24 @@ namespace Svg
                 {
                     part = parts[i];
                     success = false;
-                    while (!success)
+                    while (!success && state <= FontParseState.fontFamilyNext)
                     {
                         switch (state)
                         {
                             case FontParseState.fontStyle:
                                 success = Enum.TryParse<SvgFontStyle>(part, out fontStyle);
                                 if (success) this.FontStyle = fontStyle;
-                                state++;
+                                else state++; // Move to next state if parsing fails
                                 break;
                             case FontParseState.fontVariant:
                                 success = Enum.TryParse<SvgFontVariant>(part, out fontVariant);
                                 if (success) this.FontVariant = fontVariant;
-                                state++;
+                                else state++; // Move to next state if parsing fails
                                 break;
                             case FontParseState.fontWeight:
                                 success = Enum.TryParse<SvgFontWeight>(part, out fontWeight);
                                 if (success) this.FontWeight = fontWeight;
-                                state++;
+                                else state++; // Move to next state if parsing fails
                                 break;
                             case FontParseState.fontSize:
                                 sizes = part.Split('/');
@@ -301,14 +301,14 @@ namespace Svg
                                     success = true;
                                     this.FontSize = fontSize;
                                 }
-                                catch { }
-                                state++;
+                                catch { state++; } // Move to next state if parsing fails
                                 break;
                             case FontParseState.fontFamilyNext:
                                 state++;
                                 success = true;
                                 break;
                         }
+                        if (success) state++; // Move to next state if parsing succeeds
                     }
 
                     switch (state)
