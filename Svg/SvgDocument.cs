@@ -738,7 +738,7 @@ namespace Svg
 
             foreach (var element in Children.OfType<SvgVisualElement>())
             {
-                var bounds = element.GetBoundingBox();
+                var bounds = element.GetBounds();
 
                 if (documentSize == null)
                     documentSize = bounds;
