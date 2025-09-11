@@ -170,7 +170,7 @@ namespace Svg.Tests.Win
         }
         
         [Test]
-        public void WhenContainsSvgUse_ReferencedElementIsIncludedInCalculatingBounds()
+        public void WhenSvgUse_ReferencedElementIsIncludedInCalculatingBounds()
         {
             var svgtxt = """"
                          <?xml version="1.0" encoding="utf-8"?>
@@ -191,6 +191,160 @@ namespace Svg.Tests.Win
 
             bounds.Height.Should().Be(100);
             bounds.Width.Should().Be(200);
+        }
+
+
+        [Test]
+        public void WhenSvgUse_UsesNoClipPathAndNoTranslations_CalculatesBoundsCorrectly()
+        {
+            var svgXml = """
+                         <svg height="200" width="200" xmlns="http://www.w3.org/2000/svg">
+                         	<defs class="gt4EC2H">
+                         		<clipPath id="clZ12Pv">
+                         			<rect x="0" y="0" width="200" height="200"/>
+                         		</clipPath>
+                         	</defs>
+                         	<symbol id="imICNRZ">
+                         		<rect x="150" y="150" width="50" height="50" style="fill:yellow;stroke:green;stroke-width:3"/>
+                         	</symbol>
+                         	<rect width="50" height="50" style="fill:yellow;stroke:green;stroke-width:3"/>
+                         	<g clip-path="url(#clZ12Pv)">
+                         		<g transform="translate(0,0)">
+                         			<use href="#imICNRZ"/>
+                         		</g>
+                         	</g>
+                         </svg>
+                         """;
+
+            var svg = SvgDocument.FromSvg<SvgDocument>(svgXml);
+
+
+
+            var bounds = svg.CalculateDocumentBounds();
+
+            bounds.Height.Should().Be(200);
+            bounds.Width.Should().Be(200);
+        }
+
+        [Test]
+        public void WhenSvgUse_UsesNoClipPath_CalculatesBoundsCorrectly()
+        {
+            var svgXml = """
+                         <svg height="200" width="200" xmlns="http://www.w3.org/2000/svg">
+                         	<defs class="gt4EC2H">
+                         		<clipPath id="clZ12Pv">
+                         			<rect x="0" y="0" width="200" height="200"/>
+                         		</clipPath>
+                         	</defs>
+                         	<symbol id="imICNRZ">
+                         		<rect x="100" y="100" width="50" height="50" style="fill:yellow;stroke:green;stroke-width:3"/>
+                         	</symbol>
+                         	<rect width="50" height="50" style="fill:yellow;stroke:green;stroke-width:3"/>
+                         	<g clip-path="url(#clZ12Pv)">
+                         		<g transform="translate(50,50)">
+                         			<use href="#imICNRZ"/>
+                         		</g>
+                         	</g>
+                         </svg>
+                         """;
+
+            var svg = SvgDocument.FromSvg<SvgDocument>(svgXml);
+
+            var bounds = svg.CalculateDocumentBounds();
+
+            bounds.Height.Should().Be(200);
+            bounds.Width.Should().Be(200);
+        }
+
+        [Test]
+        public void WhenSvgUse_UsesClipPathWithoutTransform_AndContentIsClipped_CalculatesBoundsCorrectly()
+        {
+            var svgXml = """
+                         <svg height="200" width="200" xmlns="http://www.w3.org/2000/svg">
+                            	<defs class="gt4EC2H">
+                               		<clipPath id="clZ12Pv">
+                                  			<rect x="0" y="0" width="180" height="170"/>
+                               		</clipPath>
+                         	        <symbol id="imICNRZ">
+                            		        <rect x="150" y="150" width="50" height="50" style="fill:yellow;stroke:green;stroke-width:3"/>
+                         	        </symbol>
+                            	</defs>
+                            	<rect width="50" height="50" style="fill:yellow;stroke:green;stroke-width:3"/>
+                            	<g clip-path="url(#clZ12Pv)">
+                               	    <g>
+                                  	    <use href="#imICNRZ"/>
+                               	    </g>
+                            	</g>
+                         </svg>
+                         """;
+
+            var svg = SvgDocument.FromSvg<SvgDocument>(svgXml);
+
+            var bounds = svg.CalculateDocumentBounds();
+
+            bounds.Height.Should().Be(170);
+            bounds.Width.Should().Be(180);
+        }
+
+
+        [Test]
+        public void WhenSvgUse_UsesClipPathAndTransform_ButContentIsNotClipped_CalculatesBoundsCorrectly()
+        {
+            var svgXml = """
+                      <svg height="200" width="200" xmlns="http://www.w3.org/2000/svg">
+                         	<defs class="gt4EC2H">
+                            		<clipPath id="clZ12Pv">
+                               			<rect x="0" y="0" width="200" height="200"/>
+                            		</clipPath>
+                         	</defs>
+                         	<symbol id="imICNRZ">
+                            		<rect x="100" y="100" width="50" height="50" style="fill:yellow;stroke:green;stroke-width:3"/>
+                         	</symbol>
+                         	<rect width="50" height="50" style="fill:yellow;stroke:green;stroke-width:3"/>
+                         	<g clip-path="url(#clZ12Pv)">
+                            	<g transform="translate(50,50)">
+                               		<use href="#imICNRZ"/>
+                            	</g>
+                         	</g>
+                      </svg>
+                      """;
+
+            var svg = SvgDocument.FromSvg<SvgDocument>(svgXml);
+
+            var bounds = svg.CalculateDocumentBounds();
+
+            bounds.Height.Should().Be(200);
+            bounds.Width.Should().Be(200);
+        }
+
+        [Test]
+        public void WhenSvgUse_UsesClipPathAndTransform_AndContentIsClipped_CalculatesBoundsCorrectly()
+        {
+            var svgXml = """
+                         <svg height="200" width="200" xmlns="http://www.w3.org/2000/svg">
+                               	<defs class="gt4EC2H">
+                                     	<clipPath id="clZ12Pv">
+                                           		<rect x="0" y="0" width="180" height="170"/>
+                                     	</clipPath>
+                         	        <symbol id="imICNRZ">
+                               		        <rect x="100" y="100" width="50" height="50" style="fill:yellow;stroke:green;stroke-width:3"/>
+                         	        </symbol>
+                               	</defs>
+                               	<rect width="50" height="50" style="fill:yellow;stroke:green;stroke-width:3"/>
+                               	<g clip-path="url(#clZ12Pv)">
+                                  	<g transform="translate(50,50)">
+                                     	<use href="#imICNRZ"/>
+                                  	</g>
+                               	</g>
+                         </svg>
+                         """;
+
+            var svg = SvgDocument.FromSvg<SvgDocument>(svgXml);
+
+            var bounds = svg.CalculateDocumentBounds();
+
+            bounds.Height.Should().Be(170);
+            bounds.Width.Should().Be(180);
         }
     }
 }
