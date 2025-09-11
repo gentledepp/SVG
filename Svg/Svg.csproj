@@ -3,10 +3,15 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;MonoAndroid81;Xamarin.iOS10;uap10.0.18362;net462</TargetFrameworks>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version>2.4.4.12</Version>
+    <Version>2.4.4.14</Version>
     <Authors>gentledpp,bruzkovsky</Authors>
     <Company>Opti-Q GmbH</Company>
     <PackageReleaseNotes>
+		#2.4.4.14
+		- SvgDocument -  fixed calculating document bounds and added tests 
+        #2.4.4.13
+        - SvgDocument - fixed calculating document bounds (clippath is taken into account)
+        - SvgDocument - Improved performance as using GetBounds and not GetTransformedElementPoints which returned millions of points as arrays
 		#2.4.4.12
 		- SvgDocument creates ambient SvgRenderer that can cache Fonts, Brushes etc. for one render/bounds-calculation run
 	    #2.4.4.11
