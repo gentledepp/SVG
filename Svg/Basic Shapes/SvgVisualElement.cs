@@ -103,30 +103,30 @@ namespace Svg
             base.OnSubTreeChanged(svgElement);
         }
 
-        public virtual PointF[] GetTransformedPoints(Matrix transform = null)
+        public virtual RectangleF GetBoundingBox(Matrix transform = null)
         {
             if (transform == null)
                 transform = Matrix.Create();
             else
                 transform = transform.Clone();
-            
-            if (Renderable)
+
+
+            var bounds = Renderable
+                ? this.GetTransformedElementBounds(transform)
+                : this.GetTransformedChildBounds(transform);
+
+            if (ClipPath != null)
             {
-                return this.GetTransformedElementPoints(transform);
+                SvgClipPath clipPath = OwnerDocument.GetElementById<SvgClipPath>(ClipPath.OriginalString);
+                if (clipPath != null)
+                {
+                    bounds.Intersect(clipPath.Bounds);
+                }
             }
-            else
-            {
-                return this.GetTransformedChildPoints(transform);
-            }
+
+            return bounds;
         }
 
-        public RectangleF GetBoundingBox(Matrix transform = null)
-        {
-            var pts = GetTransformedPoints(transform);
-
-            return RectangleF.FromPoints(pts);
-        }
-        
         [Obsolete("Use the overload with selectionMode")]
         public IEnumerable<TElement> HitTest<TElement>(RectangleF rectangle,
             SelectionType selectionType = SelectionType.Intersect,

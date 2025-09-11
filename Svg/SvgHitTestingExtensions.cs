@@ -75,8 +75,7 @@ namespace Svg
 
             if (e.Renderable)
             {
-                var pts = e.GetTransformedElementPoints(transform);
-                var box = RectangleF.FromPoints(pts);
+                var box = e.GetTransformedElementBounds(transform);
 
                 // in certain edge cases, the bounding box can be so 
                 if (IsIntersect(selectionType))
@@ -134,8 +133,7 @@ namespace Svg
                 // if this element fits the type filter, check if it fits the hit test rectangle
                 if (e is TElement elt)
                 {
-                    var points = e.GetTransformedChildPoints(transform);
-                    var box = RectangleF.FromPoints(points);
+                    var box = e.GetTransformedChildBounds(transform);
 
                     if (IsIntersect(selectionType))
                         box = box.InflateAndCopy(rectangle.Width, rectangle.Height);
@@ -151,28 +149,21 @@ namespace Svg
             }
         }
 
-        internal static PointF[] GetTransformedElementPoints(this SvgVisualElement e, Matrix transform)
+        internal static RectangleF GetTransformedElementBounds(this SvgVisualElement e, Matrix transform)
         {
             var b = e.Bounds;
-            var p1 = PointF.Create(b.Left, b.Top);
-            var p2 = PointF.Create(b.Right, b.Top);
-            var p3 = PointF.Create(b.Right, b.Bottom);
-            var p4 = PointF.Create(b.Left, b.Bottom);
-
-            var pts = new[] { p1, p2, p3, p4 };
 
             foreach (SvgTransform transformation in e.Transforms)
             {
                 transformation.ApplyTo(transform);
             }
 
-            transform.TransformPoints(pts);
-            return pts.Select(p => p.Clone()).ToArray();
+            return transform.TransformRectangle(b);
         }
 
-        internal static PointF[] GetTransformedChildPoints(this SvgVisualElement e, Matrix transform)
+        internal static RectangleF GetTransformedChildBounds(this SvgVisualElement e, Matrix transform)
         {
-            var pts = new List<PointF>();
+            RectangleF totalBounds = null;
 
             foreach (SvgTransform transformation in e.Transforms)
             {
@@ -183,15 +174,16 @@ namespace Svg
             {
                 if (c is SvgVisualElement)
                 {
-                    var childBounds = ((SvgVisualElement)c).GetTransformedPoints(transform);
-                    pts.AddRange(childBounds);
+                    var childBounds = ((SvgVisualElement)c).GetBoundingBox(transform);
+
+                    if (totalBounds is null)
+                        totalBounds = childBounds;
+                    else
+                        totalBounds.Union(childBounds);
                 }
             }
 
-            if (pts.Count == 0)
-                return Array.Empty<PointF>();
-            
-            return pts.Select(p => p.Clone()).ToArray();
+            return totalBounds;
         }
 
         /// <summary>
