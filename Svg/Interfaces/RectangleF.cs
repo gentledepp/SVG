@@ -160,6 +160,26 @@ namespace Svg.Interfaces
         }
 
         /// <summary>
+        /// Creates a union of the current rectangle and another one.
+        /// Edits the current rectangle instance to avoid memory allocations
+        /// </summary>
+        /// <param name="other"></param>
+        public void Union(RectangleF other)
+        {
+            var l = Math.Min(Left, other.Left);
+            var t = Math.Min(Top, other.Top);
+
+            var r = Math.Max(Right, other.Right);
+            var b = Math.Max(Bottom, other.Bottom);
+
+            this.x = l;
+            this.y = t;
+
+            this.width = r - l;
+            this.height = b - t;
+        }
+
+        /// <summary>
         ///	Union Shared Method
         /// </summary>
         ///

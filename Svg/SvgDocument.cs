@@ -7,6 +7,7 @@ using System.Linq;
 using ExCSS;
 using Svg.Css;
 using System.Globalization;
+using Svg.Document_Structure;
 using Svg.Interfaces;
 using Svg.Interfaces.Xml;
 using Svg.Platform;
@@ -738,7 +739,7 @@ namespace Svg
 
             foreach (var element in Children.OfType<SvgVisualElement>())
             {
-                var bounds = element.GetBounds();
+                var bounds = element.GetBoundingBox();
 
                 if (documentSize == null)
                     documentSize = bounds;
