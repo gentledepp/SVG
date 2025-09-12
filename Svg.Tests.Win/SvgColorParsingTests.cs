@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using Shouldly;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -23,7 +23,7 @@ namespace Svg.Tests.Win
         [TestCase("3 digits","#F00")]
         [TestCase("4 digits", "#F00F")]
         [TestCase("6 digits", "#FF0000")]
-        [TestCase("8 digits", "#FF0000FF")]
+        [TestCase("8 digits", "#FFFF0000")]
         public void CanParseColor(string _, string color)
         {
 
@@ -40,8 +40,8 @@ namespace Svg.Tests.Win
             // Assert
             // should not throw exception
             var r = (SvgRectangle)svg.Children[0];
-            r.Fill.Should().NotBeNull();
-            r.Fill.ToString().Should().Be("#ff0000","all is red");
+            r.Fill.ShouldNotBeNull();
+            r.Fill.ToString().ShouldBe("#ff0000","all is red");
         }
     }
 }
