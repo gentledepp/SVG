@@ -78,6 +78,8 @@ public class ToolCommandsToToolbarItemsConverter : IValueConverter
                         Header = new MenuItemHeader(subCommand.Name, subIcon),
                     };
                     subMenuItem.Click += (s, e) => subCommand.Execute(null);
+                    subMenuItem.GestureRecognizers.Add(new LongPressTipGestureRecognizer(subMenuItem, subCommand.Description));
+
 
                     groupMenuItem.Items.Add(subMenuItem);
                 }

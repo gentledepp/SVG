@@ -120,6 +120,12 @@ namespace Svg.Editor.Tools
                    point.Y <= tapPoint.Y + 10 / Canvas.ZoomFactor;
         }
 
+
+        public override string GetDescription()
+        {
+            return LocalizationService.GetString("Svg.Editor.PolygonTool.Description");
+        }
+
         private void DrawPolygon()
         {
             CreatePolygonOverride(Points);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Avalonia;
 using Svg.Editor.Gestures;
 using Svg.Editor.Interfaces;
 using Svg.Editor.UndoRedo;
@@ -87,13 +88,20 @@ namespace Svg.Editor.Tools
 		    }
 	    }
 
-	    protected override void DrawCurrentShape(IRenderer renderer, ISvgDrawingCanvas ws)
+        public override string GetDescription()
+        {
+            return LocalizationService.GetString("Svg.Editor.EllipseTool.Description");
+        }
+
+        protected override void DrawCurrentShape(IRenderer renderer, ISvgDrawingCanvas ws)
 	    {
 		    renderer.Graphics.Save();
 
 		    var radius = (float) MaxPointerDistance / 4 / ws.ZoomFactor;
 		    var halfRadius = radius / 2;
-		    var points = CurrentShape.GetTransformedPoints();
+		    var rect = CurrentShape.GetBoundingBox();
+		    var points = rect.GetPoints();
+		    
 		    renderer.FillCircle(points[0].X - halfRadius, points[0].Y - halfRadius, radius, BlueBrush);
 		    renderer.FillCircle(points[1].X - halfRadius, points[1].Y - halfRadius, radius, BlueBrush);
 		    renderer.FillCircle(points[2].X - halfRadius, points[2].Y - halfRadius, radius, BlueBrush);

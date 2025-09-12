@@ -65,10 +65,10 @@ namespace Svg.Editor.Core.Test
         {
             var svgPath = new SvgPath();
             Canvas.SelectedElements.Add(svgPath);
-            var tool = Canvas.Tools.OfType<FreeDrawingTool>().First();
+            var tool = Canvas.Tools.OfType<ZoomTool>().First();
             Canvas.ActiveTool = tool;
 
-            Assert.That(Canvas.ActiveTool.GetType() == typeof(FreeDrawingTool));
+            Assert.That(Canvas.ActiveTool is ZoomTool);
         }
 
         [Test]

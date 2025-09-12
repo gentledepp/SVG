@@ -63,4 +63,28 @@
             Polygone: Placez des points jusqu'à ce que le dernier point rejoigne le premier.
             Pin: Placez un pin.</value>
     </data>
+	<data name="Svg.Editor.SelectionTool.Description" xml:space="preserve">
+		<value>faire glisser et sélectionner des dessins dans la zone</value>
+	</data>
+	<data name="Svg.Editor.TextTool.Description" xml:space="preserve">
+		<value>Cliquez à l'endroit où vous souhaitez écrire un texte</value>
+	</data>
+	<data name="Svg.Editor.LineTool.Description" xml:space="preserve">
+		<value>faites glisser pour créer une ligne</value>
+	</data>
+	<data name="Svg.Editor.EllipseTool.Description" xml:space="preserve">
+		<value>Faites glisser pour créer un cercle</value>
+	</data>
+	<data name="Svg.Editor.RectangleTool.Description" xml:space="preserve">
+		<value>Faites glisser pour créer un rectangle</value>
+	</data>
+	<data name="Svg.Editor.FreeDrawingTool.Description" xml:space="preserve">
+		<value>Dessinez comme vous le souhaitez</value>
+	</data>
+	<data name="Svg.Editor.PolygonTool.Description" xml:space="preserve">
+		<value>Placez des points jusqu'à ce que le dernier point rejoigne le premier</value>
+	</data>
+	<data name="Svg.Editor.PinTool.Description" xml:space="preserve">
+		<value>Placez un pin</value>
+	</data>
 </root>

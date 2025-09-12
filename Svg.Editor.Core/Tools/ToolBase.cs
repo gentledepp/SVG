@@ -64,6 +64,11 @@ namespace Svg.Editor.Tools
         
         #endregion
 
+        public virtual string GetDescription()
+        {
+            return LocalizationService.GetString("No.Description");
+        }
+
         public string Name { get; protected set; }
         public ToolUsage ToolUsage { get; protected set; }
         public ToolType ToolType { get; protected set; }

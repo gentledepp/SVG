@@ -633,5 +633,17 @@ namespace Svg.Interfaces
             return newRect;
         }
 
+        public PointF[] GetPoints()
+        {
+            var rect = this;
+            var points = new[]
+            {
+                PointF.Create(rect.X, rect.Y), 
+                PointF.Create(rect.X + rect.Width, rect.Y),
+                PointF.Create(rect.X, rect.Y + rect.Height), 
+                PointF.Create(rect.X + rect.Width, rect.Y + rect.Height)
+            };
+            return points;
+        }
     }
 }
