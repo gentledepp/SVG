@@ -8,6 +8,7 @@ using ExCSS;
 using Svg.Css;
 using System.Globalization;
 using Svg.Document_Structure;
+using Svg.Platform;
 using Svg.Interfaces;
 using Svg.Interfaces.Xml;
 using Svg.Platform;
@@ -23,7 +24,7 @@ namespace Svg
     {
         public static readonly int PointsPerInch = 96;
 
-    private SvgElementIdManager _idManager;
+        private SvgElementIdManager _idManager;
 
         private Dictionary<string, IEnumerable<SvgFontFace>> _fontDefns = null;
         private IFileSystem _fileSystem;
@@ -35,9 +36,11 @@ namespace Svg
             if (_fontDefns == null)
             {
                 _fontDefns = (from f in Descendants().OfType<SvgFontFace>()
-                              group f by f.FontFamily into family
-                              select family).ToDictionary(f => f.Key, f => (IEnumerable<SvgFontFace>) f);
+                    group f by f.FontFamily
+                    into family
+                    select family).ToDictionary(f => f.Key, f => (IEnumerable<SvgFontFace>)f);
             }
+
             return _fontDefns;
         }
 
@@ -173,7 +176,8 @@ namespace Svg
             }
         }
 
-        static partial void OpenPartial<T>(string path, Dictionary<string, string> entities, OpenResult<T> result) where T : SvgDocument, new();
+        static partial void OpenPartial<T>(string path, Dictionary<string, string> entities, OpenResult<T> result)
+            where T : SvgDocument, new();
 
         /// <summary>
         /// Attempts to open an SVG document from the specified <see cref="Stream"/>.
@@ -509,7 +513,7 @@ namespace Svg
                 var renderer = rendererHandle.Renderer;
 
                 if (backgroundColor != null)
-                        renderer.FillBackground(backgroundColor);
+                    renderer.FillBackground(backgroundColor);
 
                 renderer.SetBoundable(new GenericBoundable(0, 0, bitmap.Width, bitmap.Height));
 
@@ -532,15 +536,15 @@ namespace Svg
         public Bitmap DrawAllContents(Color backgroundColor = null, SizeF padding = null)
         {
             var bounds = CalculateDocumentBounds();
-            return DrawAllContents((int) bounds.Width, (int) bounds.Height, backgroundColor, padding);
+            return DrawAllContents((int)bounds.Width, (int)bounds.Height, backgroundColor, padding);
         }
 
         public Bitmap DrawDocument(Color backgroundColor = null, SizeF padding = null, int maxWidthHeight = 0)
         {
-            if(Width.Type != SvgUnitType.Percentage && Height.Type != SvgUnitType.Percentage)
+            if (Width.Type != SvgUnitType.Percentage && Height.Type != SvgUnitType.Percentage)
             {
                 var rect = RectangleF.Create();
-                rect.Width = Width; 
+                rect.Width = Width;
                 rect.Height = Height;
 
                 var bitmap = GetScaledBitMap(rect, maxWidthHeight);
@@ -729,18 +733,31 @@ namespace Svg
             ViewBox = new SvgViewBox(bounds.X, bounds.Y, bounds.Width, bounds.Height);
             Draw(bitmap, backgroundColor);
         }
-        
+
         public RectangleF CalculateDocumentBounds()
+        {
+            return CalculateBounds(Children.OfType<SvgVisualElement>());
+        }
+
+        public RectangleF CalculateDocumentImageBounds()
+        {
+            var imageElements = Children.OfType<SvgImage>();
+            if (!imageElements.Any())
+                return CalculateDocumentBounds();
+
+            return CalculateBounds(imageElements);
+        }
+
+        private RectangleF CalculateBounds(IEnumerable<SvgVisualElement> elements)
         {
             // we need a renderer for caching
             using var renderer = CreateRendererFromNull();
 
             RectangleF documentSize = null;
 
-            foreach (var element in Children.OfType<SvgVisualElement>())
+            foreach (var element in elements)
             {
                 var bounds = element.GetBoundingBox();
-
                 if (documentSize == null)
                     documentSize = bounds;
                 else
@@ -751,9 +768,9 @@ namespace Svg
 
             if (!Transforms.Any())
                 return documentSize;
-            
+
             var m = Matrix.Create();
-            foreach(var transform in Transforms)
+            foreach (var transform in Transforms)
                 transform.ApplyTo(m);
 
             return m.TransformRectangle(documentSize);
@@ -776,7 +793,8 @@ namespace Svg
             //xmlWriter.WriteDocType("svg", "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd", null);
 
             if (!String.IsNullOrEmpty(this.ExternalCSSHref))
-                xmlWriter.WriteProcessingInstruction("xml-stylesheet", String.Format("type=\"text/css\" href=\"{0}\"", this.ExternalCSSHref));
+                xmlWriter.WriteProcessingInstruction("xml-stylesheet",
+                    String.Format("type=\"text/css\" href=\"{0}\"", this.ExternalCSSHref));
 
             this.Write(xmlWriter);
 
@@ -818,7 +836,7 @@ namespace Svg
             this.X += new SvgUnit(SvgUnitType.Pixel, x);
             this.Y += new SvgUnit(SvgUnitType.Pixel, y);
         }
-        
+
         public override SvgElement DeepCopy()
         {
             return DeepCopy<SvgDocument>();
@@ -847,7 +865,7 @@ namespace Svg
         }
 
         #region SvgRenderer caching/handling
-        
+
         internal ISvgRenderer CurrentRenderer { get; private set; }
 
         internal class SvgRendererHandle : IDisposable
@@ -881,7 +899,7 @@ namespace Svg
             CurrentRenderer = SvgRenderer.FromImage(bitmap);
             return new SvgRendererHandle(CurrentRenderer, this, true);
         }
-        
+
         internal SvgRendererHandle CreateRendererFromNull()
         {
             return CreateRendererFromImage(Bitmap.Create(1, 1));

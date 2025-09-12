@@ -40,9 +40,9 @@
     <data name="Svg.Editor.ShowAll.Description" xml:space="preserve">
         <value>Vergrößert die Leinwand auf die gesamte Skizze.</value>
     </data>
-    <data name="Svg.Editor.GridTool.ToggleGrid.Description" xml:space="preserve">
-        <value>Blenden Sie das Raster-Overlay ein oder aus, um die Elemente auf der Leinwand auszurichten.</value>
-    </data>
+	<data name="Svg.Editor.GridTool.ToggleGrid.Description" xml:space="preserve">
+		<value>Blenden Sie das Raster-Overlay ein oder aus, um die Elemente auf der Leinwand auszurichten</value>
+	</data>
     <data name="Svg.Editor.SaveTool.Description" xml:space="preserve">
         <value>Klicken Sie auf , um Ihre SVG-Datei zu speichern und alle an Ihrem Entwurf vorgenommenen Änderungen beizubehalten.</value>
     </data>
@@ -63,4 +63,28 @@
             Polygon: Setzen Sie Punkte, bis sich der letzte Punkt mit dem ersten Punkt schließt.
             Pin: Platzieren Sie eine Pin.</value>
     </data>
+	<data name="Svg.Editor.SelectionTool.Description" xml:space="preserve">
+		<value>Ziehen und wählen Sie Zeichnungen im Bereich aus</value>
+	</data>
+	<data name="Svg.Editor.TextTool.Description" xml:space="preserve">
+		<value>Klicken Sie auf die Stelle, an der Sie einen Text schreiben möchten</value>
+	</data>
+	<data name="Svg.Editor.LineTool.Description" xml:space="preserve">
+		<value>Ziehen Sie, um eine Linie zu erstellen</value>
+	</data>
+	<data name="Svg.Editor.EllipseTool.Description" xml:space="preserve">
+		<value>Ziehen Sie, um einen Kreis zu erstellen</value>
+	</data>
+	<data name="Svg.Editor.RectangleTool.Description" xml:space="preserve">
+		<value> Ziehen Sie, um ein Rechteck zu erstellen</value>
+	</data>
+	<data name="Svg.Editor.FreeDrawingTool.Description" xml:space="preserve">
+		<value> Zeichnen Sie, wie Sie wollen. </value>
+	</data>
+	<data name="Svg.Editor.PolygonTool.Description" xml:space="preserve">
+		<value>Setzen Sie Punkte, bis sich der letzte Punkt mit dem ersten Punkt schließt</value>
+	</data>
+	<data name="Svg.Editor.PinTool.Description" xml:space="preserve">
+		<value>Platzieren Sie eine Pin</value>
+	</data>
 </root>

@@ -58,7 +58,8 @@ namespace Svg.Editor.Tools
                 {
                     renderer.Graphics.Save();
 
-                    var bds = element.GetTransformedPoints();
+                    var rect = element.GetBoundingBox();
+                    var bds = rect.GetPoints();
                     renderer.DrawPolygon(bds, RedPen);
                     renderer.Graphics.Restore();
                 }

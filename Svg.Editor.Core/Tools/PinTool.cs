@@ -196,6 +196,11 @@ namespace Svg.Editor.Tools
             }));
         }
 
+        public override string GetDescription()
+        {
+            return LocalizationService.GetString("Svg.Editor.PinTool.Description");
+        }
+
         #endregion
 
         #region Private helpers

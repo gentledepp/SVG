@@ -37,15 +37,28 @@ namespace Svg.Editor.Tools
 
 		#region Public properties
 
-		public const string SelectableColorsKey = "selectablecolors";
-		public const string SelectableColorNamesKey = "selectablecolornames";
 		public const string IconDimensionsKey = "icondimensions";
+		public const string HexColorKey = "hexcolor";
 
 
-        public string HexColor { get; set; } = "#000000";
+        public string HexColor
+        {
+            get
+            {
+                object index;
+                return Properties.TryGetValue(HexColorKey, out index)
+                    ? Convert.ToString(index)
+                    : "#000000";
+            }
+            set
+            {
+				if(!string.IsNullOrEmpty(value))
+                    Properties[HexColorKey] = value;
+            }
+        }
 
 
-		#endregion
+        #endregion
 
 		public ColorTool(IDictionary<string, object> properties, IUndoRedoService undoRedoService) : base("Color", properties,
 			undoRedoService)

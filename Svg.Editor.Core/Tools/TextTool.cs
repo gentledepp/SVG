@@ -355,7 +355,12 @@ namespace Svg.Editor.Tools
 
 		#endregion
 
-		#region Inner types
+        public override string GetDescription()
+        {
+            return LocalizationService.GetString("Svg.Editor.TextTool.Description");
+        }
+
+        #region Inner types
 
 		public class TextProperties
 		{

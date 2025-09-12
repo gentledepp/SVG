@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using Shouldly;
 using NUnit.Framework;
 using SkiaSharp;
 using Svg.Interfaces;
@@ -27,7 +27,7 @@ namespace Svg.Tests.Win
             var actual = paint.TextSize;
 
             //Assert
-            actual.Should().Be(12);
+            actual.ShouldBe(12);
 
         }
 
@@ -41,7 +41,7 @@ namespace Svg.Tests.Win
             var actual = paint.TextSize;
 
             //Assert
-            actual.Should().Be(14);
+            actual.ShouldBe(14);
         }
     }
 }

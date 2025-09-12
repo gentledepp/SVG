@@ -58,6 +58,8 @@ namespace Svg.Editor.Tools
 	public interface ITool : IDisposable
 	{
 		public ILocalizationService LocalizationService { get; }
+        string GetDescription();
+
         string Name { get; }
         ToolUsage ToolUsage { get; }
         /// <summary>

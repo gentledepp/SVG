@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using NUnit.Framework;
 using Svg.Interfaces;
 
@@ -30,9 +30,9 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
-                result.Should().HaveCount(1);
+                result.Count().ShouldBe(1);
         }
         
         [TestCase(0f, 0f, 100, 100, false)]
@@ -57,9 +57,9 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
-                result.Should().HaveCount(1);
+                result.Count().ShouldBe(1);
         }
 
         [TestCase(-2000f, -2000f, 5, false)]
@@ -78,9 +78,9 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
-                result.Should().HaveCount(1);
+                result.Count().ShouldBe(1);
         }
 
         [TestCase(-2000f, -2000f, 50,50, false)]
@@ -100,9 +100,9 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
-                result.Should().HaveCount(1);
+                result.Count().ShouldBe(1);
         }
 
         [TestCase(-2000f, -2000f, 5, false)]
@@ -122,9 +122,9 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
-                result.Should().HaveCount(1);
+                result.Count().ShouldBe(1);
         }
 
         [TestCase(-2000f, -2000f, 50, 50, false)]
@@ -146,9 +146,9 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
-                result.Should().HaveCount(1);
+                result.Count().ShouldBe(1);
         }
 
         [TestCase(-100f, -100f, 5, HitTestResultMode.ReturnAllMatchingDescendants, false)]
@@ -173,20 +173,20 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
             {
                 if (hitTestResultMode == HitTestResultMode.ReturnAllMatchingDescendants)
                 {
-                    result.Should().HaveCount(3);
-                    result[0].Should().BeOfType<SvgRectangle>();
-                    result[1].Should().BeOfType<SvgCircle>();
-                    result[2].Should().BeOfType<SvgGroup>();
+                    result.Count().ShouldBe(3);
+                    result[0].ShouldBeOfType<SvgRectangle>();
+                    result[1].ShouldBeOfType<SvgCircle>();
+                    result[2].ShouldBeOfType<SvgGroup>();
                 }
                 else if (hitTestResultMode == HitTestResultMode.ReturnRootElementOnly)
                 {
-                    result.Should().HaveCount(1);
-                    result.Should().AllBeOfType<SvgGroup>();
+                    result.Count().ShouldBe(1);
+                    result.ShouldAllBe(g => g is SvgGroup);
                 }
             }
         }
@@ -213,20 +213,20 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
             {
                 if (hitTestResultMode == HitTestResultMode.ReturnAllMatchingDescendants)
                 {
-                    result.Should().HaveCount(3);
-                    result[0].Should().BeOfType<SvgRectangle>();
-                    result[1].Should().BeOfType<SvgCircle>();
-                    result[2].Should().BeOfType<SvgGroup>();
+                    result.Count().ShouldBe(3);
+                    result[0].ShouldBeOfType<SvgRectangle>();
+                    result[1].ShouldBeOfType<SvgCircle>();
+                    result[2].ShouldBeOfType<SvgGroup>();
                 }
                 else if (hitTestResultMode == HitTestResultMode.ReturnRootElementOnly)
                 {
-                    result.Should().HaveCount(1);
-                    result.Should().AllBeOfType<SvgGroup>();
+                    result.Count().ShouldBe(1);
+                    result.ShouldAllBe(g => g is SvgGroup);
                 }
             }
         }
@@ -253,20 +253,20 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
             {
                 if (hitTestResultMode == HitTestResultMode.ReturnAllMatchingDescendants)
                 {
-                    result.Should().HaveCount(3);
-                    result[0].Should().BeOfType<SvgRectangle>();
-                    result[1].Should().BeOfType<SvgCircle>();
-                    result[2].Should().BeOfType<SvgGroup>();
+                    result.Count().ShouldBe(3);
+                    result[0].ShouldBeOfType<SvgRectangle>();
+                    result[1].ShouldBeOfType<SvgCircle>();
+                    result[2].ShouldBeOfType<SvgGroup>();
                 }
                 else if (hitTestResultMode == HitTestResultMode.ReturnRootElementOnly)
                 {
-                    result.Should().HaveCount(1);
-                    result.Should().AllBeOfType<SvgGroup>();
+                    result.Count().ShouldBe(1);
+                    result.ShouldAllBe(g => g is SvgGroup);
                 }
             }
         }
@@ -293,20 +293,20 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
             {
                 if (hitTestResultMode == HitTestResultMode.ReturnAllMatchingDescendants)
                 {
-                    result.Should().HaveCount(3);
-                    result[0].Should().BeOfType<SvgRectangle>();
-                    result[1].Should().BeOfType<SvgCircle>();
-                    result[2].Should().BeOfType<SvgGroup>();
+                    result.Count().ShouldBe(3);
+                    result[0].ShouldBeOfType<SvgRectangle>();
+                    result[1].ShouldBeOfType<SvgCircle>();
+                    result[2].ShouldBeOfType<SvgGroup>();
                 }
                 else if (hitTestResultMode == HitTestResultMode.ReturnRootElementOnly)
                 {
-                    result.Should().HaveCount(1);
-                    result.Should().AllBeOfType<SvgGroup>();
+                    result.Count().ShouldBe(1);
+                    result.ShouldAllBe(g => g is SvgGroup);
                 }
             }
         }
@@ -333,20 +333,20 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
             {
                 if (hitTestResultMode == HitTestResultMode.ReturnAllMatchingDescendants)
                 {
-                    result.Should().HaveCount(3);
-                    result[0].Should().BeOfType<SvgRectangle>();
-                    result[1].Should().BeOfType<SvgCircle>();
-                    result[2].Should().BeOfType<SvgGroup>();
+                    result.Count().ShouldBe(3);
+                    result[0].ShouldBeOfType<SvgRectangle>();
+                    result[1].ShouldBeOfType<SvgCircle>();
+                    result[2].ShouldBeOfType<SvgGroup>();
                 }
                 else if (hitTestResultMode == HitTestResultMode.ReturnRootElementOnly)
                 {
-                    result.Should().HaveCount(1);
-                    result.Should().AllBeOfType<SvgGroup>();
+                    result.Count().ShouldBe(1);
+                    result.ShouldAllBe(g => g is SvgGroup);
                 }
             }
         }
@@ -373,20 +373,20 @@ namespace Svg.Tests.Win
 
             // Assert
             if (!expectsHitSuccessful)
-                result.Should().BeEmpty();
+                result.ShouldBeEmpty();
             else
             {
                 if (hitTestResultMode == HitTestResultMode.ReturnAllMatchingDescendants)
                 {
-                    result.Should().HaveCount(3);
-                    result[0].Should().BeOfType<SvgRectangle>();
-                    result[1].Should().BeOfType<SvgCircle>();
-                    result[2].Should().BeOfType<SvgGroup>();
+                    result.Count().ShouldBe(3);
+                    result[0].ShouldBeOfType<SvgRectangle>();
+                    result[1].ShouldBeOfType<SvgCircle>();
+                    result[2].ShouldBeOfType<SvgGroup>();
                 }
                 else if (hitTestResultMode == HitTestResultMode.ReturnRootElementOnly)
                 {
-                    result.Should().HaveCount(1);
-                    result.Should().AllBeOfType<SvgGroup>();
+                    result.Count().ShouldBe(1);
+                    result.ShouldAllBe(g => g is SvgGroup);
                 }
             }
         }
