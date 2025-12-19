@@ -112,7 +112,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <PackageReference Include="Avalonia.Skia" Version="11.2.1" />
+	  <PackageReference Include="Avalonia.Skia" Version="11.3.10-optiq02" />
     <PackageReference Include="System.IO.Compression" Version="4.3.0" />
     <PackageReference Include="System.IO.Compression.ZipFile" Version="4.3.0" />
   </ItemGroup>
