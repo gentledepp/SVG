@@ -120,8 +120,8 @@
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 		<PackageReference Include="System.Reactive" Version="4.0.0" />
-		<PackageReference Include="Avalonia" Version="11.3.10-optiq02" />
-		<PackageReference Include="Avalonia.Skia" Version="11.3.10-optiq02" />
+		<PackageReference Include="Avalonia" Version="11.3.9" />
+		<PackageReference Include="Avalonia.Skia" Version="11.3.9" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\Svg\Svg.csproj" />
