@@ -31,7 +31,7 @@ namespace Svg.Editor
         /// <param name="type"></param>
         public void Register(params Type[] types)
         {
-            foreach (var type in types.Reverse())
+            foreach (var type in types.AsEnumerable().Reverse())
             {
                 if (!_targetTypes.Contains(type))
                     _targetTypes.Add(type);

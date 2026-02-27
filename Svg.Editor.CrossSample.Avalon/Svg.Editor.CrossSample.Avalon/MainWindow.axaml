@@ -21,7 +21,8 @@
             </Grid.RowDefinitions>
 
             <Menu ItemsSource="{Binding DrawingCanvas.ToolCommands, 
-            Converter={StaticResource ToolCommandsToToolbarItemsConverter}}"/>
+            Converter={StaticResource ToolCommandsToToolbarItemsConverter}}"
+                  Margin="10"/>
 
 
             <avalon:SvgEditorView Grid.Row="1" IgnorePixelScaling="true"
