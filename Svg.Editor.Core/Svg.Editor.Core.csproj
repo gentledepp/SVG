@@ -4,9 +4,11 @@
     <AssemblyName>Svg.Editor</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFramework>netstandard2.0</TargetFramework>
-	  <Version>3.0.8-alpha-avalonia</Version>
+	  <Version>3.1.0</Version>
 	  <LangVersion>latest</LangVersion>
 	  <PackageReleaseNotes>
+          #3.1.0
+            Fix toolbar height
 		  #3.0.0-alpha-avalonia
 		  	migrate to avalonia
 		  #2.4.4.11
@@ -59,11 +61,23 @@
 	  </PackageReleaseNotes>
   </PropertyGroup>
 
-	<PropertyGroup Condition="$(Configuration) == 'Release'">
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<IncludeSource>True</IncludeSource>
-		<IncludeSymbols>True</IncludeSymbols>
+		<!-- for nuget sources debug-->
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<IncludeSymbols>true</IncludeSymbols>
+		<IncludeSource>true</IncludeSource>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<!---normalizes filepaths when build by ci (CI is set by ci pipeline)-->
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 
 	<ItemGroup>
 		<Compile Remove="Assets\**" />
