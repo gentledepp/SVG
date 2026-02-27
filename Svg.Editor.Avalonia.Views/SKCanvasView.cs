@@ -152,7 +152,10 @@ namespace Svg.Editor.Avalon.Views
             base.Render(context);
             if (GetValue(BackgroundProperty) is IBrush background)
             {
-                context.FillRectangle(background, Bounds);
+                //Bounds includes the position of the control, but Render expects relative coordinates
+                //(where 0,0 is the top-left of the control)
+                var localBounds = new Rect(Bounds.Size);
+                context.FillRectangle(background, localBounds);
             }
         }
 
