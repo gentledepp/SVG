@@ -149,6 +149,17 @@ namespace Svg
             }
         }
 
+        /// <summary>
+        /// Transforms a single point, avoiding array allocations.
+        /// Override in platform implementations for inline math.
+        /// </summary>
+        public virtual PointF TransformPoint(float x, float y)
+        {
+            var pt = PointF.Create(x, y);
+            TransformPoints(new[] { pt });
+            return pt;
+        }
+
         public abstract void Invert();
 
         public abstract RectangleF TransformRectangle(RectangleF bounds);

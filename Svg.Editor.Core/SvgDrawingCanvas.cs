@@ -45,6 +45,16 @@ namespace Svg.Editor
         private readonly ISchedulerProvider _schedulerProvider;
         private readonly object _lockObject = new object();
         private ISvgRenderer _svgRenderer;
+        private bool _invalidationPending;
+        private ITool[] _toolsByInputOrder;
+        private ITool[] _toolsByGestureOrder;
+        private ITool[] _toolsByPreDrawOrder;
+        private ITool[] _toolsByDrawOrder;
+        private Matrix _cachedTransformMatrix;
+        private Matrix _cachedInverseMatrix;
+        private float _cachedTranslateX, _cachedTranslateY;
+        private float _cachedZoomFactor;
+        private float _cachedZoomFocusX, _cachedZoomFocusY;
 
         private IUndoRedoService UndoRedoService { get; }
 
@@ -294,7 +304,7 @@ namespace Svg.Editor
             // call gesture recognizer first
             GestureRecognizer?.OnNext(ev);
 
-            foreach (var tool in Tools.OrderBy(t => t.InputOrder))
+            foreach (var tool in GetToolsByInputOrder())
             {
                 await tool.OnUserInput(ev, this);
             }
@@ -308,7 +318,7 @@ namespace Svg.Editor
         {
             await EnsureInitialized();
 
-            foreach (var tool in Tools.OrderBy(t => t.GestureOrder))
+            foreach (var tool in GetToolsByGestureOrder())
             {
                 await tool.OnGesture(gesture);
             }
@@ -357,7 +367,7 @@ namespace Svg.Editor
             renderer.FillEntireCanvasWithColor(BackgroundColor);
 
             // prerender step (e.g. gridlines, etc.)
-            foreach (var tool in Tools.OrderBy(t => t.PreDrawOrder))
+            foreach (var tool in GetToolsByPreDrawOrder())
             {
                 await tool.OnPreDraw(renderer, this);
             }
@@ -368,7 +378,7 @@ namespace Svg.Editor
             renderer.Graphics.Restore();
 
             // post render step (e.g. selection borders, etc.)
-            foreach (var tool in Tools.OrderBy(t => t.DrawOrder))
+            foreach (var tool in GetToolsByDrawOrder())
             {
                 await tool.OnDraw(renderer, this);
             }
@@ -695,39 +705,68 @@ namespace Svg.Editor
 
         public Matrix GetCanvasTransformationMatrix()
         {
-            var m1 = SvgEngine.Factory.CreateMatrix();
-            m1.Translate(Translate.X, Translate.Y);
-            m1.Translate(ZoomFocus.X, ZoomFocus.Y);
-            m1.Scale(ZoomFactor, ZoomFactor);
-            m1.Translate(-ZoomFocus.X, -ZoomFocus.Y);
-            return m1;
+            EnsureCachedMatrices();
+            return _cachedTransformMatrix.Clone();
+        }
+
+        private void EnsureCachedMatrices()
+        {
+            var tx = Translate.X;
+            var ty = Translate.Y;
+            var zf = ZoomFactor;
+            var zfx = ZoomFocus.X;
+            var zfy = ZoomFocus.Y;
+
+            if (_cachedTransformMatrix != null
+                && tx == _cachedTranslateX && ty == _cachedTranslateY
+                && zf == _cachedZoomFactor
+                && zfx == _cachedZoomFocusX && zfy == _cachedZoomFocusY)
+            {
+                return;
+            }
+
+            _cachedTranslateX = tx;
+            _cachedTranslateY = ty;
+            _cachedZoomFactor = zf;
+            _cachedZoomFocusX = zfx;
+            _cachedZoomFocusY = zfy;
+
+            var m = SvgEngine.Factory.CreateMatrix();
+            m.Translate(tx, ty);
+            m.Translate(zfx, zfy);
+            m.Scale(zf, zf);
+            m.Translate(-zfx, -zfy);
+            _cachedTransformMatrix = m;
+
+            var inv = SvgEngine.Factory.CreateMatrix();
+            inv.Translate(tx, ty);
+            inv.Translate(zfx, zfy);
+            inv.Scale(zf, zf);
+            inv.Translate(-zfx, -zfy);
+            inv.Invert();
+            _cachedInverseMatrix = inv;
         }
 
         public PointF CanvasToScreen(float x, float y)
         {
-            return CanvasToScreen(PointF.Create(x, y));
+            EnsureCachedMatrices();
+            return _cachedTransformMatrix.TransformPoint(x, y);
         }
 
         public PointF CanvasToScreen(PointF canvasPointF)
         {
-            var point = canvasPointF.Clone();
-            var m = GetCanvasTransformationMatrix();
-            m.TransformPoints(new[] { point });
-            return point;
+            return CanvasToScreen(canvasPointF.X, canvasPointF.Y);
         }
 
         public PointF ScreenToCanvas(float x, float y)
         {
-            return ScreenToCanvas(PointF.Create(x, y));
+            EnsureCachedMatrices();
+            return _cachedInverseMatrix.TransformPoint(x, y);
         }
 
         public PointF ScreenToCanvas(PointF screenPointF)
         {
-            var point = screenPointF.Clone();
-            var m = GetCanvasTransformationMatrix();
-            m.Invert();
-            m.TransformPoints(new[] { point });
-            return point;
+            return ScreenToCanvas(screenPointF.X, screenPointF.Y);
         }
 
         /// <summary>
@@ -814,8 +853,11 @@ namespace Svg.Editor
 
         public void FireInvalidateCanvas()
         {
+            if (_invalidationPending) return;
+            _invalidationPending = true;
             _schedulerProvider.MainScheduer.Schedule(this, (s, st) =>
                 {
+                    _invalidationPending = false;
                     CanvasInvalidated?.Invoke(st, EventArgs.Empty);
                     return null;
                 }
@@ -868,7 +910,36 @@ namespace Svg.Editor
         private void OnToolsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             _toolSelectors = null;
+            InvalidateSortedToolCaches();
             FireToolCommandsChanged();
+        }
+
+        private void InvalidateSortedToolCaches()
+        {
+            _toolsByInputOrder = null;
+            _toolsByGestureOrder = null;
+            _toolsByPreDrawOrder = null;
+            _toolsByDrawOrder = null;
+        }
+
+        private ITool[] GetToolsByInputOrder()
+        {
+            return _toolsByInputOrder ??= Tools.OrderBy(t => t.InputOrder).ToArray();
+        }
+
+        private ITool[] GetToolsByGestureOrder()
+        {
+            return _toolsByGestureOrder ??= Tools.OrderBy(t => t.GestureOrder).ToArray();
+        }
+
+        private ITool[] GetToolsByPreDrawOrder()
+        {
+            return _toolsByPreDrawOrder ??= Tools.OrderBy(t => t.PreDrawOrder).ToArray();
+        }
+
+        private ITool[] GetToolsByDrawOrder()
+        {
+            return _toolsByDrawOrder ??= Tools.OrderBy(t => t.DrawOrder).ToArray();
         }
 
         private void OnDocumentChanged(SvgDocument oldDocument, SvgDocument newDocument)

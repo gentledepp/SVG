@@ -85,12 +85,11 @@ namespace Svg.Editor.Tools
                 return;
             }
 
-            var canvasStartPosition = Canvas.ScreenToCanvas(drag.Start);
             var canvasPointerPosition = Canvas.ScreenToCanvas(drag.Position);
-            System.Diagnostics.Debug.WriteLine(drag.Position);
 
             if (_currentPath == null)
             {
+                var canvasStartPosition = Canvas.ScreenToCanvas(drag.Start);
 
                 _currentPath = new SvgPath
                 {
@@ -119,9 +118,13 @@ namespace Svg.Editor.Tools
 
             // Quadratic bezier curve to the approximate of the pointer position
             var nextControlPoint = _lastCanvasPointerPosition ?? _currentPath.PathData.Last.End;
-            var nextEndPoint = (nextControlPoint + canvasPointerPosition) / 2;
+            var nextEndPoint = PointF.Create(
+                (nextControlPoint.X + canvasPointerPosition.X) / 2f,
+                (nextControlPoint.Y + canvasPointerPosition.Y) / 2f);
 
-            _currentPath.PathData.Add(new SvgQuadraticCurveSegment(_currentPath.PathData.Last.End, nextControlPoint, nextEndPoint));
+            var segment = new SvgQuadraticCurveSegment(_currentPath.PathData.Last.End, nextControlPoint, nextEndPoint);
+            _currentPath.PathData.AddWithoutNotify(segment);
+            _currentPath.AppendSegmentToPath(segment);
 
             _lastCanvasPointerPosition = canvasPointerPosition;
 

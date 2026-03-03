@@ -90,6 +90,16 @@ namespace Svg.Pathing
                 this._segments.Add(item);
         }
 
+        /// <summary>
+        /// Adds a segment without cloning the list or notifying the owner.
+        /// Use during high-frequency operations (e.g. free drawing) to avoid O(N²) clone overhead.
+        /// Caller is responsible for calling <see cref="SvgPath.MarkPathDirty"/> afterwards.
+        /// </summary>
+        public void AddWithoutNotify(SvgPathSegment item)
+        {
+            this._segments.Add(item);
+        }
+
         public void Clear()
         {
             this._segments.Clear();
