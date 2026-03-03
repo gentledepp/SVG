@@ -183,6 +183,9 @@ namespace Svg
                 }
             }
 
+            if(totalBounds is null)
+                return RectangleF.Empty;
+
             return totalBounds;
         }
 

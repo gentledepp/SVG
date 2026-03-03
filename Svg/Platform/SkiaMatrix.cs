@@ -1,4 +1,3 @@
-using System.Linq;
 using SkiaSharp;
 using Svg.Interfaces;
 
@@ -264,26 +263,40 @@ namespace Svg.Platform
 
         public override void TransformVectors(PointF[] points)
         {
-            var pts = points.Select(p => new SKPoint(p.X, p.Y)).ToArray();
-
-            var mappedPoints = _m.MapVectors(pts);
-            for (int i = 0; i < mappedPoints.Length; i++)
+            var m = _m;
+            for (int i = 0; i < points.Length; i++)
             {
-                points[i].X = mappedPoints[i].X;
-                points[i].Y = mappedPoints[i].Y;
+                var p = points[i];
+                var px = p.X;
+                var py = p.Y;
+                p.X = m.ScaleX * px + m.SkewX * py;
+                p.Y = m.SkewY * px + m.ScaleY * py;
             }
         }
 
         public override void TransformPoints(PointF[] points)
         {
-            var pts = points.Select(p => new SKPoint(p.X, p.Y)).ToArray();
-
-            var mappedPoints = _m.MapPoints(pts);
-            for (int i = 0; i < mappedPoints.Length; i++)
+            var m = _m;
+            for (int i = 0; i < points.Length; i++)
             {
-                points[i].X = mappedPoints[i].X;
-                points[i].Y = mappedPoints[i].Y;
+                var p = points[i];
+                var px = p.X;
+                var py = p.Y;
+                var w = m.Persp0 * px + m.Persp1 * py + m.Persp2;
+                p.X = m.ScaleX * px + m.SkewX * py + m.TransX;
+                p.Y = m.SkewY * px + m.ScaleY * py + m.TransY;
+                if (w != 1f) { p.X /= w; p.Y /= w; }
             }
+        }
+
+        public override PointF TransformPoint(float x, float y)
+        {
+            var m = _m;
+            var rx = m.ScaleX * x + m.SkewX * y + m.TransX;
+            var ry = m.SkewY * x + m.ScaleY * y + m.TransY;
+            var w = m.Persp0 * x + m.Persp1 * y + m.Persp2;
+            if (w != 1f) { rx /= w; ry /= w; }
+            return PointF.Create(rx, ry);
         }
         
         public override float[] Elements

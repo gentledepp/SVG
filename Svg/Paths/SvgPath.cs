@@ -107,6 +107,29 @@ namespace Svg
         }
 
         /// <summary>
+        /// Marks the path as dirty so it will be rebuilt on the next render,
+        /// without triggering attribute change events or undo/redo cloning.
+        /// </summary>
+        public void MarkPathDirty()
+        {
+            this.IsPathDirty = true;
+        }
+
+        /// <summary>
+        /// Appends a single segment to the existing GraphicsPath without rebuilding.
+        /// If the path hasn't been built yet, marks it dirty for a full rebuild on next render.
+        /// </summary>
+        public void AppendSegmentToPath(SvgPathSegment segment)
+        {
+            if (_path == null)
+            {
+                IsPathDirty = true;
+                return;
+            }
+            segment.AddToPath(_path);
+        }
+
+        /// <summary>
         /// Gets or sets a value to determine if anti-aliasing should occur when the element is being rendered.
         /// </summary>
         protected override bool RequiresSmoothRendering

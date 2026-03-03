@@ -200,16 +200,25 @@ namespace Svg.Editor.Tools
 
         private void DrawGridLines(IRenderer renderer, ISvgDrawingCanvas ws)
         {
+            // cache property values to avoid repeated dictionary lookups
+            var stepSizeX = StepSizeX;
+            var stepSizeY = StepSizeY;
+
+            // precompute trig once per frame instead of per grid line
+            var alphaRadians = Alpha * (Math.PI / 180);
+            var cosAlpha = (float)Math.Cos(alphaRadians);
+            var sinAlpha = (float)Math.Sin(alphaRadians);
+
             var screenTopLeft = ws.ScreenToCanvas(0, 0);
 
-            var relativeCanvasTranslationX = screenTopLeft.X % StepSizeX;
-            var relativeCanvasTranslationY = screenTopLeft.Y % StepSizeY;
+            var relativeCanvasTranslationX = screenTopLeft.X % stepSizeX;
+            var relativeCanvasTranslationY = screenTopLeft.Y % stepSizeY;
 
             var height = renderer.Height / ws.ZoomFactor;
-            var yPosition = height - height % StepSizeY + StepSizeY * 2;
-            var stepSize = (int) Math.Round(StepSizeY, 0);
+            var yPosition = height - height % stepSizeY + stepSizeY * 2;
+            var stepSize = (int) Math.Round(stepSizeY, 0);
 
-            var x = screenTopLeft.X - relativeCanvasTranslationX - (StepSizeX * 2);
+            var x = screenTopLeft.X - relativeCanvasTranslationX - (stepSizeX * 2);
             // subtract 2x stepsize so gridlines always start from "out of sight" and lines do not start from a visible x-border
             var y = screenTopLeft.Y - relativeCanvasTranslationY;
 
@@ -218,53 +227,40 @@ namespace Svg.Editor.Tools
             double diagonal;
             if (!CachedDiagonals.TryGetValue(cachedDiagonalKey, out diagonal))
             {
-                diagonal = Math.Sqrt(Math.Pow(renderer.Width, 2) + Math.Pow(renderer.Height, 2));
+                var w = (double)renderer.Width;
+                var h = (double)renderer.Height;
+                diagonal = Math.Sqrt(w * w + h * h);
                 CachedDiagonals[cachedDiagonalKey] = diagonal;
             }
             var lineLength = diagonal / ws.ZoomFactor + stepSize * 8;
 
             for (var i = y - yPosition; i <= y + yPosition; i += stepSize)
             {
-                DrawLineLeftToBottom(renderer, i, x, lineLength); /* \ */
+                DrawLineLeftToBottom(renderer, i, x, lineLength, cosAlpha, sinAlpha); /* \ */
             }
 
             for (var i = y; i <= y + 2 * yPosition; i += stepSize)
             {
-                DrawLineLeftToTop(renderer, i, x, lineLength); /* / */
+                DrawLineLeftToTop(renderer, i, x, lineLength, cosAlpha, sinAlpha); /* / */
             }
         }
 
         // line looks like this -> /
-        private void DrawLineLeftToTop(IRenderer renderer, float y, float canvasX, double lineLength)
+        private void DrawLineLeftToTop(IRenderer renderer, float y, float canvasX, double lineLength, float cosAlpha, float sinAlpha)
         {
-            var startX = canvasX;
-            var startY = y;
-            var stopX = (float) (lineLength * Math.Cos(Alpha * (Math.PI / 180))) + canvasX;
-            var stopY = y - (float) (lineLength * Math.Sin(Alpha * (Math.PI / 180)));
+            var stopX = (float)(lineLength * cosAlpha) + canvasX;
+            var stopY = y - (float)(lineLength * sinAlpha);
 
-
-            renderer.DrawLine(
-                startX,
-                startY,
-                stopX,
-                stopY,
-                Pen);
+            renderer.DrawLine(canvasX, y, stopX, stopY, Pen);
         }
 
         // line looks like this -> \
-        private void DrawLineLeftToBottom(IRenderer renderer, float y, float canvasX, double lineLength)
+        private void DrawLineLeftToBottom(IRenderer renderer, float y, float canvasX, double lineLength, float cosAlpha, float sinAlpha)
         {
-            var startX = canvasX;
-            var startY = y;
-            var endX = (float) (lineLength * Math.Cos(Alpha * (Math.PI / 180))) + canvasX;
-            var endY = y + (float) (lineLength * Math.Sin(Alpha * (Math.PI / 180)));
+            var endX = (float)(lineLength * cosAlpha) + canvasX;
+            var endY = y + (float)(lineLength * sinAlpha);
 
-            renderer.DrawLine(
-                startX,
-                startY,
-                endX,
-                endY,
-                Pen);
+            renderer.DrawLine(canvasX, y, endX, endY, Pen);
         }
 
         #endregion
