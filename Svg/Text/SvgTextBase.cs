@@ -357,15 +357,41 @@ namespace Svg
         public override GraphicsPath Path(ISvgRenderer renderer)
         {
             //if there is a TSpan inside of this text element then path should not be null (even if this text is empty!)
-            var nodes = GetContentNodes().Where(x => x is SvgContentNode &&
-                                                     string.IsNullOrEmpty(x.Content.Trim(new[] { '\r', '\n', '\t' })));
-
-            if (_path == null || IsPathDirty || nodes.Count() == 1)
+            if (_path == null || IsPathDirty || HasSingleEmptyContentNode())
             {
                 renderer = (renderer ?? SvgRenderer.FromNull());
                 SetPath(new TextDrawingState(renderer, this));
             }
             return _path;
+        }
+
+        /// <summary>
+        /// Checks if this text element has exactly one empty content node.
+        /// Avoids LINQ allocations by using a simple loop with early exit.
+        /// </summary>
+        private bool HasSingleEmptyContentNode()
+        {
+            int count = 0;
+            foreach (var node in GetContentNodes())
+            {
+                if (node is SvgContentNode && IsEmptyOrWhitespaceOnly(node.Content))
+                {
+                    count++;
+                    if (count > 1) return false;
+                }
+            }
+            return count == 1;
+        }
+
+        private static bool IsEmptyOrWhitespaceOnly(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return true;
+            for (int i = 0; i < s.Length; i++)
+            {
+                var c = s[i];
+                if (c != '\r' && c != '\n' && c != '\t') return false;
+            }
+            return true;
         }
 
         private void SetPath(TextDrawingState state)

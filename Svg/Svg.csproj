@@ -3,13 +3,17 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net48;net9.0</TargetFrameworks>
         <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-        <Version>3.1.1</Version>
+        <Version>3.1.2-optiq02</Version>
         <Authors>gentledpp,zepr</Authors>
         <Company>Opti-Q GmbH</Company>
         <PackageReleaseNotes>
-			#3.1.1
+	        #3.1.2-optiq02
+			performance improvements
+			#3.1.2-optiq01
+			bumped version
+			~#3.1.1~ version exists on public nuget
 			- reduced memory/GC pressure
-            #3.1.0
+			#3.1.0
 			- bumped version along with editor
 			#3.0.8
 			- fixed clippath tests

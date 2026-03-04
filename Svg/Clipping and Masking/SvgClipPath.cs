@@ -60,7 +60,6 @@ namespace Svg
             var result = cachedClipPath.Clone();
             if (ClipPathUnits == SvgCoordinateUnits.ObjectBoundingBox)
             {
-                result = (GraphicsPath)cachedClipPath.Clone();
                 using (var transform = SvgEngine.Factory.CreateMatrix())
                 {
                     var bounds = owner.Bounds;

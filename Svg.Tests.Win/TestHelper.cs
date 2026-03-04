@@ -22,18 +22,15 @@ namespace Svg.Tests.Win
             using var src = File.OpenRead(svgPath);
 
             using SvgDocument doc = SvgDocument.Open<SvgDocument>(src);
-            using var surface = SKSurface.Create(width, height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+            using var surface = SKSurface.Create(new SKImageInfo(width, height));
 
             using var renderer = SvgRenderer.FromGraphics(new SkiaGraphics(surface));
             if(backgroundColor != null)
                 renderer.FillBackground(backgroundColor);
-            
-            doc.Draw(renderer);
-            var img = surface.Snapshot();
 
-            using var s = new SKManagedStream(img.Encode().AsStream());
-            SKBitmap b = new SKBitmap();
-            return SKBitmap.Decode(s);
+            doc.Draw(renderer);
+            using var img = surface.Snapshot();
+            return SKBitmap.FromImage(img);
         }
 
         public static ImageCompareResult ImageCompare(SKBitmap actual, SKBitmap expected)
@@ -86,18 +83,8 @@ namespace Svg.Tests.Win
             if (!Path.IsPathRooted(pngPath))
                 pngPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "Assets", pngPath);
 
-            using var ms = new MemoryStream();
-            using (var stream = File.OpenRead(pngPath))
-            {
-                stream.CopyTo(ms);
-                ms.Seek(0, SeekOrigin.Begin);
-            }
-
-            using (var pngStream = new SKManagedStream(ms))
-            {
-                var pngBitmap = SKBitmap.Decode(pngStream);
-                return pngBitmap;
-            }
+            using var stream = File.OpenRead(pngPath);
+            return SKBitmap.Decode(stream);
         }
     }
 
@@ -131,10 +118,16 @@ namespace Svg.Tests.Win
         {
             if (res.Similarity < similarity)
             {
-                SKPixmap.Encode(new SKFileWStream($"{testMethodName}{postFix}_difference.png"),
-                    res.Heatmap, SKEncodedImageFormat.Png, 100);
-                SKPixmap.Encode(new SKFileWStream($"{testMethodName}{postFix}_actual.png"),
-                    res.ActualResult, SKEncodedImageFormat.Png, 100);
+                using (var heatmapImage = SKImage.FromBitmap(res.Heatmap))
+                using (var heatmapData = heatmapImage.Encode(SKEncodedImageFormat.Png, 100))
+                {
+                    File.WriteAllBytes($"{testMethodName}{postFix}_difference.png", heatmapData.ToArray());
+                }
+                using (var actualImage = SKImage.FromBitmap(res.ActualResult))
+                using (var actualData = actualImage.Encode(SKEncodedImageFormat.Png, 100))
+                {
+                    File.WriteAllBytes($"{testMethodName}{postFix}_actual.png", actualData.ToArray());
+                }
                 Console.WriteLine($"Saved heatmap in {Path.Combine(Environment.CurrentDirectory, $"{testMethodName}{postFix}_difference.png")}");
             }
             Assert.GreaterOrEqual(res.Similarity, similarity);
