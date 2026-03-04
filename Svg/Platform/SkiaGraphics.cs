@@ -139,12 +139,20 @@ namespace Svg.Platform
 
         public void SetClip(GraphicsPath path, CombineMode combineMode)
         {
-            _clipPath = ((SkiaGraphicsPath)path).Path;
-
             if (path != null)
             {
+                _clipPath = ((SkiaGraphicsPath)path).Path;
+
+                // Use ClipPath instead of ClipRegion(new SKRegion(...)) to avoid
+                // expensive path-to-region rasterization (SKRegion.SetPath/SetRects).
+                // Since ClipPath applies the current canvas matrix but the clip path
+                // needs to be transformed by TotalMatrix to device coordinates,
+                // we temporarily set identity matrix and clip with the pre-transformed path.
                 _clipPath.Transform(_canvas.TotalMatrix);
-                _canvas.ClipRegion(new SKRegion(_clipPath), SKClipOperation.Intersect);
+                var savedMatrix = _canvas.TotalMatrix;
+                _canvas.SetMatrix(SKMatrix.Identity);
+                _canvas.ClipPath(_clipPath, SKClipOperation.Intersect, false);
+                _canvas.SetMatrix(savedMatrix);
             }
         }
 
