@@ -123,8 +123,7 @@ namespace Svg.Editor.Tools
                 (nextControlPoint.Y + canvasPointerPosition.Y) / 2f);
 
             var segment = new SvgQuadraticCurveSegment(_currentPath.PathData.Last.End, nextControlPoint, nextEndPoint);
-            _currentPath.PathData.AddWithoutNotify(segment);
-            _currentPath.AppendSegmentToPath(segment);
+            _currentPath.PathData.Add(segment);
 
             _lastCanvasPointerPosition = canvasPointerPosition;
 
