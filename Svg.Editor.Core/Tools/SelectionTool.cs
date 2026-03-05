@@ -160,11 +160,27 @@ namespace Svg.Editor.Tools
             {
                 renderer.Graphics.Save();
 
-                // as we are in "OnDraw", an panning as well as zoomin tools have already translated 
+                // as we are in "OnDraw", an panning as well as zoomin tools have already translated
                 // the canvas in order to properly render the svg elements zoomed and panned
                 // we need to undo that translation, as our selection rectangle must be drawn
                 // in absolute screen coordinates (below the finger of the user - not translated and scaled)
-                var m = renderer.Graphics.Transform.Clone();
+                // We invert only the editor's zoom/translate matrix (not the full graphics transform
+                // which may include a platform DPI pre-scale) so we land in logical pixel space.
+                // 
+                // Watch out for DPI
+                // - renderer.Graphics.Transform returns the full canvas matrix: DPI_Scale × Zoom × Translate
+                // - Inverting that lands you in physical pixel space (identity matrix)
+                // - But mouse coordinates from Avalonia are in logical pixels
+                // 
+                // The fix uses ws.GetCanvasTransformationMatrix() which returns only the editor's Zoom × Translate matrix (no DPI scale).
+                // Inverting just that part:
+                // 
+                // DPI_Scale × ZoomTranslate × ZoomTranslate⁻¹ = DPI_Scale
+                // 
+                // This leaves the DPI scale intact, so the selection rectangle is drawn in logical pixel space — matching the mouse
+                // coordinates. When IgnorePixelScaling=true (Scale=1), the behavior is unchanged since both matrices are identical.
+                // 
+                var m = ws.GetCanvasTransformationMatrix();
                 m.Invert();
                 renderer.Graphics.Concat(m);
 
@@ -191,7 +207,19 @@ namespace Svg.Editor.Tools
             if (ShowHitTestMarker && _selectionPoint != null)
             {
                 renderer.Graphics.Save();
-                var m = renderer.Graphics.Transform.Clone();
+                // Watch out for DPI
+                // - renderer.Graphics.Transform returns the full canvas matrix: DPI_Scale × Zoom × Translate
+                // - Inverting that lands you in physical pixel space (identity matrix)
+                // - But mouse coordinates from Avalonia are in logical pixels
+                // 
+                // The fix uses ws.GetCanvasTransformationMatrix() which returns only the editor's Zoom × Translate matrix (no DPI scale).
+                // Inverting just that part:
+                // 
+                // DPI_Scale × ZoomTranslate × ZoomTranslate⁻¹ = DPI_Scale
+                // 
+                // This leaves the DPI scale intact, so the selection rectangle is drawn in logical pixel space — matching the mouse
+                // coordinates. When IgnorePixelScaling=true (Scale=1), the behavior is unchanged since both matrices are identical.
+                var m = ws.GetCanvasTransformationMatrix();
                 m.Invert();
                 renderer.Graphics.Concat(m);
                 

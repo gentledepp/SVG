@@ -7,29 +7,6 @@
         x:Class="Svg.Editor.CrossSample.Avalon.MainWindow"
         x:DataType="avalon:MainViewModel"
         Title="Window">
-    <Window.DataContext>
-        <avalon:MainViewModel />
-    </Window.DataContext>
-    <Window.Resources>
-        <toolBar:ToolCommandsToToolbarItemsConverter x:Key="ToolCommandsToToolbarItemsConverter" />
-    </Window.Resources>
-    <UserControl>
-        <Grid Margin="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-            </Grid.RowDefinitions>
-
-            <Menu ItemsSource="{Binding DrawingCanvas.ToolCommands, 
-            Converter={StaticResource ToolCommandsToToolbarItemsConverter}}"
-                  Margin="10"/>
-
-
-            <avalon:SvgEditorView Grid.Row="1" IgnorePixelScaling="true"
-                                  DataContext="{Binding DrawingCanvas}"
-                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-			</avalon:SvgEditorView>
-        </Grid>
-    </UserControl>
    
+    <avalon:MainView />
 </Window>
