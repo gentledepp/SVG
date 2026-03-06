@@ -77,7 +77,15 @@ namespace Svg.Editor.Avalon.Forms
         {
             base.OnPaintSurface(e);
 
-            DrawingCanvas?.OnDraw(new SKCanvasRenderer(e.Surface, e.Info.Width, e.Info.Height));
+            // Watch out for DPI
+            // We cannot just call 'DrawingCanvas?.OnDraw(new SKCanvasRenderer(e.Surface, e.Info.Width, e.Info.Height));'
+            // Instead we need to divide e.Info.Width / Height by Scale before passing them to the renderer.
+            // The bitmap dimensions are in physical pixels, but mouse coordinates from Avalonia are in logical pixels.
+            // This mismatch caused the proportional offset that grew with distance from the origin when IgnorePixelScaling = false.
+            var scale = this.Scale;
+            var logicalWidth = (int)(e.Info.Width / scale);
+            var logicalHeight = (int)(e.Info.Height / scale);
+            DrawingCanvas?.OnDraw(new SKCanvasRenderer(e.Surface, logicalWidth, logicalHeight));
         }
     }
 }

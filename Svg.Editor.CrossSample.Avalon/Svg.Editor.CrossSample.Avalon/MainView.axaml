@@ -1,30 +1,56 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:avalon="clr-namespace:Svg.Editor.CrossSample.Avalon;assembly=Svg.Editor.CrossSample.Avalon"
 			 xmlns:toolBar="clr-namespace:Svg.Editor.Avalon.Forms.ToolBar;assembly=Svg.Editor.Avalon.Forms"
-             x:Class="Svg.Editor.CrossSample.Avalon.MainView"
-             x:DataType="avalon:MainViewModel">
-    <UserControl.DataContext>
-        <avalon:MainViewModel />
-    </UserControl.DataContext>
-    <UserControl.Resources>
-        <toolBar:ToolCommandsToToolbarItemsConverter x:Key="ToolCommandsToToolbarItemsConverter" />
-    </UserControl.Resources>
-    <Grid Margin="0">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-        </Grid.RowDefinitions>
+			 x:Class="Svg.Editor.CrossSample.Avalon.MainView"
+			 d:DesignHeight="600"
+			 d:DesignWidth="800"
+			 x:DataType="avalon:MainViewModel">
+	<UserControl.DataContext>
+		<avalon:MainViewModel />
+	</UserControl.DataContext>
+	<UserControl.Resources>
+		<toolBar:ToolCommandsToToolbarItemsConverter x:Key="ToolCommandsToToolbarItemsConverter" />
+	</UserControl.Resources>
+	<OnFormFactor>
+		<On Options="Desktop">
 
-        <Menu
-            Margin="10"
-            Grid.Row="1"
-            ItemsSource="{Binding DrawingCanvas.ToolCommands, 
-        Converter={StaticResource ToolCommandsToToolbarItemsConverter}}" />
+			<Grid Margin="0">
 
-        <avalon:SvgEditorView
-            DataContext="{Binding DrawingCanvas}" />
-    </Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"></RowDefinition>
+					<RowDefinition Height="*"></RowDefinition>
+				</Grid.RowDefinitions>
+
+				<Menu Margin="10"
+					  Grid.Row="0"
+					  ItemsSource="{Binding DrawingCanvas.ToolCommands,
+					  Converter={StaticResource ToolCommandsToToolbarItemsConverter}}" />
+
+				<avalon:SvgEditorView Grid.Row="1"
+									  DataContext="{Binding DrawingCanvas}" />
+
+			</Grid>
+		</On>
+		<On Options="Default">
+
+			<Grid Margin="0">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*"></RowDefinition>
+					<RowDefinition Height="Auto"></RowDefinition>
+				</Grid.RowDefinitions>
+
+				<Menu Margin="10"
+					  Grid.Row="1"
+					  ItemsSource="{Binding DrawingCanvas.ToolCommands,
+					  Converter={StaticResource ToolCommandsToToolbarItemsConverter}}" />
+
+				<avalon:SvgEditorView Grid.Row="0"
+									  DataContext="{Binding DrawingCanvas}" />
+
+			</Grid>
+		</On>
+	</OnFormFactor>
 </UserControl>
