@@ -13,6 +13,8 @@ namespace Svg.DeepZoom
         private readonly Timer _cleanupTimer;
         private readonly TileCacheOptions _options;
         private readonly int _maximalTiles;
+        private readonly object _evictionLock = new();
+        private long _tickCounter = 0;
 
         public TileCache(TileCacheOptions options)
         {
@@ -29,14 +31,8 @@ namespace Svg.DeepZoom
             if (TryGetValue(key, out var tileItem))
                 return tileItem;
 
-            var newItem = new TileCacheItem(itemProvider(), _options.CleanupInterval);
-           
-            if (_cache.Count >= _maximalTiles)
-            {
-                return newItem;
-            }
-            _cache.TryAdd(key, newItem);
-
+            var newItem = new TileCacheItem(itemProvider(), _options.CleanupInterval, Interlocked.Increment(ref _tickCounter));
+            AddWithEviction(key, newItem);
             return newItem;
         }
 
@@ -48,24 +44,19 @@ namespace Svg.DeepZoom
             if (TryGetValue(key, out var tileItem))
                 return tileItem;
 
-            var newItem = new TileCacheItem(await itemProvider(), _options.CleanupInterval);
-            if (_cache.Count >= _maximalTiles)
-            {
-                return newItem;
-            }
-            _cache.TryAdd(key, newItem);
-
+            var newItem = new TileCacheItem(await itemProvider(), _options.CleanupInterval, Interlocked.Increment(ref _tickCounter));
+            AddWithEviction(key, newItem);
             return newItem;
         }
 
         public bool TryGetValue(string key, out TileCacheItem item)
         {
             if (key == null) throw new ArgumentNullException(nameof(key));
-            // if caching is disabled
             if (_cache.TryGetValue(key, out var cacheItem))
             {
                 if (!cacheItem.IsExpired)
                 {
+                    cacheItem.Touch(Interlocked.Increment(ref _tickCounter));
                     item = cacheItem;
                     return true;
                 }
@@ -75,6 +66,33 @@ namespace Svg.DeepZoom
 
             item = default;
             return false;
+        }
+
+        private void AddWithEviction(string key, TileCacheItem newItem)
+        {
+            lock (_evictionLock)
+            {
+                if (_cache.Count >= _maximalTiles)
+                    EvictLru();
+                _cache.TryAdd(key, newItem);
+            }
+        }
+
+        private void EvictLru()
+        {
+            string lruKey = null;
+            long oldest = long.MaxValue;
+            foreach (var kvp in _cache)
+            {
+                if (kvp.Value.LastAccessTick < oldest)
+                {
+                    oldest = kvp.Value.LastAccessTick;
+                    lruKey = kvp.Key;
+                }
+            }
+
+            if (lruKey != null)
+                _cache.TryRemove(lruKey, out _);
         }
 
         public void Remove(string key)
@@ -88,9 +106,7 @@ namespace Svg.DeepZoom
             foreach (var key in _cache.Keys)
             {
                 if (_cache.TryGetValue(key, out var cacheItem) && cacheItem.IsExpired)
-                {
-                    cacheItem.Dispose();
-                }
+                    _cache.TryRemove(key, out _);
             }
         }
 

@@ -180,8 +180,8 @@ namespace Svg
 
         public void CalculateTransform(SvgAspectRatio aspectRatio, float width, float height, out float scaleX, out float scaleY, out float minX, out float minY)
         {
-            scaleX = width > Width ? Width / width : width / Width;
-            scaleY = height > Height ? Height / height : height / Height;
+            scaleX = width / Width;
+            scaleY = height / Height;
             minX = -MinX;
             minY = -MinY;
 

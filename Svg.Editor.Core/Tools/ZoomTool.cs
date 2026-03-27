@@ -120,23 +120,23 @@ namespace Svg.Editor.Tools
                 new ToolCommand(this, "Zoom in +", x =>
                 {
                     var f = Canvas.ZoomFactor + 0.25f;
-                    Canvas.ZoomFactor = Math.Max(MinScale, Math.Min(f, MaxScale));
+                    Canvas.ZoomFactor = Math.Max(GetEffectiveMinScale(Canvas), Math.Min(f, MaxScale));
                     Canvas.FireInvalidateCanvas();
                 }, o => ZoomInCommandEnabled, iconName:"ic_zoom_in.svg", sortFunc:x => 1500),
                 new ToolCommand(this, "Zoom out -", x =>
                 {
                     var f = Canvas.ZoomFactor - 0.25f;
-                    Canvas.ZoomFactor = Math.Max(MinScale, Math.Min(f, MaxScale));
+                    Canvas.ZoomFactor = Math.Max(GetEffectiveMinScale(Canvas), Math.Min(f, MaxScale));
                     Canvas.FireInvalidateCanvas();
                 }, o => ZoomOutCommandEnabled, iconName:"ic_zoom_out.svg", sortFunc:x => 1550),
                 new ToolCommand(this, "100 %", x =>
                 {
-                    Canvas.ZoomFactor = Math.Max(MinScale, Math.Min(1, MaxScale));
+                    Canvas.ZoomFactor = Math.Max(GetEffectiveMinScale(Canvas), Math.Min(1, MaxScale));
                     Canvas.FireInvalidateCanvas();
                 }, o => ZoomX1CommandEnabled, iconName:"ic_zoom_100.svg", sortFunc:x => 1600),
                 new ToolCommand(this, "200 %", x =>
                 {
-                    Canvas.ZoomFactor = Math.Max(MinScale, Math.Min(2, MaxScale));
+                    Canvas.ZoomFactor = Math.Max(GetEffectiveMinScale(Canvas), Math.Min(2, MaxScale));
                     Canvas.FireInvalidateCanvas();
                 }, o => ZoomX2CommandEnabled, iconName:"ic_zoom_200.svg", sortFunc:x => 1650)
             };
@@ -307,8 +307,22 @@ namespace Svg.Editor.Tools
         private float GetBoundedZoomFactor(ScaleEvent se, ISvgDrawingCanvas ws)
         {
             var newZoomFactor = ws.ZoomFactor * se.ScaleFactor;
+            return Math.Max(GetEffectiveMinScale(ws), Math.Min(newZoomFactor, MaxScale));
+        }
 
-            return Math.Max(MinScale, Math.Min(newZoomFactor, MaxScale));
+        /// <summary>
+        /// Returns the lowest zoom that still fits the whole document on screen,
+        /// but never higher than the configured <see cref="MinScale"/>.
+        /// </summary>
+        private float GetEffectiveMinScale(ISvgDrawingCanvas ws)
+        {
+            if (ws?.Document == null || ws.ScreenWidth <= 0 || ws.ScreenHeight <= 0)
+                return MinScale;
+            var bounds = ws.Document.CalculateDocumentBounds();
+            if (bounds.IsEmpty || bounds.Width <= 0 || bounds.Height <= 0)
+                return MinScale;
+            var fitZoom = Math.Min(ws.ScreenWidth / bounds.Width, ws.ScreenHeight / bounds.Height);
+            return Math.Min(MinScale, fitZoom);
         }
 
         #endregion

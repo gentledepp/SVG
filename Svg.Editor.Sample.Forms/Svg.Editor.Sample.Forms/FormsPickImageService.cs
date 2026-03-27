@@ -8,6 +8,9 @@ namespace Svg.Editor.Sample.Forms
 {
     public class FormsPickImageService : IPickImageService
     {
+        public Task<string> PickZipFilePathAsync() => throw new System.NotImplementedException();
+        public Task<string> PickImageOrZipPathAsync(int maxPixelDimension) => throw new System.NotImplementedException();
+
         public async Task<string> PickImagePathAsync(int maxPixelDimension)
         {
 	        using (var inStream = await CrossMedia.Current.PickPhotoAsync(new PickMediaOptions

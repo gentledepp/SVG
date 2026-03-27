@@ -128,7 +128,7 @@ namespace Svg.Tests.Win
                 {
                     File.WriteAllBytes($"{testMethodName}{postFix}_actual.png", actualData.ToArray());
                 }
-                Console.WriteLine($"Saved heatmap in {Path.Combine(Environment.CurrentDirectory, $"{testMethodName}{postFix}_difference.png")}");
+                Console.WriteLine($"Saved heatmap in {Path.Combine(TestContext.CurrentContext.WorkDirectory, $"{testMethodName}{postFix}_difference.png")}");
             }
             Assert.GreaterOrEqual(res.Similarity, similarity);
         }

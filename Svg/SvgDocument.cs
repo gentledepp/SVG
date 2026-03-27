@@ -900,6 +900,23 @@ namespace Svg
             return new SvgRendererHandle(CurrentRenderer, this, true);
         }
 
+        internal void RenderToRenderer(ISvgRenderer renderer)
+        {
+            this.Render(renderer);
+        }
+
+        internal SvgRendererHandle CreateRendererFromGraphics(Graphics graphics, int screenWidth, int screenHeight)
+        {
+            if (CurrentRenderer != null)
+                return new SvgRendererHandle(CurrentRenderer, this, false);
+
+            var renderer = SvgRenderer.FromGraphics(graphics);
+            renderer.ScreenWidth = screenWidth;
+            renderer.ScreenHeight = screenHeight;
+            CurrentRenderer = renderer;
+            return new SvgRendererHandle(CurrentRenderer, this, true);
+        }
+
         internal SvgRendererHandle CreateRendererFromNull()
         {
             return CreateRendererFromImage(Bitmap.Create(1, 1));

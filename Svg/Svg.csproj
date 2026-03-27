@@ -3,10 +3,12 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net48;net9.0</TargetFrameworks>
 		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-		<Version>3.1.3-optiq01</Version>
+		<Version>3.1.4-optiq01</Version>
 		<Authors>gentledpp,zepr</Authors>
 		<Company>Opti-Q GmbH</Company>
 		<PackageReleaseNotes>
+			#3.1.4-optiq01
+			Added filetiling for large images and svg files
 			#3.1.3-optiq01
 			Updated SkiaSharp from 2.88.8 to 3.119.1
 			#3.1.2-optiq07

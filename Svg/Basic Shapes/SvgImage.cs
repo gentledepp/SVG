@@ -163,6 +163,38 @@ namespace Svg
 
 
         /// <summary>
+        /// Creates a tile provider that reads entries from an already-open <paramref name="archive"/>.
+        /// The archive is captured once; callers must keep it open for the lifetime of the returned delegate.
+        /// </summary>
+        internal static Func<string, string, Stream> CreateZipTileProvider(
+            ZipArchive archive, Func<string, string, string> pathCombine)
+        {
+            // Pre-build an O(1) lookup keyed by the full entry name to avoid linear scans per tile.
+            var lookup = new System.Collections.Generic.Dictionary<string, ZipArchiveEntry>(
+                StringComparer.OrdinalIgnoreCase);
+            foreach (var entry in archive.Entries)
+                lookup[entry.FullName] = entry;
+
+            return (folderName, fileName) =>
+            {
+                var path = pathCombine(folderName, fileName);
+                // Normalise separators so both "z0/y0_x0.png" and "z0\y0_x0.png" resolve.
+                if (!lookup.TryGetValue(path, out var zipEntry))
+                    zipEntry = lookup.TryGetValue(path.Replace('\\', '/'), out var e2) ? e2
+                               : lookup.TryGetValue(path.Replace('/', '\\'), out var e3) ? e3
+                               : null;
+
+                if (zipEntry == null) return null;
+
+                var ms = new MemoryStream();
+                using var entryStream = zipEntry.Open();
+                entryStream.CopyTo(ms);
+                ms.Position = 0;
+                return ms;
+            };
+        }
+
+        /// <summary>
         /// Renders the <see cref="SvgElement"/> and contents to the specified <see cref="Graphics"/> object.
         /// </summary>
         protected override void Render(ISvgRenderer renderer)
@@ -187,17 +219,7 @@ namespace Svg
 
                     using var zipFileStream = fileSystem.OpenRead(Href);
                     using var zipArchive = new ZipArchive(zipFileStream, ZipArchiveMode.Read);
-                    var tileProvider = (string folderName, string fileName) =>
-                    {
-                        var path = fileSystem.PathCombine(folderName, fileName);
-                        var entry = zipArchive.Entries.FirstOrDefault(archiveEntry =>
-                            archiveEntry.FullName.EndsWith(path));
-
-                        if(entry == null)
-                            return null;
-
-                        return entry.Open();
-                    };
+                    var tileProvider = CreateZipTileProvider(zipArchive, (a, b) => fileSystem.PathCombine(a, b));
 
                     using var skImage = tileRenderer.RenderBitmap(tileProvider, xOffset, yOffset,
                         scaleX);
@@ -206,7 +228,7 @@ namespace Svg
 
                     if (image != null)
                     {
-                        var bmp = image as Bitmap;
+                        using var bmp = image as Bitmap;
                         var rec = new SkiaRectangleF()
                         {
                             Height = bmp.Height,
