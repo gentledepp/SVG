@@ -11,6 +11,10 @@ namespace Svg.DeepZoom
 
         Task GenerateTilesAsync(Stream sourceImageStream, Func<string, string, Task<Stream>> tileOutputStreamProvider, IProgress<int> progress = null, string backgroundColor = "#ffffff", int maxParallelTasks = -1);
 
-
+        Task<SvgDocument> GenerateSvgDocumentWithTilesAsync(
+            Bitmap svgBitmap,
+            IProgress<int> progress = null,
+            string backgroundColor = "#ffffff",
+            int maxParallelTasks = -1);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -36,10 +37,40 @@ namespace Svg.Editor.Tools
                     if (ImagePath == null) return;
                     PlaceImage(ImagePath);
                 }, o => ChooseBackgroundEnabled, iconName: "ic_insert_photo.svg", description: LocalizationService.GetString("Svg.Editor.BackgroundTool.ChooseBackgroundImage.Description")),
-                new ToolCommand(this, "Choose svg/image to tile render", async ob =>
+                new ToolCommand(this, "Choose svg to tile render", async o =>
                 {
-                    var xa = Canvas.ScreenWidth;
-                    var y = Canvas.ScreenHeight;
+                    var imgs = SvgEngine.TryResolve<IPickImageService>();
+                    if (imgs == null) return;
+
+                    ImagePath = await imgs.PickImagePathAsync(Canvas.ScreenWidth);
+                    if (ImagePath == null) return;
+
+                    var svgDoc = SvgDocument.Open<SvgDocument>(ImagePath);
+
+                    int targetWidth  = 7680;
+                    int targetHeight = (int)(targetWidth * (svgDoc.Height / svgDoc.Width)); // keep aspect ratio
+
+                    var docWidth = svgDoc.Width;
+                    var docHeight = svgDoc.Height;
+                    var scale = Math.Max(targetWidth / docWidth, targetHeight / docHeight);
+
+                    svgDoc.Width = targetWidth;
+                    svgDoc.Height = targetHeight;
+                    svgDoc.ViewBox = null;
+                    svgDoc.Transforms.Add(new SvgScale(scale));
+
+                    using var svgBitmap = svgDoc.DrawDocument();
+                    var gen = new TileGenerator();
+                   
+                    SvgDocument doc = await gen.GenerateSvgDocumentWithTilesAsync(svgBitmap,maxParallelTasks:1);
+
+                    Canvas.Document = doc;
+
+                    Canvas.FireInvalidateCanvas();
+                    Canvas.FireToolCommandsChanged();
+                }, o => ChooseBackgroundEnabled, iconName: "ic_insert_photo.svg", description: LocalizationService.GetString("Svg.Editor.BackgroundTool.ChooseBackgroundImage.Description")),
+                new ToolCommand(this, "Choose image to tile render", async ob =>
+                {
                     var imgs = SvgEngine.TryResolve<IPickImageService>();
                     var fileSystem = SvgEngine.TryResolve<IFileSystem>();
                     
@@ -112,7 +143,7 @@ namespace Svg.Editor.Tools
         {
             var doc = SvgDocument
                 .Open(
-                    "C:\\Users\\zepr2\\Desktop\\98fc3a08-8f01-4033-b4f7-fd10264862d3.svg");
+                    "C:\\Users\\zepr2\\Desktop\\svgPlan2.svg");
 
             //var bImage = doc.Children.OfType<SvgImage>().FirstOrDefault();
 

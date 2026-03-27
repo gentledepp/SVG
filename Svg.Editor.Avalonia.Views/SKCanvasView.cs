@@ -22,7 +22,7 @@ namespace Svg.Editor.Avalon.Views
 
         private static readonly Vector Dpi = new Vector(96, 96);
         private WriteableBitmap? _writeableBitmap = default;
-        private bool _IgnorePixelScaling;
+        private bool _IgnorePixelScaling = true;
         private int _pixelWidth;
         private int _pixelHeight;
         private double _scale = 1;

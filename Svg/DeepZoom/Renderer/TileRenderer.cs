@@ -114,10 +114,6 @@ namespace Svg.DeepZoom
             {
                 for (int tileY = startTileY; tileY <= endTileY; tileY++)
                 {
-                    // Local copies of tile indices for use inside the Task
-                    int localTileX = tileX;
-                    int localTileY = tileY;
-
                     // Load the tile bitmap, not disposing bitmap because its cached
                     var tileBitmap = LoadTile($"z{zoomLevel}", $"y{tileY}_x{tileX}.png", tileProvider);
 

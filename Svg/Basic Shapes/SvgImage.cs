@@ -170,6 +170,22 @@ namespace Svg
             if (!Visible || !Displayable)
                 return;
 
+            if (this.ID != null && this.ID.Contains("zoom"))
+            {
+                var scaleX = renderer.Transform.ScaleX;
+                var xOffset = renderer.Transform.OffsetX;
+                var yOffset = renderer.Transform.OffsetY;
+
+                var viewport = RectangleF.Create(-xOffset / scaleX, -yOffset / scaleX, renderer.ScreenWidth / scaleX, renderer.ScreenHeight / scaleX);
+
+                int zoomLevel =
+                    Math.Max((int)Math.Floor(Math.Log(1f / scaleX, 2)), 0); // Correct zoom level calculation
+
+
+                if (!viewport.IntersectsWith(this.GetBoundingBox()) || !this.ID.Contains("zoom"+zoomLevel))
+                    return;
+            }
+
             if (Href != null)
             {
                 if (Href.EndsWith(".zip"))

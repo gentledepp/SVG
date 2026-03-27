@@ -26,7 +26,7 @@ namespace Svg.Editor.Avalon.Forms.Services
                 {
                      new FilePickerFileType("Images")
                      {
-                         Patterns = new[] { "*.png", "*.jpg", "*.jpeg", "*.bmp", "*.gif" },
+                         Patterns = new[] { "*.png", "*.jpg", "*.jpeg", "*.bmp", "*.gif", "*.svg" },
                          MimeTypes = new[] { "image/*" }
                      }
                  }
@@ -42,7 +42,7 @@ namespace Svg.Editor.Avalon.Forms.Services
             try
             {
                 var fs = SvgEngine.Resolve<IFileSystem>();
-                var path = "background.png";
+                var path = selectedFile.Name.EndsWith(".svg")? "background.svg" : "background.png";
                 var fullPath = fs.PathCombine(fs.GetDefaultStoragePath(), path);
 
                 if (fs.FileExists(fullPath))
