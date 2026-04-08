@@ -119,7 +119,6 @@ namespace Svg.DeepZoom
 
                     if (tileBitmap != null)
                     {
-                        var t = tileSizeAtZoom;
                         // Calculate the position to draw the tile on the canvas
                         float drawX = offsetX + tileX * tileSizeAtZoom;
                         float drawY = offsetY + tileY * tileSizeAtZoom;
@@ -131,14 +130,26 @@ namespace Svg.DeepZoom
                         {
                             try
                             {
+                                    SvgEngine.Logger.Warn("Not drawn tile, width:" + tileBitmap.Width + ", height:" + tileBitmap.Height + ", area:" + area);
                                 // Draw the tile on the canvas
                                 canvas.DrawBitmap(tileBitmap, area);
+                                if (tileX == 2 && tileY == 1)
+                                {
+                                    using var f = new FileStream("debug_tile.png", FileMode.Create, FileAccess.Write);
+
+                                    tileBitmap.Encode(f, SKEncodedImageFormat.Png, 100);
+                                }
+
                                 count++;
 
 #if DEBUG
                                 var paint = new SKPaint();
-                                paint.StrokeWidth = 1;
                                 paint.Color = SKColors.Red;
+
+                                if (tileX == 2 && tileY == 1)
+                                    paint.Color = SKColors.Blue;
+
+                                paint.StrokeWidth = 1;
                                 paint.IsStroke = true;
                                 canvas.DrawRect(area.Left, area.Top, area.Width, area.Height, paint);
 #endif
@@ -208,9 +219,9 @@ namespace Svg.DeepZoom
             var tileLoadTasks = new List<Task<(float x, float y, SKBitmap tileBitmap)>>();
 
             // Loop through the visible range of tiles and render them asynchronously
-            for (int tileX = startTileX; tileX < endTileX; tileX++)
+            for (int tileX = startTileX; tileX <= endTileX; tileX++)
             {
-                for (int tileY = startTileY; tileY < endTileY; tileY++)
+                for (int tileY = startTileY; tileY <= endTileY; tileY++)
                 {
                     // Local copies of tile indices for use inside the Task
                     int localTileX = tileX;
@@ -222,8 +233,8 @@ namespace Svg.DeepZoom
                         var bmp = await LoadTileAsync($"z{zoomLevel}", $"y{localTileY}_x{localTileX}.png",
                             tileProvider);
                         // Calculate the position to draw the tile on the canvas
-                        float drawX = localTileX * tileSizeAtZoom;
-                        float drawY = localTileY * tileSizeAtZoom;
+                        float drawX = offsetX + localTileX * tileSizeAtZoom;
+                        float drawY = offsetY + localTileY * tileSizeAtZoom;
 
                         return (x: drawX, y: drawY, tileBitmap: bmp);
                     }));
@@ -244,7 +255,7 @@ namespace Svg.DeepZoom
                         // Ensure the draw area is within the visible portion of the canvas
                         var area = new SKRect(x, y, x + tileSizeAtZoom, y + tileSizeAtZoom);
                         
-                        bool isVisible = area.IntersectsWith(area);
+                        bool isVisible = canvas.LocalClipBounds.IntersectsWith(area);
                         if (isVisible)
                         {
                             // Draw the tile on the canvas
@@ -339,7 +350,7 @@ namespace Svg.DeepZoom
                 var item = cache.GetOrCreate(tilePath,
                     () =>
                     {
-                        using var stream =  tileProvider.Invoke(zoomFolderName, tileFileName);
+                        using var stream = tileProvider.Invoke(zoomFolderName, tileFileName);
                         if (stream is null)
                             return null;
                         return SKBitmap.Decode(stream);
@@ -348,8 +359,7 @@ namespace Svg.DeepZoom
 
                 return item.Tile;
             }
-
-            using var stream = tileProvider.Invoke(zoomFolderName, tileFileName);
+            var stream = tileProvider.Invoke(zoomFolderName, tileFileName);
             if (stream is null)
                 return null;
             return SKBitmap.Decode(stream);

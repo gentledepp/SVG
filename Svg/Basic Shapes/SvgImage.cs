@@ -205,14 +205,21 @@ namespace Svg
                     using var zipArchive = new ZipArchive(zipFileStream, ZipArchiveMode.Read);
                     var tileProvider = (string folderName, string fileName) =>
                     {
-                        var path = fileSystem.PathCombine(folderName, fileName);
-                        var entry = zipArchive.Entries.FirstOrDefault(archiveEntry =>
-                            archiveEntry.FullName.EndsWith(path));
+                        using var zipFileStream = fileSystem.OpenRead(Href);
+                        using var zipArchive = new ZipArchive(zipFileStream, ZipArchiveMode.Read);
 
-                        if(entry == null)
+                        var path = fileSystem.PathCombine(folderName, fileName);
+                        var entry = zipArchive.Entries.FirstOrDefault(e => e.FullName.EndsWith(path));
+
+                        if (entry == null)
                             return null;
 
-                        return entry.Open();
+                        // In MemoryStream kopieren bevor zipArchive disposed wird!
+                        var ms = new MemoryStream();
+                        using var entryStream = entry.Open();
+                        entryStream.CopyTo(ms);
+                        ms.Position = 0;
+                        return ms;
                     };
 
                     using var skImage = tileRenderer.RenderBitmap(tileProvider, xOffset, yOffset,
@@ -222,7 +229,7 @@ namespace Svg
 
                     if (image != null)
                     {
-                        var bmp = image as Bitmap;
+                        using var bmp = image as Bitmap;
                         var rec = new SkiaRectangleF()
                         {
                             Height = bmp.Height,

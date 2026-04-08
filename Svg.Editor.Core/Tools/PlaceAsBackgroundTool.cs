@@ -47,7 +47,7 @@ namespace Svg.Editor.Tools
 
                     var svgDoc = SvgDocument.Open<SvgDocument>(ImagePath);
 
-                    int targetWidth  = 7680;
+                    int targetWidth  = 7680/2;
                     int targetHeight = (int)(targetWidth * (svgDoc.Height / svgDoc.Width)); // keep aspect ratio
 
                     var docWidth = svgDoc.Width;
@@ -69,7 +69,7 @@ namespace Svg.Editor.Tools
                     Canvas.FireInvalidateCanvas();
                     Canvas.FireToolCommandsChanged();
                 }, o => ChooseBackgroundEnabled, iconName: "ic_insert_photo.svg", description: LocalizationService.GetString("Svg.Editor.BackgroundTool.ChooseBackgroundImage.Description")),
-                new ToolCommand(this, "Choose image to tile render", async ob =>
+                new ToolCommand(this, "Choose svg to tile render with zip", async ob =>
                 {
                     var imgs = SvgEngine.TryResolve<IPickImageService>();
                     var fileSystem = SvgEngine.TryResolve<IFileSystem>();
@@ -78,7 +78,7 @@ namespace Svg.Editor.Tools
                     ImagePath = await imgs.PickImagePathAsync(Canvas.ScreenWidth);
                     if (ImagePath == null) return;
 
-                    using var newBmp = ScaleAndPlaceBackground(ImagePath, 3508, 2480); // A3 example
+                    using var newBmp = ScaleAndPlaceBackground(ImagePath, 3370, 2384); // A3 example
                     
                     if(File.Exists(Path.Combine(fileSystem.GetDefaultStoragePath(),ImagePath)))
                         File.Delete(Path.Combine(fileSystem.GetDefaultStoragePath(),ImagePath));
@@ -108,8 +108,12 @@ namespace Svg.Editor.Tools
 
                    if (ImagePath == null) return;
                     //Canvas.Constraints = RectangleF.Create(0, 0, size.Width, size.Height);
-                    var image = Canvas.Document.AddImageInBackground(ImagePath);
-                    image.Href = outPutZiFile;
+                    Canvas.Document.Children.Add(new SvgImage()
+                    {
+                        Width = 3370,
+                        Height =  3370,
+                        Href = outPutZiFile
+                    });
                     Canvas.FireInvalidateCanvas();
                     Canvas.FireToolCommandsChanged();
 
@@ -142,8 +146,7 @@ namespace Svg.Editor.Tools
         private Bitmap ScaleAndPlaceBackground(string path, int newWidth, int newHeight)
         {
             var doc = SvgDocument
-                .Open(
-                    "C:\\Users\\zepr2\\Desktop\\svgPlan2.svg");
+                .Open(ImagePath);
 
             //var bImage = doc.Children.OfType<SvgImage>().FirstOrDefault();
 

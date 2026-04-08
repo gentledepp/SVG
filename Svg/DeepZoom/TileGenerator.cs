@@ -30,7 +30,7 @@ namespace Svg.DeepZoom
             Func<string, string, Task<Stream>> tileOutputStreamProvider, IProgress<int> progress = null,
             string backgroundColor = "#ffffff")
         {
-            using var sourceImageStream = _fileSystem.OpenRead(sourceImagePath);
+            var sourceImageStream = _fileSystem.OpenRead(sourceImagePath);
             return GenerateTilesAsync(sourceImageStream, tileOutputStreamProvider, progress,
                 backgroundColor, 1);
         }
