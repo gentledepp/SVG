@@ -130,25 +130,14 @@ namespace Svg.DeepZoom
                         {
                             try
                             {
-                                    SvgEngine.Logger.Warn("Not drawn tile, width:" + tileBitmap.Width + ", height:" + tileBitmap.Height + ", area:" + area);
                                 // Draw the tile on the canvas
                                 canvas.DrawBitmap(tileBitmap, area);
-                                if (tileX == 2 && tileY == 1)
-                                {
-                                    using var f = new FileStream("debug_tile.png", FileMode.Create, FileAccess.Write);
-
-                                    tileBitmap.Encode(f, SKEncodedImageFormat.Png, 100);
-                                }
 
                                 count++;
 
 #if DEBUG
                                 var paint = new SKPaint();
                                 paint.Color = SKColors.Red;
-
-                                if (tileX == 2 && tileY == 1)
-                                    paint.Color = SKColors.Blue;
-
                                 paint.StrokeWidth = 1;
                                 paint.IsStroke = true;
                                 canvas.DrawRect(area.Left, area.Top, area.Width, area.Height, paint);
