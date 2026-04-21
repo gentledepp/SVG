@@ -427,15 +427,12 @@ namespace Svg.Editor
             }
         }
 
-        private bool Loading { get; set; } = true;
         private void ApplyConstraintsFitUniform()
         {
             if (Constraints == null || Constraints == RectangleF.Empty) return;
 
             // if zoom is totally out of bounds, reset
-            // or: when loading, zoom out
-            if ((ScreenWidth / ZoomFactor > Constraints.Width && ScreenHeight / ZoomFactor > Constraints.Height)
-                || Loading)
+            if (ScreenWidth / ZoomFactor > Constraints.Width && ScreenHeight / ZoomFactor > Constraints.Height)
             {
                 ZoomFactor = Math.Min(ScreenWidth / Constraints.Width,
                     ScreenHeight / Constraints.Height);
@@ -444,7 +441,6 @@ namespace Svg.Editor
                     (ScreenHeight - Constraints.Height * ZoomFactor) / 2);
                 // this should replace "ZoomFocus = PointF.Empty;" but doesn't work when ZoomFactor < 1
                 //+ (ZoomFocus - ScreenToCanvas(0, 0)) * (ZoomFactor - 1);
-                Loading = false;
                 return;
             }
             var constraintTopLeft = PointF.Create(Constraints.Left, Constraints.Top) * ZoomFactor;
@@ -1026,18 +1022,27 @@ namespace Svg.Editor
             }
             else if (Document != null)
             {
+                var viewBox = Document.ViewBox;
 
-                float scaleX;
-                float scaleY;
-                float minX;
-                float minY;
-                Document.ViewBox.CalculateTransform(Document.AspectRatio, ScreenWidth, ScreenHeight,
-                    out scaleX, out scaleY, out minX, out minY);
+                if (viewBox.Width <= 0 || viewBox.Height <= 0 || ScreenWidth <= 0 || ScreenHeight <= 0)
+                {
+                    ZoomFactor = 1f;
+                    ZoomFocus = PointF.Empty;
+                    Translate = PointF.Create(0f, 0f);
+                }
+                else
+                {
+                    // restore camera from saved viewbox dimensions
+                    // e.g. ScreenWidth = 1000, viewBox.Width = 2000, ZoomFactor should be 0.5
+                    var zoomX = (float)ScreenWidth / viewBox.Width;
+                    var zoomY = (float)ScreenHeight / viewBox.Height;
+                    ZoomFactor = Math.Min(zoomX, zoomY);
 
-                ZoomFactor = Math.Min(1 / scaleX, 1 / scaleY);
-                ZoomFocus = PointF.Empty;
-                Translate = PointF.Create(-Document.ViewBox.MinX * ZoomFactor, -Document.ViewBox.MinY * ZoomFactor);
-
+                    ZoomFocus = PointF.Empty;
+                    Translate = PointF.Create(
+                        -viewBox.MinX * ZoomFactor,
+                        -viewBox.MinY * ZoomFactor);
+                }
             }
 
             // we need to reset the viewBox for correct rendering afterwards

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SkiaSharp;
 using Svg.Editor.Interfaces;
+using Svg.Editor.Services;
 using Svg.Editor.Tools;
 using Svg.Interfaces;
 
@@ -203,6 +205,37 @@ namespace Svg.Editor.Core.Test
             var json = Canvas.GetToolPropertiesJson();
 
             Assert.False(string.IsNullOrWhiteSpace(json));
+        }
+
+        [Test]
+        [TestCase(0, 0, 400, 600, 800, 600, 1.0f, 0, 0)]
+        [TestCase(0, 0, 800, 300, 800, 600, 1.0f, 0, 0)]
+        [TestCase(0, 0, 1600, 1200, 800, 600, 0.5f, 0, 0)]
+        [TestCase(0, 0, 400, 300, 800, 600, 2.0f, 0, 0)]
+        [TestCase(100, 50, 400, 300, 800, 600, 2.0f, -200, -100)]
+        [TestCase(-50, -50, 400, 600, 800, 600, 1.0f, 50, 50)]
+        public async Task CalculatesZoomFactorAndTranslateCorrectly(
+            float vbX, float vbY, float vbWidth, float vbHeight,
+            int screenWidth, int screenHeight,
+            float expectedZoomFactor, float expectedTranslateX, float expectedTranslateY)
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+
+            var d = new SvgDocument();
+            d.ViewBox = new SvgViewBox(vbX, vbY, vbWidth, vbHeight);
+            Canvas.ScreenWidth = screenWidth;
+            Canvas.ScreenHeight = screenHeight;
+            Canvas.Document = d;
+
+            using var surface1 = SKSurface.Create(screenWidth, screenHeight, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+            var renderer1 = new SKCanvasRenderer(surface1, screenWidth, screenHeight);
+            await Canvas.OnDraw(renderer1);
+
+            // Assert
+            Assert.AreEqual(expectedZoomFactor, Canvas.ZoomFactor);
+            Assert.AreEqual(expectedTranslateX, Canvas.Translate.X);
+            Assert.AreEqual(expectedTranslateY, Canvas.Translate.Y);
         }
 
         private class MockTextInputService : ITextInputService
