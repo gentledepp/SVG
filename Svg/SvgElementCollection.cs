@@ -127,6 +127,18 @@ namespace Svg
             }
         }
 
+        /// <summary>
+        /// Empties the collection without firing <c>OnElementRemoved</c>, without nulling
+        /// each item's <c>_parent</c>, and without cascading through the owner document's
+        /// <see cref="SvgElementIdManager"/>. Intended for specialised containers (e.g.
+        /// caches) that share child references with other owners and must not disturb
+        /// those children when disposing the container.
+        /// </summary>
+        public void DetachAll()
+        {
+            this._elements.Clear();
+        }
+
         public bool Contains(SvgElement item)
         {
             return this._elements.Contains(item);
