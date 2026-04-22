@@ -28,7 +28,7 @@ namespace Svg.Editor.Avalon.Forms.Services
             };
 
             var text = result.Text;
-            if (text == "Cancel")
+            if (!result.Ok)
             {
                 return defaultResult;
             }
@@ -37,12 +37,6 @@ namespace Svg.Editor.Avalon.Forms.Services
             if (textSizeOptions != null)
             {
                 var sizeResult = await UserInteractionServiceExt.UserInteractionInst.ActionSheetAsync("Font size", textSizeOptions.ToArray());
-
-                if (sizeResult == "Cancel")
-                {
-                    return defaultResult;
-                }
-
 
                 sizeIndex = textSizeOptions.ToList().IndexOf(sizeResult);
                 sizeIndex = sizeIndex >= 0 ? sizeIndex : textSizeSelected;
