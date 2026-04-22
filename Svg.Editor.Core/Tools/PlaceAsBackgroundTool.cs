@@ -150,7 +150,7 @@ namespace Svg.Editor.Tools
                 // add constraints to the canvas
                 var size = image.GetImageSize();
 
-                //Canvas.Constraints = RectangleF.Create(0, 0, size.Width, size.Height);
+                Canvas.Constraints = RectangleF.Create(0, 0, size.Width, size.Height);
                 Canvas.FireInvalidateCanvas();
                 Canvas.FireToolCommandsChanged();
             }
