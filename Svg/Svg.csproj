@@ -3,10 +3,12 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net48;net9.0</TargetFrameworks>
         <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-        <Version>3.1.2-optiq04</Version>
+        <Version>3.1.2-optiq05</Version>
         <Authors>gentledpp,zepr</Authors>
         <Company>Opti-Q GmbH</Company>
         <PackageReleaseNotes>
+			#3.1.2-optiq05
+			bumped version along with editor
 	        #3.1.2-optiq04
 	        Added SvgElementCollection.DetachAll() — empties the collection without firing
 	        OnElementRemoved, without nulling item._parent, and without cascading through

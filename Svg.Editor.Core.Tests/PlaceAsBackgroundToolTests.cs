@@ -5,6 +5,7 @@ using Svg.Editor.Tools;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Svg.Interfaces;
 
 namespace Svg.Editor.Core.Tests
 {
@@ -31,7 +32,8 @@ namespace Svg.Editor.Core.Tests
             // Arrange
             await Canvas.EnsureInitialized();
 
-            Assert.That(Canvas.Constraints != null, "Using a background image should constrain the editor to that image");
+            var expectedConstraints = RectangleF.Create(0, 0, 2026.499f, 1184);
+            Assert.That(Canvas.Constraints.Equals(expectedConstraints), "Using a background image should constrain the editor to that image");
         }
     }
 }
