@@ -3,19 +3,21 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net48;net9.0</TargetFrameworks>
         <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-        <Version>3.1.2-optiq05</Version>
+        <Version>3.1.2-optiq06</Version>
         <Authors>gentledpp,zepr</Authors>
         <Company>Opti-Q GmbH</Company>
         <PackageReleaseNotes>
+			#3.1.2-optiq06
+			Fixed: Sketch, when setting text and cancel dialog, opens new dialog and asks for font size
 			#3.1.2-optiq05
 			bumped version along with editor
-	        #3.1.2-optiq04
-	        Added SvgElementCollection.DetachAll() — empties the collection without firing
-	        OnElementRemoved, without nulling item._parent, and without cascading through
-	        the IdManager. Enables cache-style containers to tear down safely while
-	        sharing children with other owners.
-	        #3.1.2-optiq03
-	        DPI calculation fixes
+			#3.1.2-optiq04
+			Added SvgElementCollection.DetachAll() — empties the collection without firing
+			OnElementRemoved, without nulling item._parent, and without cascading through
+			the IdManager. Enables cache-style containers to tear down safely while
+			sharing children with other owners.
+			#3.1.2-optiq03
+			DPI calculation fixes
 			FreeDrwaingTool path Bounds fix
 			#3.1.2-optiq02
 			performance improvements

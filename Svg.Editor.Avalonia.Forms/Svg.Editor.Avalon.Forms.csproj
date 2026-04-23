@@ -3,8 +3,10 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
-		<Version>3.1.2-optiq05</Version>
+		<Version>3.1.2-optiq06</Version>
 		<PackageReleaseNotes>
+			#3.1.2-optiq06
+			Fixed: Sketch, when setting text and cancel dialog, opens new dialog and asks for font size
 			#3.1.2-optiq05
 			Zoom factor derivation from viewbox math fix
 			Images not setting constraints fix
