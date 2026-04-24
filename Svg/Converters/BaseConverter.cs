@@ -235,6 +235,9 @@ namespace Svg.Converters
 
             public override object ConvertFromString(string value, Type targetType, SvgDocument document)
             {
+                if (value == "none")
+                    return SvgFontVariant.Normal;
+
                 if (value == "small-caps")
                     return SvgFontVariant.Smallcaps;
 
