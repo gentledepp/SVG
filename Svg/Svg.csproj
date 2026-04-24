@@ -3,10 +3,12 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net48;net9.0</TargetFrameworks>
         <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-        <Version>3.1.2-optiq06</Version>
+        <Version>3.1.2-optiq07</Version>
         <Authors>gentledpp,zepr</Authors>
         <Company>Opti-Q GmbH</Company>
         <PackageReleaseNotes>
+			#3.1.2-optiq07
+			Fixed clip path property being inherited
 			#3.1.2-optiq06
 			Fixed: Sketch, when setting text and cancel dialog, opens new dialog and asks for font size
 			#3.1.2-optiq05

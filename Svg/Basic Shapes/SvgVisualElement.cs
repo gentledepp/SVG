@@ -150,10 +150,10 @@ namespace Svg
             return true;
         }
 
-        private SvgAttributeCollection.InheritedAttribute<string> _clip;
-        private SvgAttributeCollection.InheritedAttribute<Uri> _clipPath;
-        private SvgAttributeCollection.InheritedAttribute<Uri> _filter;
-        private SvgAttributeCollection.Attribute<SvgClipRule> _clipRule;
+        private SvgAttributeCollection.Attribute<string> _clip;
+        private SvgAttributeCollection.Attribute<Uri> _clipPath;
+        private SvgAttributeCollection.Attribute<Uri> _filter;
+        private SvgAttributeCollection.InheritedAttribute<SvgClipRule> _clipRule;
 
         /// <summary>
         /// Gets the associated <see cref="SvgClipPath"/> if one has been specified.
@@ -161,7 +161,7 @@ namespace Svg
         [SvgAttribute("clip")]
         public virtual string Clip
         {
-            get { return  (_clip ??= this.Attributes.GetInheritedAttribute<string>("clip")).GetValue(); }
+            get { return  (_clip ??= this.Attributes.GetAttribute<string>("clip")).GetValue(); }
             set { this.Attributes["clip"] = value; }
         }
 
@@ -171,7 +171,7 @@ namespace Svg
         [SvgAttribute("clip-path")]
         public virtual Uri ClipPath
         {
-            get { return (_clipPath ??= this.Attributes.GetInheritedAttribute<Uri>("clip-path")).GetValue(); }
+            get { return (_clipPath ??= this.Attributes.GetAttribute<Uri>("clip-path")).GetValue(); }
             set { this.Attributes["clip-path"] = value; }
         }
 
@@ -181,7 +181,7 @@ namespace Svg
         [SvgAttribute("clip-rule")]
         public SvgClipRule ClipRule
         {
-            get { return (_clipRule ??= this.Attributes.GetAttribute<SvgClipRule>("clip-rule", SvgClipRule.NonZero)).GetValue(); }
+            get { return (_clipRule ??= this.Attributes.GetInheritedAttribute<SvgClipRule>("clip-rule")).GetValue(); }
             set { this.Attributes["clip-rule"] = value; }
         }
 
@@ -191,7 +191,7 @@ namespace Svg
         [SvgAttribute("filter")]
         public virtual Uri Filter
         {
-            get { return (_filter ??= this.Attributes.GetInheritedAttribute<Uri>("filter")).GetValue(); }
+            get { return (_filter ??= this.Attributes.GetAttribute<Uri>("filter")).GetValue(); }
             set { this.Attributes["filter"] = value; }
         }
         
@@ -278,7 +278,9 @@ namespace Svg
                     }
                     else
                     {
+                        this.SetClip(renderer);
                         base.RenderChildren(renderer);
+                        this.ResetClip(renderer);
                     }
                     this.PopTransforms(renderer);
                 }
