@@ -8,6 +8,9 @@ namespace Svg.Editor.Sample.Core.Tools
 {
     public class MvxPickImageService : IPickImageService
     {
+        public Task<string> PickZipFilePathAsync() => throw new System.NotImplementedException();
+        public Task<string> PickImageOrZipPathAsync(int maxPixelDimension) => throw new System.NotImplementedException();
+
         public async Task<string> PickImagePathAsync(int maxPixelDimension)
         {
             using (var inStream = await Mvx.Resolve<IMvxPictureChooserTask>().ChoosePictureFromLibrary(maxPixelDimension, 80))

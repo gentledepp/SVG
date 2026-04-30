@@ -11,11 +11,16 @@ namespace Svg.DeepZoom
 
         public bool IsExpired => DateTime.Now >= ExpirationTime;
 
-        public TileCacheItem(SKBitmap tile, TimeSpan expirationTime)
+        public long LastAccessTick { get; private set; }
+
+        public TileCacheItem(SKBitmap tile, TimeSpan expirationTime, long initialTick)
         {
             Tile = tile;
             ExpirationTime = DateTime.Now.Add(expirationTime);
+            LastAccessTick = initialTick;
         }
+
+        internal void Touch(long tick) => LastAccessTick = tick;
 
         public void Dispose()
         {

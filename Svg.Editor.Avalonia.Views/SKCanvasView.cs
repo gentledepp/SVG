@@ -22,7 +22,7 @@ namespace Svg.Editor.Avalon.Views
 
         private static readonly Vector Dpi = new Vector(96, 96);
         private WriteableBitmap? _writeableBitmap = default;
-        private bool _IgnorePixelScaling;
+        private bool _IgnorePixelScaling = true;
         private int _pixelWidth;
         private int _pixelHeight;
         private double _scale = 1;
@@ -109,8 +109,16 @@ namespace Svg.Editor.Avalon.Views
                 return;
             }
 
-            var bitmap = _writeableBitmap ??= new WriteableBitmap(new PixelSize(_pixelWidth, _pixelHeight), Dpi,
-                Avalonia.Platform.PixelFormat.Bgra8888, AlphaFormat.Premul);
+            WriteableBitmap? old = null;
+            if (_writeableBitmap is null ||
+                _writeableBitmap.PixelSize.Width != _pixelWidth ||
+                _writeableBitmap.PixelSize.Height != _pixelHeight)
+            {
+                old = _writeableBitmap;
+                _writeableBitmap = new WriteableBitmap(new PixelSize(_pixelWidth, _pixelHeight), Dpi,
+                    Avalonia.Platform.PixelFormat.Bgra8888, AlphaFormat.Premul);
+            }
+            var bitmap = _writeableBitmap;
             var scale = this.Scale;
             using (var framebuffer = bitmap.Lock())
             {
@@ -142,6 +150,14 @@ namespace Svg.Editor.Avalon.Views
                 {
                     AlignmentX = AlignmentX.Left, AlignmentY = AlignmentY.Top, Stretch = Stretch.Fill
                 }.ToImmutable());
+
+            if (old is not null)
+            {
+                // Defer disposal so the render thread has time to pick up the new ImageBrush
+                // before the old WriteableBitmap's native memory is freed. Background priority
+                // runs after Render, guaranteeing the new composition snapshot is published first.
+                Dispatcher.UIThread.Post(old.Dispose, DispatcherPriority.Background);
+            }
             return;
         }
 
@@ -175,6 +191,8 @@ namespace Svg.Editor.Avalon.Views
         protected override void OnUnloaded(RoutedEventArgs e)
         {
             base.OnUnloaded(e);
+            _writeableBitmap?.Dispose();
+            _writeableBitmap = null;
             /*
             var display = DisplayInformation.GetForCurrentView();
             display.DpiChanged -= OnDpiChanged;
@@ -236,8 +254,6 @@ namespace Svg.Editor.Avalon.Views
                 _pixelWidth = Convert.ToInt32(bounds.Width * scale);
                 _pixelHeight = Convert.ToInt32(bounds.Height * scale);
                 this.CanvasSize = new Size(_pixelWidth, _pixelHeight);
-                _writeableBitmap?.Dispose();
-                _writeableBitmap = null;
                 this.InvalidateSurface();
             }
 

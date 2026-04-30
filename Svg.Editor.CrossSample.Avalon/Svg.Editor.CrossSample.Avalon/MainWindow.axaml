@@ -6,7 +6,9 @@
         xmlns:toolBar="clr-namespace:Svg.Editor.Avalon.Forms.ToolBar;assembly=Svg.Editor.Avalon.Forms"
         x:Class="Svg.Editor.CrossSample.Avalon.MainWindow"
         x:DataType="avalon:MainViewModel"
-        Title="Window">
+        Title="Window"
+        Width="1024"
+        Height="800">
    
     <avalon:MainView />
 </Window>

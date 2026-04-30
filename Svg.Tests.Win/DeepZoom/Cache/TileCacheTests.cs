@@ -180,20 +180,50 @@ public class TileCacheTests
     }
 
     [Test]
-    public void TryGetValue_501ItemNotExist_ShouldReturnTrue()
+    public void TryGetValue_OverCapacity_LruEntryEvictedAndNewItemCached()
     {
+        // Fill to capacity (500), then insert one more → LRU entry evicted, new item stored.
         var key = "testKey";
-        var bitmap = new SKBitmap();
 
-        for(int i = 0; i< 501; i++)
-        {
-            _cache.GetOrCreate(key+i, () => bitmap);
-        }
+        for (int i = 0; i < 500; i++)
+            _cache.GetOrCreate(key + i, () => new SKBitmap(1, 1));
 
-        var result = _cache.TryGetValue(key+500, out var cacheItem);
-        
-        Assert.IsFalse(result);
-        Assert.IsNull(cacheItem);
+        // key0 is the oldest (LRU candidate). Insert one beyond capacity.
+        var newest = new SKBitmap(1, 1);
+        _cache.GetOrCreate("newest", () => newest);
+
+        // New item must be cached.
+        Assert.IsTrue(_cache.TryGetValue("newest", out var newItem));
+        Assert.AreEqual(newest, newItem.Tile);
+
+        // The oldest entry (key0) must have been evicted to make room.
+        Assert.IsFalse(_cache.TryGetValue(key + 0, out _), "LRU entry (key0) should be evicted.");
+    }
+
+    [Test]
+    public void GetOrCreate_WhenFull_EvictsLeastRecentlyUsed()
+    {
+        var opts = new TileCacheOptions { CleanupInterval = TimeSpan.FromHours(1), MaximalTiles = 3 };
+        using var cache = new TileCache(opts);
+
+        var bmp0 = new SKBitmap(1, 1);
+        var bmp1 = new SKBitmap(1, 1);
+        var bmp2 = new SKBitmap(1, 1);
+
+        cache.GetOrCreate("k0", () => bmp0);
+        cache.GetOrCreate("k1", () => bmp1);
+        cache.GetOrCreate("k2", () => bmp2);
+
+        // Touch k1 so its LastAccess is more recent than k0.
+        cache.TryGetValue("k1", out _);
+
+        // Insert beyond capacity → k0 (true LRU) should be evicted.
+        var bmpNew = new SKBitmap(1, 1);
+        cache.GetOrCreate("kNew", () => bmpNew);
+
+        Assert.IsFalse(cache.TryGetValue("k0", out _), "k0 (LRU) should have been evicted.");
+        Assert.IsTrue(cache.TryGetValue("k1", out _), "k1 (recently accessed) should still be cached.");
+        Assert.IsTrue(cache.TryGetValue("kNew", out _), "new item should be stored after LRU eviction.");
     }
 
     [Test]
@@ -279,5 +309,37 @@ public class TileCacheTests
 
         Assert.IsTrue(result);
         Assert.AreEqual(bitmap, cacheItem.Tile);
+    }
+
+    [Test]
+    public void CleanUp_ShouldFreeCapacityForNewItems()
+    {
+        // Fill the cache to capacity with short-lived items
+        var options = new TileCacheOptions
+        {
+            CleanupInterval = TimeSpan.FromMilliseconds(300),
+            MaximalTiles = 3
+        };
+        using var cache = new TileCache(options);
+
+        for (int i = 0; i < 3; i++)
+            cache.GetOrCreate($"old_{i}", () => new SKBitmap(1, 1));
+
+        // Cache is full — LRU eviction means the new item IS stored (oldest evicted).
+        var overflowBitmap = new SKBitmap(1, 1);
+        cache.GetOrCreate("overflow", () => overflowBitmap);
+        Assert.IsTrue(cache.TryGetValue("overflow", out var overflowItem),
+            "Item added at capacity should be stored after LRU eviction.");
+        Assert.AreEqual(overflowBitmap, overflowItem.Tile);
+
+        // Wait for items to expire and cleanup to run
+        Thread.Sleep(800);
+
+        // After cleanup removed expired items, new items should still be cacheable.
+        var newBitmap = new SKBitmap(1, 1);
+        cache.GetOrCreate("after_cleanup", () => newBitmap);
+
+        Assert.IsTrue(cache.TryGetValue("after_cleanup", out var cached));
+        Assert.AreEqual(newBitmap, cached.Tile);
     }
 }

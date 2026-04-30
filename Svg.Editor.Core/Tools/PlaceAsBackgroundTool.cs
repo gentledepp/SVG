@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SkiaSharp;
 using Svg.DeepZoom;
 using Svg.Editor.Extensions;
 using Svg.Editor.Interfaces;
@@ -36,49 +38,134 @@ namespace Svg.Editor.Tools
                     if (ImagePath == null) return;
                     PlaceImage(ImagePath);
                 }, o => ChooseBackgroundEnabled, iconName: "ic_insert_photo.svg", description: LocalizationService.GetString("Svg.Editor.BackgroundTool.ChooseBackgroundImage.Description")),
-                new ToolCommand(this, "Choose svg/image to tile render", async ob =>
+                new ToolCommand(this, "Choose image / svg / zip to tile render", async ob =>
                 {
-                    var xa = Canvas.ScreenWidth;
-                    var y = Canvas.ScreenHeight;
                     var imgs = SvgEngine.TryResolve<IPickImageService>();
                     var fileSystem = SvgEngine.TryResolve<IFileSystem>();
-                    
+                    if (imgs == null || fileSystem == null) return;
 
-                    ImagePath = await imgs.PickImagePathAsync(Canvas.ScreenWidth);
-                    if (ImagePath == null) return;
+                    var pickedPath = await imgs.PickImageOrZipPathAsync(Canvas.ScreenWidth);
+                    if (pickedPath == null) return;
 
-                    using var newBmp = ScaleAndPlaceBackground(ImagePath, 3508, 2480); // A3 example
-                    
-                    if(File.Exists(Path.Combine(fileSystem.GetDefaultStoragePath(),ImagePath)))
-                        File.Delete(Path.Combine(fileSystem.GetDefaultStoragePath(),ImagePath));
+                    SvgImage svgImage;
 
-                    using (var file = fileSystem.OpenWrite(Path.Combine(fileSystem.GetDefaultStoragePath(),ImagePath)))
+                    if (pickedPath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
                     {
-                        newBmp.SavePng(file);
+                        int estimatedWidth = 0, estimatedHeight = 0;
+                        using (var zipStream = File.OpenRead(pickedPath))
+                        using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Read))
+                        {
+                            // Prefer exact dimensions written by TileGenerator.
+                            var dimEntry = archive.GetEntry("dimensions.json");
+                            if (dimEntry != null)
+                            {
+                                using var dimStream = dimEntry.Open();
+                                using var reader = new StreamReader(dimStream, Encoding.UTF8);
+                                var json = reader.ReadToEnd();
+                                var wm = System.Text.RegularExpressions.Regex.Match(json, @"""width""\s*:\s*(\d+)");
+                                var hm = System.Text.RegularExpressions.Regex.Match(json, @"""height""\s*:\s*(\d+)");
+                                if (wm.Success && hm.Success)
+                                {
+                                    estimatedWidth  = int.Parse(wm.Groups[1].Value);
+                                    estimatedHeight = int.Parse(hm.Groups[1].Value);
+                                }
+                            }
+
+                            // Fallback: scan z0 tiles (handles zips without metadata).
+                            // Normalise path separators — Windows ZipArchive stores entries with backslash.
+                            if (estimatedWidth == 0 || estimatedHeight == 0)
+                            {
+                                int maxTileX = -1, maxTileY = -1;
+                                foreach (var entry in archive.Entries)
+                                {
+                                    if (!entry.FullName.Replace('\\', '/').StartsWith("z0/", StringComparison.OrdinalIgnoreCase))
+                                        continue;
+                                    var name = Path.GetFileNameWithoutExtension(entry.Name);
+                                    var parts = name.TrimStart('y').Split(new[] { "_x" }, StringSplitOptions.None);
+                                    if (parts.Length == 2 &&
+                                        int.TryParse(parts[0], out var ty) &&
+                                        int.TryParse(parts[1], out var tx))
+                                    {
+                                        if (tx > maxTileX) maxTileX = tx;
+                                        if (ty > maxTileY) maxTileY = ty;
+                                    }
+                                }
+                                if (maxTileX >= 0 && maxTileY >= 0)
+                                {
+                                    estimatedWidth  = (maxTileX + 1) * 256;
+                                    estimatedHeight = (maxTileY + 1) * 256;
+                                }
+                            }
+                        }
+                        svgImage = new SvgImage { Width = estimatedWidth, Height = estimatedHeight, Href = pickedPath };
+                    }
+                    else
+                    {
+                        var fullSourcePath = Path.IsPathRooted(pickedPath)
+                            ? pickedPath
+                            : Path.Combine(fileSystem.GetDefaultStoragePath(), pickedPath);
+
+                        var outputZipFile = Path.Combine(fileSystem.GetDefaultStoragePath(), "TilesBackground.zip");
+                        if (File.Exists(outputZipFile))
+                            File.Delete(outputZipFile);
+
+                        var gen = new TileGenerator();
+                        int imageWidth, imageHeight;
+
+                        using (var zipFileStream = fileSystem.OpenWrite(outputZipFile))
+                        using (var archive = new ZipArchive(zipFileStream, ZipArchiveMode.Create))
+                        {
+                            var streamProvider = (string folderName, string fileName) =>
+                            {
+                                var entry = archive.CreateEntry(Path.Combine(folderName, fileName));
+                                return Task.FromResult<Stream>(entry.Open());
+                            };
+
+                            if (pickedPath.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+                            {
+                                var doc = SvgDocument.Open(fullSourcePath);
+                                const int a1Width = 7016;   // A1 at 300 DPI
+                                const int a1Height = 9933;
+                                var dims = doc.GetDimensions();
+                                var targetW = dims.Width;
+                                var targetH = dims.Height;
+                                if (targetW < a1Width && targetH < a1Height)
+                                {
+                                    // Scale up to fit A1, preserving aspect ratio.
+                                    var scale = Math.Min(a1Width / targetW, a1Height / targetH);
+                                    targetW *= scale;
+                                    targetH *= scale;
+                                }
+                                imageWidth = (int)targetW;
+                                imageHeight = (int)targetH;
+                                await Task.Run(()=> gen.GenerateTilesAsync(doc, imageWidth, streamProvider));
+                            }
+                            else
+                            {
+                                using var sourceStream = File.OpenRead(fullSourcePath);
+                                using var codec = SKCodec.Create(sourceStream);
+                                imageWidth = codec.Info.Width;
+                                imageHeight = codec.Info.Height;
+                                sourceStream.Position = 0;
+                                await Task.Run(() => gen.GenerateTilesAsync(sourceStream, streamProvider));
+                            }
+                        }
+
+                        svgImage = new SvgImage { Width = imageWidth, Height = imageHeight, Href = outputZipFile };
                     }
 
-                    var gen = new TileGenerator();
-                    var outPutZiFile = Path.Combine(fileSystem.GetDefaultStoragePath(), "TilesStream.zip");
-                   if(File.Exists(outPutZiFile))
-                       File.Delete(outPutZiFile);
-                   using (var zipFileStream = fileSystem.OpenWrite(outPutZiFile))
-                   {
-                       using var archive = new ZipArchive(zipFileStream, ZipArchiveMode.Create);
+                    // Remove any previously placed tiled image (mirrors PlaceImage cleanup pattern).
+                    var children = Canvas.Document.Children;
+                    var formerTileRender = children.FirstOrDefault(x => x.CustomAttributes.ContainsKey(TileRenderAttributeKey));
+                    if (formerTileRender != null)
+                    {
+                        children.Remove(formerTileRender);
+                        formerTileRender.Dispose();
+                    }
 
-                       var streamProvider = (string folderName, string fileName) =>
-                       {
-                           var entry = archive.CreateEntry(Path.Combine(folderName, fileName));
-                           return Task.FromResult<Stream>(entry.Open());
-                       };
-
-                       await gen.GenerateTilesAsync(Path.Combine(fileSystem.GetDefaultStoragePath(), ImagePath),
-                           streamProvider);
-                   }
-
-                   if (ImagePath == null) return;
-                    //Canvas.Constraints = RectangleF.Create(0, 0, size.Width, size.Height);
-                    var image = Canvas.Document.AddImageInBackground(ImagePath);
-                    image.Href = outPutZiFile;
+                    svgImage.CustomAttributes.Add(TileRenderAttributeKey, "");
+                    svgImage.CustomAttributes.Add(BackgroundCustomAttributeKey, "");
+                    children.Add(svgImage);
                     Canvas.FireInvalidateCanvas();
                     Canvas.FireToolCommandsChanged();
 
@@ -111,8 +198,7 @@ namespace Svg.Editor.Tools
         private Bitmap ScaleAndPlaceBackground(string path, int newWidth, int newHeight)
         {
             var doc = SvgDocument
-                .Open(
-                    "C:\\Users\\zepr2\\Desktop\\98fc3a08-8f01-4033-b4f7-fd10264862d3.svg");
+                .Open(ImagePath);
 
             //var bImage = doc.Children.OfType<SvgImage>().FirstOrDefault();
 
@@ -161,6 +247,7 @@ namespace Svg.Editor.Tools
 
         public static readonly string ChooseBackgroundEnabledKey = @"choosebackgroundenabled";
         public static readonly string ImagePathKey = @"imagepath";
+        private const string TileRenderAttributeKey = "tilerender";
 
         public bool ChooseBackgroundEnabled
         {
