@@ -5,24 +5,33 @@ name: .NET
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "master", "develop" ]
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "master", "develop" ]
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
-    - name: Setup .NET
+    - name: Setup .NET (8 + 9)
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: |
+          8.0.x
+          9.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore Svg.Editor.Avalon.CI.slnf
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build Svg.Editor.Avalon.CI.slnf --configuration Release --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test Svg.Editor.Avalon.CI.slnf --configuration Release --no-build --framework net9.0 --verbosity normal --logger "trx;LogFileName=test-results.trx" --results-directory ${{ github.workspace }}/TestResults
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: ${{ github.workspace }}/TestResults/**/*.trx
+        if-no-files-found: warn

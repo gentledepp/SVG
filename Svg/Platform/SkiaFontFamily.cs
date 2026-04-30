@@ -20,7 +20,7 @@ namespace Svg.Platform
         {
             using (var paint = new SKPaint())
             {
-                paint.Typeface = SKTypeface.FromTypeface(_typeface, style.ToSKTypefaceStyle());
+                paint.Typeface = SKTypeface.FromFamilyName(_typeface.FamilyName, style.ToSKFontStyle());
                 return paint.FontMetrics.Ascent;
             }
         }
@@ -29,7 +29,7 @@ namespace Svg.Platform
         {
             using (var paint = new SKPaint())
             {
-                paint.Typeface = SKTypeface.FromTypeface(_typeface, style.ToSKTypefaceStyle());
+                paint.Typeface = SKTypeface.FromFamilyName(_typeface.FamilyName, style.ToSKFontStyle());
                 return paint.FontMetrics.Top;
             }
         }
@@ -52,21 +52,16 @@ namespace Svg.Platform
 
     public static class TypeFaceExtensions
     {
-        public static SKTypefaceStyle ToSKTypefaceStyle(this FontStyle value)
+        public static SKFontStyle ToSKFontStyle(this FontStyle value)
         {
-            var tfs = SKTypefaceStyle.Normal;
-
             if ((value & FontStyle.Bold) == FontStyle.Bold &&
                 (value & FontStyle.Italic) == FontStyle.Italic)
-                tfs = SKTypefaceStyle.BoldItalic;
-            else if ((value & FontStyle.Bold) == FontStyle.Bold)
-                tfs = SKTypefaceStyle.Bold;
-            else if ((value & FontStyle.Italic) == FontStyle.Italic)
-                tfs = SKTypefaceStyle.Italic;
-            else if ((value & FontStyle.Regular) == FontStyle.Regular)
-                tfs = SKTypefaceStyle.Normal;
-
-            return tfs;
+                return SKFontStyle.BoldItalic;
+            if ((value & FontStyle.Bold) == FontStyle.Bold)
+                return SKFontStyle.Bold;
+            if ((value & FontStyle.Italic) == FontStyle.Italic)
+                return SKFontStyle.Italic;
+            return SKFontStyle.Normal;
         }
     }
 }

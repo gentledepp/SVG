@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.3.11505.172 d18.3
+VisualStudioVersion = 18.3.11505.172
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Svg", "Svg", "{ACC8B9D3-7E55-4F2E-B0D1-955BDA751FCF}"
 EndProject
@@ -34,6 +34,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svg.Editor.CrossSample.Avalon.Desktop", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.Desktop\Svg.Editor.CrossSample.Avalon.Desktop.csproj", "{897540BE-6373-4565-AEF4-41E19EB8DFEE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svg.Editor.CrossSample.Avalon.iOS", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.iOS\Svg.Editor.CrossSample.Avalon.iOS.csproj", "{61FC8A8D-0520-4881-94CC-CABD15A27B57}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution-items", "solution-items", "{A5712C80-A0CF-465C-8557-A28265B56E38}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -112,6 +117,9 @@ Global
 		{0BB1ADF2-61A4-454D-AD15-CB02C73AA7AB} = {64382118-1FD0-4891-A24F-9C065103DEAB}
 		{897540BE-6373-4565-AEF4-41E19EB8DFEE} = {64382118-1FD0-4891-A24F-9C065103DEAB}
 		{61FC8A8D-0520-4881-94CC-CABD15A27B57} = {64382118-1FD0-4891-A24F-9C065103DEAB}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {569660EA-F35A-4750-8199-48494389F23F}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Svg.Tests\Svg.Tests.projitems*{92bce9d4-6968-4533-9785-a240ee123faa}*SharedItemsImports = 13

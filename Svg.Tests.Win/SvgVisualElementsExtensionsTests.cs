@@ -1,6 +1,7 @@
-﻿using System.Linq;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Svg.Editor.Tests;
+using System.IO;
+using System.Linq;
 
 namespace Svg.Tests.Win;
 
@@ -19,7 +20,8 @@ public class SvgVisualElementsExtensionsTests
         // Arrange
         var svgPath = "ClipPathBounds.svg";
 
-        var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\" + svgPath);
+        var path = Path.Combine(TestContext.CurrentContext.WorkDirectory, "Assets", svgPath);
+        var svgDoc = SvgDocument.Open<SvgDocument>(path);
         var rectangle = svgDoc.Children[1].Children.OfType<SvgRectangle>().FirstOrDefault();
 
 
@@ -37,7 +39,8 @@ public class SvgVisualElementsExtensionsTests
         // Arrange
         var svgPath = "ClipPathBounds.svg";
 
-        var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\" + svgPath);
+        var path = Path.Combine(TestContext.CurrentContext.WorkDirectory, "Assets", svgPath);
+        var svgDoc = SvgDocument.Open<SvgDocument>(path);
         var rectangle = svgDoc.Children[2].Children.OfType<SvgRectangle>().FirstOrDefault();
 
 

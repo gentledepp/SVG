@@ -6,7 +6,6 @@
         <RootNamespace>Svg.Tests.Win</RootNamespace>
         <AssemblyName>Svg.Tests.Win</AssemblyName>
         <LangVersion>latest</LangVersion>
-        <PlatformTarget>x86</PlatformTarget>
         <UseWPF>false</UseWPF>
         <UseWindowsForms>false</UseWindowsForms>
     </PropertyGroup>

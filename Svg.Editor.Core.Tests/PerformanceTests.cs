@@ -32,7 +32,7 @@ namespace Svg.Editor.Core.Test
             Canvas.CanvasInvalidated += async (sender, args) =>
             {
                 
-                using (var surface = SkiaSharp.SKSurface.Create(800, 600, SKImageInfo.PlatformColorType, SKAlphaType.Premul))
+                using (var surface = SkiaSharp.SKSurface.Create(new SKImageInfo(800, 600, SKImageInfo.PlatformColorType, SKAlphaType.Premul)))
                 {
                     await Canvas.OnDraw(new SKCanvasRenderer(surface, 800, 600));
                 }
@@ -69,7 +69,7 @@ namespace Svg.Editor.Core.Test
             Canvas.CanvasInvalidated += async (sender, args) =>
             {
 
-                using (var surface = SkiaSharp.SKSurface.Create(GRContext.Create(GRBackend.OpenGL), new GRBackendRenderTargetDesc()))
+                using (var surface = SkiaSharp.SKSurface.Create(GRContext.CreateGl(), new GRBackendRenderTarget(800, 600, 0, 8, new GRGlFramebufferInfo()), GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888))
                 {
                     await Canvas.OnDraw(new SKCanvasRenderer(surface, 800, 600));
                 }
@@ -98,13 +98,13 @@ namespace Svg.Editor.Core.Test
             Canvas.Document = d;
 
             // Act: draw 2x with different SKCanvasRenderers
-            using var surface1 = SkiaSharp.SKSurface.Create(800, 600, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+            using var surface1 = SkiaSharp.SKSurface.Create(new SKImageInfo(800, 600, SKImageInfo.PlatformColorType, SKAlphaType.Premul));
             var renderer1 = new SKCanvasRenderer(surface1, 800, 600);
             await Canvas.OnDraw(renderer1);
             var svgR1 = d.UsedRenderers[0];
             var svgR1Graphics = svgR1.Graphics;
 
-            using var surface2 = SkiaSharp.SKSurface.Create(800, 600, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+            using var surface2 = SkiaSharp.SKSurface.Create(new SKImageInfo(800, 600, SKImageInfo.PlatformColorType, SKAlphaType.Premul));
             var renderer2 = new SKCanvasRenderer(surface2, 800, 600);
             await Canvas.OnDraw(renderer2);
             var svgR2 = d.UsedRenderers[1];

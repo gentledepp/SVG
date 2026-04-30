@@ -1,5 +1,6 @@
-﻿using Shouldly;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using Shouldly;
+using System.IO;
 using System.Linq;
 
 namespace Svg.Tests.Win
@@ -181,10 +182,12 @@ namespace Svg.Tests.Win
             // Arrange
             var svgPath = "ClipPathBounds.svg";
 
-            var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\" + svgPath);
+            var path = Path.Combine(TestContext.CurrentContext.WorkDirectory, "Assets", svgPath);
 
-            Assert.AreEqual(200, svgDoc.CalculateDocumentBounds().Width);
-            Assert.AreEqual(50, svgDoc.CalculateDocumentBounds().Height);
+            var svgDoc = SvgDocument.Open<SvgDocument>(path);
+            var bounds = svgDoc.CalculateDocumentBounds();
+            Assert.AreEqual(200, bounds.Width);
+            Assert.AreEqual(50, bounds.Height);
         }
         
         [Test]
