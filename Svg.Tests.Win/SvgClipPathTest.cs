@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Linq;
 using Shouldly;
 using NUnit.Framework;
 using SkiaSharp;
@@ -22,8 +24,8 @@ public class SvgClipPathTest
         // Arrange
         var pngPath = "test_matrix.png";
         var svgPath = "testBosPlan.svg";
-
-        var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\"+ svgPath);
+        var path = Path.Combine(TestContext.CurrentContext.WorkDirectory, "Assets", svgPath);
+        var svgDoc = SvgDocument.Open<SvgDocument>(path);
 
 
         //var bitMap = svgDoc.Draw();
@@ -72,7 +74,8 @@ public class SvgClipPathTest
         // Arrange
         var svgPath = "ClipPathBounds.svg";
 
-        var svgDoc = SvgDocument.Open<SvgDocument>("Assets\\" + svgPath);
+        var path = Path.Combine(TestContext.CurrentContext.WorkDirectory, "Assets", svgPath);
+        var svgDoc = SvgDocument.Open<SvgDocument>(path);
 
         var clip = svgDoc.Children.First().Children.OfType<SvgClipPath>().First();
 

@@ -3,8 +3,10 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
-		<Version>3.1.2-optiq06</Version>
+		<Version>3.1.3-optiq01</Version>
 		<PackageReleaseNotes>
+			#3.1.3-optiq01
+			Updated SkiaSharp from 2.88.8 to 3.119.1
 			#3.1.2-optiq06
 			Fixed: Sketch, when setting text and cancel dialog, opens new dialog and asks for font size
 			#3.1.2-optiq05

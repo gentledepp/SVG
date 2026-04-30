@@ -228,7 +228,7 @@ namespace Svg.Editor.Core.Test
             Canvas.ScreenHeight = screenHeight;
             Canvas.Document = d;
 
-            using var surface1 = SKSurface.Create(screenWidth, screenHeight, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+            using var surface1 = SKSurface.Create(new SKImageInfo(screenWidth, screenHeight, SKImageInfo.PlatformColorType, SKAlphaType.Premul));
             var renderer1 = new SKCanvasRenderer(surface1, screenWidth, screenHeight);
             await Canvas.OnDraw(renderer1);
 

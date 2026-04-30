@@ -1,0 +1,14 @@
+{
+  "solution": {
+    "path": "Svg.Editor.Avalon.sln",
+    "projects": [
+      "Svg\\Svg.csproj",
+      "Svg.Editor.Core\\Svg.Editor.Core.csproj",
+      "Svg.Editor.Avalonia.Forms\\Svg.Editor.Avalon.Forms.csproj",
+      "Svg.Editor.Avalonia.Views\\Svg.Editor.Avalon.Views.csproj",
+      "Svg.Editor.Core.Tests\\Svg.Editor.Core.Tests.csproj",
+      "Svg.Tests.Win\\Svg.Tests.Win.csproj",
+      "Svg.Tests.Benchmarks\\Svg.Tests.Benchmarks.csproj"
+    ]
+  }
+}

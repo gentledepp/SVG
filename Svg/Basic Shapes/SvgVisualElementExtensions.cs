@@ -10,13 +10,19 @@ namespace Svg.Basic_Shapes
         public static RectangleF GetBoundsWithClipPaths(this SvgVisualElement element)
         {
             var bounds = element.Path(null).GetBounds();
-            if (element.ClipPath != null)
+
+            SvgElement current = element;
+            while (current != null)
             {
-                SvgClipPath clipPath = element.OwnerDocument.GetElementById<SvgClipPath>(element.ClipPath.OriginalString);
-                if (clipPath != null && (clipPath.Bounds.Width < bounds.Width || clipPath.Bounds.Height < bounds.Width))
+                if (current is SvgVisualElement visual && visual.ClipPath != null)
                 {
-                    return clipPath.Bounds;
+                    SvgClipPath clipPath = element.OwnerDocument.GetElementById<SvgClipPath>(visual.ClipPath.OriginalString);
+                    if (clipPath != null && (clipPath.Bounds.Width < bounds.Width || clipPath.Bounds.Height < bounds.Height))
+                    {
+                        return clipPath.Bounds;
+                    }
                 }
+                current = current.Parent;
             }
 
             return bounds;
