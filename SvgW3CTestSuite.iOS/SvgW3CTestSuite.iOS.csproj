@@ -67,12 +67,12 @@
     <Content Include="Entitlements.plist" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NUnit" Version="3.12.0" />
-    <PackageReference Include="nunit.xamarin" Version="3.6.1" />
-    <PackageReference Include="SkiaSharp" Version="1.68.1" />
-    <PackageReference Include="SkiaSharp.Views.Forms" Version="1.68.1" />
-    <PackageReference Include="Toasts.Forms.Plugin" Version="3.1.4" />
-    <PackageReference Include="Xamarin.Forms" Version="2.3.4.270" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="nunit.xamarin" />
+    <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="SkiaSharp.Views.Forms" />
+    <PackageReference Include="Toasts.Forms.Plugin" />
+    <PackageReference Include="Xamarin.Forms" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\Default.png" />
