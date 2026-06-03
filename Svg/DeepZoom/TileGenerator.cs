@@ -102,7 +102,7 @@ namespace Svg.DeepZoom
                 kvp.Value.Dispose();
             }
             pending.Clear();
-            await WriteMetadataAsync(originalWidth, originalHeight, tileOutputStreamProvider);
+            await WriteMetadataAsync(originalWidth, originalHeight, 1.0f, 1.0f, tileOutputStreamProvider);
         }
 
         private async Task GenerateZ0TilesSubsetAsync(
@@ -431,7 +431,7 @@ namespace Svg.DeepZoom
                 kvp.Value.Dispose();
             }
             pending.Clear();
-            await WriteMetadataAsync(pyramidW, pyramidH, tileOutputStreamProvider);
+            await WriteMetadataAsync(pyramidW, pyramidH, scaleX, scaleY, tileOutputStreamProvider);
         }
 
         private async Task WriteTileAndStorePendingAsync(
@@ -567,9 +567,11 @@ namespace Svg.DeepZoom
 
         private static async Task WriteMetadataAsync(
             int width, int height,
+            float scaleX, float scaleY,
             Func<string, string, Task<Stream>> streamProvider)
         {
-            var json = System.Text.Encoding.UTF8.GetBytes($"{{\"width\":{width},\"height\":{height}}}");
+            var json = System.Text.Encoding.UTF8.GetBytes(
+                $"{{\"width\":{width},\"height\":{height},\"scaleX\":{scaleX},\"scaleY\":{scaleY}}}");
             using var outStream = await streamProvider("", "dimensions.json");
             await outStream.WriteAsync(json, 0, json.Length);
         }
