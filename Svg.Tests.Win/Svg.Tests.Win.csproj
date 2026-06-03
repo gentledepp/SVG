@@ -1,13 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net48;net9.0</TargetFrameworks>
+        <TargetFrameworks>net48;net10.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <RootNamespace>Svg.Tests.Win</RootNamespace>
         <AssemblyName>Svg.Tests.Win</AssemblyName>
         <LangVersion>latest</LangVersion>
         <UseWPF>false</UseWPF>
         <UseWindowsForms>false</UseWindowsForms>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -24,13 +26,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JetBrains.DotMemoryUnit" Version="3.2.20220510" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
-        <PackageReference Include="Moq" Version="4.18.4" />
-        <PackageReference Include="NUnit" Version="3.12.0" />
-        <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
-        <PackageReference Include="Shouldly" Version="4.3.0" />
-        <PackageReference Include="SkiaSharp" Version="3.119.1" />
+        <PackageReference Include="JetBrains.DotMemoryUnit" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="Moq" />
+        <PackageReference Include="NUnit" />
+        <PackageReference Include="NUnit3TestAdapter" />
+        <PackageReference Include="Shouldly" />
+        <PackageReference Include="SkiaSharp" />
+        <PackageReference Include="System.Buffers" />
+        <PackageReference Include="System.Memory" />
     </ItemGroup>
 
     <ItemGroup>

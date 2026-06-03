@@ -29,14 +29,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svg.Editor.CrossSample.Aval
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svg.Editor.CrossSample.Avalon.Android", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.Android\Svg.Editor.CrossSample.Avalon.Android.csproj", "{3E17D217-8F90-40DF-97F6-F34754057204}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svg.Editor.CrossSample.Avalon.Browser", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.Browser\Svg.Editor.CrossSample.Avalon.Browser.csproj", "{0BB1ADF2-61A4-454D-AD15-CB02C73AA7AB}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svg.Editor.CrossSample.Avalon.Desktop", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.Desktop\Svg.Editor.CrossSample.Avalon.Desktop.csproj", "{897540BE-6373-4565-AEF4-41E19EB8DFEE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svg.Editor.CrossSample.Avalon.iOS", "Svg.Editor.CrossSample.Avalon\Svg.Editor.CrossSample.Avalon.iOS\Svg.Editor.CrossSample.Avalon.iOS.csproj", "{61FC8A8D-0520-4881-94CC-CABD15A27B57}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution-items", "solution-items", "{A5712C80-A0CF-465C-8557-A28265B56E38}"
 	ProjectSection(SolutionItems) = preProject
+		Directory.Packages.props = Directory.Packages.props
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 	EndProjectSection
 EndProject
@@ -84,10 +83,6 @@ Global
 		{3E17D217-8F90-40DF-97F6-F34754057204}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E17D217-8F90-40DF-97F6-F34754057204}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3E17D217-8F90-40DF-97F6-F34754057204}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{0BB1ADF2-61A4-454D-AD15-CB02C73AA7AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0BB1ADF2-61A4-454D-AD15-CB02C73AA7AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0BB1ADF2-61A4-454D-AD15-CB02C73AA7AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0BB1ADF2-61A4-454D-AD15-CB02C73AA7AB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{897540BE-6373-4565-AEF4-41E19EB8DFEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{897540BE-6373-4565-AEF4-41E19EB8DFEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{897540BE-6373-4565-AEF4-41E19EB8DFEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -114,7 +109,6 @@ Global
 		{64382118-1FD0-4891-A24F-9C065103DEAB} = {ACC8B9D3-7E55-4F2E-B0D1-955BDA751FCF}
 		{B6F095E7-0721-469D-BA48-3E7F1E9952B2} = {64382118-1FD0-4891-A24F-9C065103DEAB}
 		{3E17D217-8F90-40DF-97F6-F34754057204} = {64382118-1FD0-4891-A24F-9C065103DEAB}
-		{0BB1ADF2-61A4-454D-AD15-CB02C73AA7AB} = {64382118-1FD0-4891-A24F-9C065103DEAB}
 		{897540BE-6373-4565-AEF4-41E19EB8DFEE} = {64382118-1FD0-4891-A24F-9C065103DEAB}
 		{61FC8A8D-0520-4881-94CC-CABD15A27B57} = {64382118-1FD0-4891-A24F-9C065103DEAB}
 	EndGlobalSection

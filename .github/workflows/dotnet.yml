@@ -27,7 +27,7 @@ jobs:
     - name: Build
       run: dotnet build Svg.Editor.Avalon.CI.slnf --configuration Release --no-restore
     - name: Test
-      run: dotnet test Svg.Editor.Avalon.CI.slnf --configuration Release --no-build --framework net9.0 --verbosity normal --logger "trx;LogFileName=test-results.trx" --results-directory ${{ github.workspace }}/TestResults
+      run: dotnet test Svg.Editor.Avalon.CI.slnf --configuration Release --no-build --framework net10.0 --verbosity normal --logger "trx;LogFileName=test-results.trx" --results-directory ${{ github.workspace }}/TestResults
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
