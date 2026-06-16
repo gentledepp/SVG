@@ -3,10 +3,12 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net48;net10.0</TargetFrameworks>
 		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-		<Version>3.2.0-optiq01</Version>
+		<Version>3.2.0-optiq02</Version>
 		<Authors>gentledpp,zepr</Authors>
 		<Company>Opti-Q GmbH</Company>
 		<PackageReleaseNotes>
+			#3.2.0-optiq02
+			TileGenerator stores scale factor in dimensions.json (relative to svg dimensions)
 			#3.2.0-optiq01
 			Moved to avalonia 12
 			#3.1.4-optiq01

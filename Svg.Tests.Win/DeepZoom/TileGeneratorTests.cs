@@ -412,8 +412,41 @@ namespace Svg.Tests.Win
             var dims = System.Text.Json.JsonDocument.Parse(dimsJson).RootElement;
             Assert.AreEqual(pyramidW, dims.GetProperty("width").GetInt32(), "dimensions.json width mismatch.");
             Assert.AreEqual(pyramidH, dims.GetProperty("height").GetInt32(), "dimensions.json height mismatch.");
+            Assert.IsTrue(dims.TryGetProperty("scaleX", out _), "dimensions.json missing scaleX.");
+            Assert.IsTrue(dims.TryGetProperty("scaleY", out _), "dimensions.json missing scaleY.");
 #endif
         }
+
+#if !NETFRAMEWORK
+        [Test]
+        public async Task GenerateTilesFromSvgAsync_WritesScaleFactorsToDimensionsJson()
+        {
+            // Arrange — render the SVG into a pyramid 10× wider than the document so scaleX ≈ 10.
+            // Consumers (RenderOnPlanOptionsProvider) use these to re-map plan-item coordinates
+            // from the original SVG coordinate system into pyramid space and back.
+            var file = Path.Combine(TestContext.CurrentContext.WorkDirectory, "Assets\\plan_iss.svg");
+            var doc = SvgDocument.Open(file);
+            var docSize = doc.GetDimensions();
+            int targetWidth = (int)Math.Ceiling(docSize.Width * 10);
+            int pyramidH = (int)Math.Ceiling(targetWidth * docSize.Height / docSize.Width);
+            float expectedScaleX = targetWidth / docSize.Width;
+            float expectedScaleY = pyramidH / docSize.Height;
+
+            var tiles = new ConcurrentDictionary<string, MemoryStream>();
+
+            // Act
+            await new TileGenerator().GenerateTilesAsync(doc, targetWidth, CreateMemoryStreamProvider(tiles));
+
+            // Assert
+            Assert.IsTrue(tiles.ContainsKey("/dimensions.json"), "dimensions.json missing.");
+            var dimsJson = System.Text.Encoding.UTF8.GetString(tiles["/dimensions.json"].ToArray());
+            var dims = System.Text.Json.JsonDocument.Parse(dimsJson).RootElement;
+            Assert.AreEqual(expectedScaleX, (float)dims.GetProperty("scaleX").GetDouble(), 0.0001f,
+                "dimensions.json scaleX mismatch.");
+            Assert.AreEqual(expectedScaleY, (float)dims.GetProperty("scaleY").GetDouble(), 0.0001f,
+                "dimensions.json scaleY mismatch.");
+        }
+#endif
 
         [Test]
         public async Task GenerateTilesFromSvgAsync_TilesMatchCurrentPipeline_WithinTolerance()
