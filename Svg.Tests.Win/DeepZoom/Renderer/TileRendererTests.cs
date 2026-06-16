@@ -270,6 +270,48 @@ public class TileRendererTests
             $"Expected only visible tiles to be loaded (12); got {loadCalls} provider calls.");
     }
 
+    [Test]
+    public void RenderBitmap_WithDifferentSourceKeys_DoesNotReuseCachedTilesAcrossSources()
+    {
+        // Regression for #11850: a single (singleton) TileRenderer with an active cache is reused
+        // across plans. Tiles must be keyed by their source — otherwise plan B's "z0/y0_x0.png"
+        // lookup returns plan A's cached bitmap and every plan after the first renders the first
+        // plan's image.
+        SvgPlatform.Init();
+
+        // One renderer + one cache, reused for both "sources" (as the reporting singleton would be).
+        using var rndr = new TileRenderer(10, 10, new TileCacheOptions(TimeSpan.FromHours(1)));
+
+        Stream RedProvider(string folder, string file) => SolidTilePng(SKColors.Red);
+        Stream BlueProvider(string folder, string file) => SolidTilePng(SKColors.Blue);
+
+        // Sample an interior pixel: RenderBitmap strokes a red debug-border rectangle around each
+        // tile under #if DEBUG, so the (0,0) corner is unreliable — read the tile fill instead.
+        const int sx = 5, sy = 5;
+
+        // Source "A" caches a red tile at z0/y0_x0.
+        using (var first = rndr.RenderBitmap(RedProvider, 0, 0, 1f, "planA.zip"))
+            first.GetPixel(sx, sy).ShouldBe(SKColors.Red, "first source should render its own (red) tile");
+
+        // Source "B" provides a blue tile for the same coordinate. With source-scoped keys this is a
+        // cache miss and renders blue; with the old coordinate-only key it would return A's red tile.
+        using var second = rndr.RenderBitmap(BlueProvider, 0, 0, 1f, "planB.zip");
+
+        second.GetPixel(sx, sy).ShouldBe(SKColors.Blue,
+            "second source must render its own tile, not the first source's cached tile");
+    }
+
+    private static MemoryStream SolidTilePng(SKColor color)
+    {
+        using var bmp = new SKBitmap(TileConstants.TileSize, TileConstants.TileSize);
+        bmp.Erase(color);
+        var ms = new MemoryStream();
+        using (var w = new SKManagedWStream(ms))
+            bmp.Encode(w, SKEncodedImageFormat.Png, 100);
+        ms.Position = 0;
+        return ms;
+    }
+
     private static void AssertRenderedFile(string path, int expectedWidth, int expectedHeight)
     {
         File.Exists(path).ShouldBeTrue($"renderer should have written output file: {path}");

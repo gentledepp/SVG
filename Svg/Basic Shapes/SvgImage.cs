@@ -222,7 +222,7 @@ namespace Svg
                     var tileProvider = CreateZipTileProvider(zipArchive, (a, b) => fileSystem.PathCombine(a, b));
 
                     using var skImage = tileRenderer.RenderBitmap(tileProvider, xOffset, yOffset,
-                        scaleX);
+                        scaleX, Href);
 
                     var image = new SkiaBitmap(skImage);
 

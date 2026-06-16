@@ -68,7 +68,7 @@ namespace Svg.DeepZoom
             var tileProvider = new Func<string, string, Stream>((folder, fileName) =>
                 LoadTileStream(_fileSystem.PathCombine(tileFolderPath, folder), fileName));
 
-            using var tileBitmap = RenderBitmap(tileProvider, x, y, zoomFactor);
+            using var tileBitmap = RenderBitmap(tileProvider, x, y, zoomFactor, tileFolderPath);
 
             // Save the tile as a PNG file
             using var image = SKImage.FromBitmap(tileBitmap);
@@ -86,7 +86,7 @@ namespace Svg.DeepZoom
         /// <param name="zoomFactor"> Example zoom factor: 1.0 means fully zoomed in at highest detail (z0), 0.5 means one level zoomed out (z1), etc.</param>
         /// <returns></returns>
         public SKBitmap RenderBitmap(Func<string, string, Stream> tileProvider, float offsetX, float offsetY,
-            float zoomFactor = 1)
+            float zoomFactor = 1, string sourceKey = null)
         {
             var tileSize = TileConstants.TileSize;
             SKBitmap bitmap = new SKBitmap(Width, Height);
@@ -132,7 +132,7 @@ namespace Svg.DeepZoom
                         continue;
 
                     // Load the tile bitmap only for visible tiles; not disposing bitmap because its cached
-                    var tileBitmap = LoadTile($"z{zoomLevel}", $"y{tileY}_x{tileX}.png", tileProvider);
+                    var tileBitmap = LoadTile($"z{zoomLevel}", $"y{tileY}_x{tileX}.png", tileProvider, sourceKey);
 
                     if (tileBitmap != null)
                     {
@@ -172,7 +172,7 @@ namespace Svg.DeepZoom
             var tileProvider = new Func<string, string, Task<Stream>>((folder, fileName) =>
                 LoadTileStreamAsync(_fileSystem.PathCombine(tileFolderPath, folder), fileName));
 
-            using var tileBitmap = await RenderBitmapAsync(tileProvider, x, y, zoomFactor);
+            using var tileBitmap = await RenderBitmapAsync(tileProvider, x, y, zoomFactor, tileFolderPath);
 
 
             // Save the tile as a PNG file
@@ -183,7 +183,7 @@ namespace Svg.DeepZoom
         }
 
         public async Task<SKBitmap> RenderBitmapAsync(Func<string, string, Task<Stream>> tileProvider, float offsetX,
-            float offsetY, float zoomFactor = 1)
+            float offsetY, float zoomFactor = 1, string sourceKey = null)
         {
             var tileSize = TileConstants.TileSize;
             SKBitmap bitmap = new SKBitmap(Width, Height);
@@ -227,7 +227,7 @@ namespace Svg.DeepZoom
                     tileLoadTasks.Add(Task.Run(async () =>
                     {
                         var bmp = await LoadTileAsync($"z{zoomLevel}", $"y{localTileY}_x{localTileX}.png",
-                            tileProvider);
+                            tileProvider, sourceKey);
                         // Calculate the position to draw the tile on the canvas
                         float drawX = offsetX + localTileX * tileSizeAtZoom;
                         float drawY = offsetY + localTileY * tileSizeAtZoom;
@@ -289,11 +289,11 @@ namespace Svg.DeepZoom
 
         // Asynchronous method to load a tile from disk
         private async Task<SKBitmap> LoadTileAsync(string zoomFolderName, string tileFileName,
-            Func<string, string, Task<Stream>> tileProvider)
+            Func<string, string, Task<Stream>> tileProvider, string sourceKey = null)
         {
             if (_cache is { } cache)
             {
-                var item = await cache.GetOrCreateAsync(Path.Combine(zoomFolderName, tileFileName),
+                var item = await cache.GetOrCreateAsync(Path.Combine(sourceKey ?? string.Empty, zoomFolderName, tileFileName),
                     async () =>
                     {
                         using var stream = await tileProvider.Invoke(zoomFolderName, tileFileName);
@@ -313,9 +313,9 @@ namespace Svg.DeepZoom
         }
 
         private SKBitmap LoadTile(string zoomFolderName, string tileFileName,
-            Func<string, string, Stream> tileProvider)
+            Func<string, string, Stream> tileProvider, string sourceKey = null)
         {
-            var tilePath = Path.Combine(zoomFolderName, tileFileName);
+            var tilePath = Path.Combine(sourceKey ?? string.Empty, zoomFolderName, tileFileName);
 
             if (_cache is { } cache)
             {

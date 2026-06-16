@@ -11,12 +11,12 @@ namespace Svg.DeepZoom
 
         void RenderBitmap(string tileFolderPath, string outputPath, float x, float y, float zoomFactor = 1);
 
-        SKBitmap RenderBitmap(Func<string, string, Stream> tileProvider, float offsetX, float offsetY, float zoomFactor = 1);
+        SKBitmap RenderBitmap(Func<string, string, Stream> tileProvider, float offsetX, float offsetY, float zoomFactor = 1, string sourceKey = null);
 
         Task RenderBitmapAsync(string tileFolderPath, string outputPath, float x, float y, float zoomFactor = 1);
 
         Task<SKBitmap> RenderBitmapAsync(Func<string, string, Task<Stream>> tileProvider, float offsetX,
-            float offsetY, float zoomFactor = 1);
+            float offsetY, float zoomFactor = 1, string sourceKey = null);
 
     }
 }
