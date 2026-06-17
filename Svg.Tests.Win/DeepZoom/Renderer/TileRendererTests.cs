@@ -370,6 +370,7 @@ public class TileRendererTests
 
         public bool TryGetValue(string key, out TileCacheItem item) => _inner.TryGetValue(key, out item);
         public void Remove(string key) => _inner.Remove(key);
+        public void DrainPendingDisposals() => _inner.DrainPendingDisposals();
         public void Dispose() => _inner.Dispose();
     }
 }

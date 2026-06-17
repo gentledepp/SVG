@@ -88,6 +88,9 @@ namespace Svg.DeepZoom
         public SKBitmap RenderBitmap(Func<string, string, Stream> tileProvider, float offsetX, float offsetY,
             float zoomFactor = 1, string sourceKey = null)
         {
+            // Free bitmaps evicted/expired since the last render now, while no tile is being drawn.
+            _cache?.DrainPendingDisposals();
+
             var tileSize = TileConstants.TileSize;
             SKBitmap bitmap = new SKBitmap(Width, Height);
             using var canvas = new SKCanvas(bitmap);
@@ -185,6 +188,9 @@ namespace Svg.DeepZoom
         public async Task<SKBitmap> RenderBitmapAsync(Func<string, string, Task<Stream>> tileProvider, float offsetX,
             float offsetY, float zoomFactor = 1, string sourceKey = null)
         {
+            // Free bitmaps evicted/expired since the last render now, while no tile is being drawn.
+            _cache?.DrainPendingDisposals();
+
             var tileSize = TileConstants.TileSize;
             SKBitmap bitmap = new SKBitmap(Width, Height);
             using var canvas = new SKCanvas(bitmap);

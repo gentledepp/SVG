@@ -208,18 +208,18 @@ namespace Svg
                 {
                     PushTransforms(renderer);
 
-                    var fileSystem = SvgEngine.Resolve<IFileSystem>();
                     var scaleX = renderer.Transform.ScaleX;
 
                     var xOffset = renderer.Transform.OffsetX;
                     var yOffset = renderer.Transform.OffsetY;
 
-                    var tileRenderer = SvgEngine.Resolve<ITileRendererManager>().GetOrCreateTileRenderer();
+                    var tileRendererManager = SvgEngine.Resolve<ITileRendererManager>();
+                    var tileRenderer = tileRendererManager.GetOrCreateTileRenderer();
                     tileRenderer.SetDimensions(renderer.ScreenWidth, renderer.ScreenHeight);
 
-                    using var zipFileStream = fileSystem.OpenRead(Href);
-                    using var zipArchive = new ZipArchive(zipFileStream, ZipArchiveMode.Read);
-                    var tileProvider = CreateZipTileProvider(zipArchive, (a, b) => fileSystem.PathCombine(a, b));
+                    // Reuse the open archive + entry lookup across renders instead of reopening
+                    // and re-enumerating the zip on every render.
+                    var tileProvider = tileRendererManager.GetOrCreateZipTileProvider(Href);
 
                     using var skImage = tileRenderer.RenderBitmap(tileProvider, xOffset, yOffset,
                         scaleX, Href);
