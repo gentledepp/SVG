@@ -3,10 +3,14 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net48;net10.0</TargetFrameworks>
 		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-		<Version>3.2.0-optiq02</Version>
+		<Version>3.2.0-optiq03</Version>
 		<Authors>gentledpp,zepr</Authors>
 		<Company>Opti-Q GmbH</Company>
 		<PackageReleaseNotes>
+			#3.2.0-optiq03
+			Fixed: tile cache key now includes the tile source (zip Href / tile folder) so the shared
+			singleton TileRenderer no longer returns one source's tiles for another — reports rendering
+			multiple file-tiled plans previously all showed the first plan's image.
 			#3.2.0-optiq02
 			TileGenerator stores scale factor in dimensions.json (relative to svg dimensions)
 			#3.2.0-optiq01

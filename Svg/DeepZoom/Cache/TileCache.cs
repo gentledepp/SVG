@@ -16,6 +16,11 @@ namespace Svg.DeepZoom
         private readonly object _evictionLock = new();
         private long _tickCounter = 0;
 
+        // Items that have left the cache but whose SKBitmap is not yet disposed. Disposal is
+        // deferred to DrainPendingDisposals (called at render start) so the background cleanup
+        // timer can never free a bitmap that a concurrent draw still references.
+        private readonly ConcurrentQueue<TileCacheItem> _pendingDispose = new();
+
         public TileCache(TileCacheOptions options)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
@@ -61,7 +66,8 @@ namespace Svg.DeepZoom
                     return true;
                 }
 
-                _cache.TryRemove(key, out _);
+                if (_cache.TryRemove(key, out var expired))
+                    _pendingDispose.Enqueue(expired);
             }
 
             item = default;
@@ -91,27 +97,36 @@ namespace Svg.DeepZoom
                 }
             }
 
-            if (lruKey != null)
-                _cache.TryRemove(lruKey, out _);
+            if (lruKey != null && _cache.TryRemove(lruKey, out var evicted))
+                _pendingDispose.Enqueue(evicted);
         }
 
         public void Remove(string key)
         {
             if (key == null) throw new ArgumentNullException(nameof(key));
-            _cache.TryRemove(key, out _);
+            if (_cache.TryRemove(key, out var removed))
+                _pendingDispose.Enqueue(removed);
         }
 
         private void CleanUp(object state)
         {
             foreach (var key in _cache.Keys)
             {
-                if (_cache.TryGetValue(key, out var cacheItem) && cacheItem.IsExpired)
-                    _cache.TryRemove(key, out _);
+                if (_cache.TryGetValue(key, out var cacheItem) && cacheItem.IsExpired
+                    && _cache.TryRemove(key, out var expired))
+                    _pendingDispose.Enqueue(expired);
             }
+        }
+
+        public void DrainPendingDisposals()
+        {
+            while (_pendingDispose.TryDequeue(out var item))
+                item?.Dispose();
         }
 
         public void Dispose()
         {
+            DrainPendingDisposals();
             foreach (var tileCacheItem in _cache)
             {
                 tileCacheItem.Value?.Dispose();

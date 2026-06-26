@@ -312,6 +312,67 @@ public class TileCacheTests
     }
 
     [Test]
+    public void DrainPendingDisposals_AfterEviction_DisposesEvictedBitmap()
+    {
+        var opts = new TileCacheOptions { CleanupInterval = TimeSpan.FromHours(1), MaximalTiles = 2 };
+        using var cache = new TileCache(opts);
+
+        var evicted = new SKBitmap(1, 1);
+        cache.GetOrCreate("k0", () => evicted);
+        cache.GetOrCreate("k1", () => new SKBitmap(1, 1));
+
+        // Exceed capacity → k0 (LRU) is evicted but disposal is deferred.
+        cache.GetOrCreate("k2", () => new SKBitmap(1, 1));
+        Assert.AreNotEqual(IntPtr.Zero, evicted.Handle, "evicted bitmap must not be disposed before drain");
+
+        cache.DrainPendingDisposals();
+        Assert.AreEqual(IntPtr.Zero, evicted.Handle, "evicted bitmap must be disposed after drain");
+    }
+
+    [Test]
+    public void DrainPendingDisposals_AfterRemove_DisposesRemovedBitmap()
+    {
+        var removed = new SKBitmap(1, 1);
+        _cache.GetOrCreate("k", () => removed);
+
+        _cache.Remove("k");
+        Assert.AreNotEqual(IntPtr.Zero, removed.Handle, "removed bitmap must not be disposed before drain");
+
+        _cache.DrainPendingDisposals();
+        Assert.AreEqual(IntPtr.Zero, removed.Handle, "removed bitmap must be disposed after drain");
+    }
+
+    [Test]
+    public void DrainPendingDisposals_DoesNotDisposeLiveItems()
+    {
+        var live = new SKBitmap(1, 1);
+        _cache.GetOrCreate("live", () => live);
+
+        _cache.DrainPendingDisposals();
+
+        Assert.AreNotEqual(IntPtr.Zero, live.Handle, "a cached (live) bitmap must not be disposed");
+        Assert.IsTrue(_cache.TryGetValue("live", out var item));
+        Assert.AreEqual(live, item.Tile);
+    }
+
+    [Test]
+    public void DrainPendingDisposals_AfterExpiryCleanup_DisposesExpiredBitmap()
+    {
+        var expired = new SKBitmap(1, 1);
+        var options = new TileCacheOptions { CleanupInterval = TimeSpan.FromMilliseconds(300) };
+        using var cache = new TileCache(options);
+
+        cache.GetOrCreate("k", () => expired);
+
+        // Wait for the cleanup timer to remove the expired entry (still not disposed yet).
+        Thread.Sleep(800);
+        Assert.AreNotEqual(IntPtr.Zero, expired.Handle, "expired bitmap must not be disposed before drain");
+
+        cache.DrainPendingDisposals();
+        Assert.AreEqual(IntPtr.Zero, expired.Handle, "expired bitmap must be disposed after drain");
+    }
+
+    [Test]
     public void CleanUp_ShouldFreeCapacityForNewItems()
     {
         // Fill the cache to capacity with short-lived items
