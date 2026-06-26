@@ -186,10 +186,13 @@
   <data name="Svg.Editor.PinTool.Description" xml:space="preserve">
     <value>Platzieren Sie eine Pin</value>
   </data>
-  <data name="Marker.Options.Start" xml:space="preserve">
+  <data name="Svg.Editor.Marker.Options.Start" xml:space="preserve">
     <value>Start</value>
   </data>
-  <data name="Marker.Options.End" xml:space="preserve">
+  <data name="Svg.Editor.Marker.Options.End" xml:space="preserve">
     <value>Ende</value>
+  </data>
+  <data name="Svg.Editor.Global.Cancel" xml:space="preserve">
+    <value>Abbrechen</value>
   </data>
 </root>

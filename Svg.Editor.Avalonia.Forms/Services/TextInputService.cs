@@ -9,15 +9,21 @@ namespace Svg.Editor.Avalon.Forms.Services
 {
     public class TextInputService : ITextInputService
     {
+        private readonly IUserInteraction _userInteractionService;
+
+        public TextInputService()
+        {
+            _userInteractionService = SvgEngine.Resolve<IUserInteraction>();
+        }
         public async Task<TextTool.TextProperties> GetUserInput(string title, string textValue = "",
             IEnumerable<string> textSizeOptions = null, int textSizeSelected = 0, int maxTextLength = -1)
         {
-            var result = await UserInteractionServiceExt.UserInteractionInst.InputAsync("Text edit", title, "Ok", "Cancel", textValue, placeholder: "Enter text");
+            var result = await _userInteractionService.InputAsync("Text edit", title, "Ok", "Cancel", textValue, placeholder: "Enter text");
             if (maxTextLength != -1)
             {
                 while (result.Text.Length > 2)
                 {
-                    result = await UserInteractionServiceExt.UserInteractionInst.InputAsync("Text edit", title, "Ok", "Cancel", textValue, placeholder: "Enter text");
+                    result = await _userInteractionService.InputAsync("Text edit", title, "Ok", "Cancel", textValue, placeholder: "Enter text");
                 }
             }
             var defaultResult = new TextTool.TextProperties
@@ -36,7 +42,7 @@ namespace Svg.Editor.Avalon.Forms.Services
             int sizeIndex = textSizeSelected;
             if (textSizeOptions != null)
             {
-                var sizeResult = await UserInteractionServiceExt.UserInteractionInst.ActionSheetAsync("Font size", textSizeOptions.ToArray());
+                var sizeResult = await _userInteractionService.ActionSheetAsync("Font size", textSizeOptions.ToArray());
 
                 sizeIndex = textSizeOptions.ToList().IndexOf(sizeResult);
                 sizeIndex = sizeIndex >= 0 ? sizeIndex : textSizeSelected;

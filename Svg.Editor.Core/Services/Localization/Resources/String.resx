@@ -185,10 +185,13 @@
   <data name="Svg.Editor.PinTool.Description" xml:space="preserve">
     <value>place a pin</value>
   </data>
-  <data name="Marker.Options.Start" xml:space="preserve">
+  <data name="Svg.Editor.Marker.Options.Start" xml:space="preserve">
     <value>Start</value>
   </data>
-  <data name="Marker.Options.End" xml:space="preserve">
+  <data name="Svg.Editor.Marker.Options.End" xml:space="preserve">
     <value>End</value>
+  </data>
+  <data name="Svg.Editor.Global.Cancel" xml:space="preserve">
+    <value>Cancel</value>
   </data>
 </root>

@@ -11,9 +11,15 @@ namespace Svg.Editor.Avalon.Forms.Services
 {
     public class ColorInputService : Editor.Tools.IColorInputService
     {
+        private readonly IUserInteraction _userInteractionService;
+
+        public ColorInputService()
+        {
+            _userInteractionService = SvgEngine.Resolve<IUserInteraction>();
+        }
         public async Task<string> GetHexaColorFromUserInput(string title)
         {
-            var result = await UserInteractionServiceExt.UserInteractionInst.ColorPickerAsync(title);
+            var result = await _userInteractionService.ColorPickerAsync(title);
 
             if (result == null)
                 return "#000000";

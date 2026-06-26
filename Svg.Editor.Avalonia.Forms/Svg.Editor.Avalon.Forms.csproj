@@ -3,10 +3,10 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
-		<Version>3.2.0-optiq03</Version>
+		<Version>3.2.0-optiq04</Version>
 		<PackageReleaseNotes>
-			#3.2.0-optiq03
-			Improved marker options input service
+			#3.2.0-optiq04
+			Improved marker options input service and StrokeStyleOptionsInputService
 			#3.2.0-optiq01
 			Moved to avalonia 12
 			#3.1.4-optiq01

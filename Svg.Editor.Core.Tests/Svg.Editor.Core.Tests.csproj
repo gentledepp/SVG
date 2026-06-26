@@ -11,13 +11,16 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="Moq" />
         <PackageReference Include="NUnit" />
         <PackageReference Include="NUnit3TestAdapter" />
         <PackageReference Include="Microsoft.Reactive.Testing" />
         <PackageReference Include="Avalonia.Skia" />
+        <PackageReference Include="Shouldly" />
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Svg.Editor.Avalonia.Forms\Svg.Editor.Avalon.Forms.csproj" />
         <ProjectReference Include="..\Svg.Editor.Core\Svg.Editor.Core.csproj" />
         <ProjectReference Include="..\Svg\Svg.csproj" />
     </ItemGroup>

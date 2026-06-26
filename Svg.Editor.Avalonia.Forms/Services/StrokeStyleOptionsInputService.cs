@@ -4,23 +4,34 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Svg.Editor.Avalon.Forms.Dialog;
+using Svg.Editor.Interfaces;
 using Svg.Editor.Tools;
 
 namespace Svg.Editor.Avalon.Forms.Services
 {
     public class StrokeStyleOptionsInputService : IStrokeStyleOptionsInputService
     {
+        private readonly ILocalizationService _localizationService;
+        private readonly IUserInteraction _userInteractionService;
+
+        public StrokeStyleOptionsInputService() 
+        {
+            _localizationService = SvgEngine.Resolve<ILocalizationService>();
+            _userInteractionService = SvgEngine.Resolve<IUserInteraction>();
+
+        }
+
         public async Task<StrokeStyleTool.StrokeStyleOptions> GetUserInput(string title, IEnumerable<string> strokeDashOptions, int strokeDashSelected, IEnumerable<string> strokeWidthOptions,
             int strokeWidthSelected)
         {
             var dashes = strokeDashOptions.ToArray();
-            var dash = await UserInteractionServiceExt.UserInteractionInst.ActionSheetAsync(title, dashes);
+            var dash = await _userInteractionService.ActionSheetAsync(title, dashes, cancelButton: _localizationService.GetString("Svg.Editor.Global.Cancel"), cancellable: true);
 
-            if (dash == null || dash == "cancel")
+            if (dash == null)
                 return null;
             var widths = strokeWidthOptions.ToArray();
-            var width = await UserInteractionServiceExt.UserInteractionInst.ActionSheetAsync(title, widths);
-            if (width == null || width == "cancel")
+            var width = await _userInteractionService.ActionSheetAsync(title, widths, cancelButton: _localizationService.GetString("Svg.Editor.Global.Cancel"), cancellable: true);
+            if (width == null)
                 return null;
             return new StrokeStyleTool.StrokeStyleOptions() { StrokeDashIndex = Array.IndexOf(dashes, dash), StrokeWidthIndex = Array.IndexOf(widths, width) };
         }
