@@ -1,58 +1,157 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
 <root>
-    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-        <xsd:element name="root" msdata:IsDataSet="true">
-            
-        </xsd:element>
-    </xsd:schema>
-    <resheader name="resmimetype">
-        <value>text/microsoft-resx</value>
-    </resheader>
-    <resheader name="version">
-        <value>1.3</value>
-    </resheader>
-    <resheader name="reader">
-        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-    </resheader>
-    <resheader name="writer">
-        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-    </resheader>
-    <data name="Svg.Editor.ColorTool.ChangeColor.Description" xml:space="preserve">
-        <value>Open the color picker to select a new color from a palette for drawing.</value>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
     </data>
-    <data name="Svg.Editor.StrokeStyleTool.ChangeStroke.Description" xml:space="preserve">
-        <value>Select options like thick, thin, dotted, dashed patterns to personalize your strokes.</value>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
     </data>
-    <data name="Svg.Editor.BackgroundTool.ChooseBackgroundImage.Description" xml:space="preserve">
-        <value>Pick an image file to set it as background in the canvas.</value>
-    </data>
-    <data name="Svg.Editor.Strokes.Undo" xml:space="preserve">
-        <value>Undo the last action to revert your drawing to its previous state. </value>
-    </data>
-    <data name="Svg.Editor.Strokes.Redo" xml:space="preserve">
-        <value>Redo the last undone action to restore changes or adjustments with ease.</value>
-    </data>
-    <data name="Svg.Editor.ArrangeTool.BringToFront.Description" xml:space="preserve">
-        <value>Move selected item through different layers in the canvas.</value>
-    </data>
-    <data name="Svg.Editor.ShowAll.Description" xml:space="preserve">
-        <value>Enlarges the canvas to the entire sketch.</value>
-    </data>
-    <data name="Svg.Editor.GridTool.ToggleGrid.Description" xml:space="preserve">
-        <value>Show or hide the grid overlay to help align elements on the canvas.</value>
-    </data>
-    <data name="Svg.Editor.SaveTool.Description" xml:space="preserve">
-        <value>Click to save your SVG file and preserve all changes made to your design.</value>
-    </data>
-    <data name="Svg.Editor.PinTool.ChangePinSize.Description" xml:space="preserve">
-        <value>Change the size of the pin.</value>
-    </data>
-    <data name="Svg.Editor.LineTool.LineEndings.Description" xml:space="preserve">
-        <value>Change end and the tip of the line shape.</value>
-    </data>
-    <data name="Svg.Editor.ChooseTool.Description" xml:space="preserve">
-        <value>Choose a tool to use on the canvas to draw. 
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Svg.Editor.ColorTool.ChangeColor.Description" xml:space="preserve">
+    <value>Open the color picker to select a new color from a palette for drawing.</value>
+  </data>
+  <data name="Svg.Editor.StrokeStyleTool.ChangeStroke.Description" xml:space="preserve">
+    <value>Select options like thick, thin, dotted, dashed patterns to personalize your strokes.</value>
+  </data>
+  <data name="Svg.Editor.BackgroundTool.ChooseBackgroundImage.Description" xml:space="preserve">
+    <value>Pick an image file to set it as background in the canvas.</value>
+  </data>
+  <data name="Svg.Editor.Strokes.Undo" xml:space="preserve">
+    <value>Undo the last action to revert your drawing to its previous state. </value>
+  </data>
+  <data name="Svg.Editor.Strokes.Redo" xml:space="preserve">
+    <value>Redo the last undone action to restore changes or adjustments with ease.</value>
+  </data>
+  <data name="Svg.Editor.ArrangeTool.BringToFront.Description" xml:space="preserve">
+    <value>Move selected item through different layers in the canvas.</value>
+  </data>
+  <data name="Svg.Editor.ShowAll.Description" xml:space="preserve">
+    <value>Enlarges the canvas to the entire sketch.</value>
+  </data>
+  <data name="Svg.Editor.GridTool.ToggleGrid.Description" xml:space="preserve">
+    <value>Show or hide the grid overlay to help align elements on the canvas.</value>
+  </data>
+  <data name="Svg.Editor.SaveTool.Description" xml:space="preserve">
+    <value>Click to save your SVG file and preserve all changes made to your design.</value>
+  </data>
+  <data name="Svg.Editor.PinTool.ChangePinSize.Description" xml:space="preserve">
+    <value>Change the size of the pin.</value>
+  </data>
+  <data name="Svg.Editor.LineTool.LineEndings.Description" xml:space="preserve">
+    <value>Change end and the tip of the line shape.</value>
+  </data>
+  <data name="Svg.Editor.ChooseTool.Description" xml:space="preserve">
+    <value>Choose a tool to use on the canvas to draw. 
             Select: drag and select drawings in the area. 
             Text: click on the place where to write a text. 
             Line: drag to create a line. 
@@ -61,29 +160,35 @@
             Free draw: draw however the movement is. 
             Polygon: put points until the last closes with the first point.
             Pin: place a pin.</value>
-    </data>
-	<data name="Svg.Editor.SelectionTool.Description" xml:space="preserve">
-		<value>drag and select drawings in the area</value>
-	</data>
-	<data name="Svg.Editor.TextTool.Description" xml:space="preserve">
-		<value>click on the place where to write a text.</value>
-	</data>
-	<data name="Svg.Editor.LineTool.Description" xml:space="preserve">
-		<value>drag to create a line</value>
-	</data>
-	<data name="Svg.Editor.EllipseTool.Description" xml:space="preserve">
-		<value>drag to create a circle</value>
-	</data>
-	<data name="Svg.Editor.RectangleTool.Description" xml:space="preserve">
-		<value>drag to create a rectangle</value>
-	</data>
-	<data name="Svg.Editor.FreeDrawingTool.Description" xml:space="preserve">
-		<value>draw however the movement is</value>
-	</data>
-	<data name="Svg.Editor.PolygonTool.Description" xml:space="preserve">
-		<value>put points until the last closes with the first point</value>
-	</data>
-	<data name="Svg.Editor.PinTool.Description" xml:space="preserve">
-		<value>place a pin</value>
-	</data>
+  </data>
+  <data name="Svg.Editor.SelectionTool.Description" xml:space="preserve">
+    <value>drag and select drawings in the area</value>
+  </data>
+  <data name="Svg.Editor.TextTool.Description" xml:space="preserve">
+    <value>click on the place where to write a text.</value>
+  </data>
+  <data name="Svg.Editor.LineTool.Description" xml:space="preserve">
+    <value>drag to create a line</value>
+  </data>
+  <data name="Svg.Editor.EllipseTool.Description" xml:space="preserve">
+    <value>drag to create a circle</value>
+  </data>
+  <data name="Svg.Editor.RectangleTool.Description" xml:space="preserve">
+    <value>drag to create a rectangle</value>
+  </data>
+  <data name="Svg.Editor.FreeDrawingTool.Description" xml:space="preserve">
+    <value>draw however the movement is</value>
+  </data>
+  <data name="Svg.Editor.PolygonTool.Description" xml:space="preserve">
+    <value>put points until the last closes with the first point</value>
+  </data>
+  <data name="Svg.Editor.PinTool.Description" xml:space="preserve">
+    <value>place a pin</value>
+  </data>
+  <data name="Marker.Options.Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Marker.Options.End" xml:space="preserve">
+    <value>End</value>
+  </data>
 </root>
