@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls.Templates;
+using Svg.Editor.Avalon.Forms.Dialog;
 using Svg.Editor.Avalon.Forms.Services;
 using Svg.Editor.Avalon.Forms.ToolBar;
 using Svg.Editor.Interfaces;
@@ -30,6 +31,7 @@ public class SvgEditorForms
             SvgEngine.Register<IPickImageService>(() => new FormsPickImageService());
             SvgEngine.Register<IPinInputService>(() => new PinInputService());
             SvgEngine.Register<IToolTipInfoService>(() => new ToolTipInfoService());
+            SvgEngine.Register<IUserInteraction>(() => new UserInteractionService());
 
             app.DataTemplates.Add(new MenuItemHeaderTemplate());
 

@@ -14,7 +14,6 @@ namespace Svg.Editor.Tools
 	public interface IMarkerOptionsInputService
 	{
 		Task<int[]> GetUserInput(
-			string title,
 			IEnumerable<string> markerStartOptions,
 			int markerStartSelected,
 			IEnumerable<string> markerEndOptions,
@@ -579,7 +578,7 @@ namespace Svg.Editor.Tools
 
 				try
 				{
-					selectedOptions = await MarkerOptionsInputServiceProxy.GetUserInput("Choose line endings",
+					selectedOptions = await MarkerOptionsInputServiceProxy.GetUserInput(
 						t.MarkerStartNames, markerStartIndex,
 						t.MarkerEndNames, markerEndIndex);
 				}
