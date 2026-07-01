@@ -16,7 +16,7 @@ public class InputDialogResultViewModel : ContentDialogResultViewModelBase<strin
     }
 
 
-    internal override string? GetResult()
+    public override string? GetResult()
     {
         return UserInput;
     }

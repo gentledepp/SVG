@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="using:Svg.Editor.Avalon.Forms.Dialog.Views"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="250"
+             x:Class="Svg.Editor.Avalon.Forms.TextOptionsDialogContent"
+              x:DataType="views:TextOptionsDialogResultViewModel">
+  <StackPanel Orientation="Vertical" Spacing="8">
+        <ContentControl Content="{Binding Content}" IsVisible="{Binding !!Content}" />
+        <TextBox Text="{Binding UserInput}"
+                 AcceptsReturn="True"
+                 Watermark="{Binding WatermarkText}"
+                 AttachedToVisualTree="InputField_OnAttachedToVisualTree" />
+        <ComboBox ItemsSource="{Binding Options}"
+                  SelectedIndex="{Binding SelectedIndex}"
+                  IsVisible="{Binding Options.Count}"
+                  HorizontalAlignment="Stretch" />
+    </StackPanel></UserControl>

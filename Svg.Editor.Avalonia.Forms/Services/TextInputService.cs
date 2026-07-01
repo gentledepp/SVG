@@ -18,35 +18,34 @@ namespace Svg.Editor.Avalon.Forms.Services
         public async Task<TextTool.TextProperties> GetUserInput(string title, string textValue = "",
             IEnumerable<string> textSizeOptions = null, int textSizeSelected = 0, int maxTextLength = -1)
         {
-            var result = await _userInteractionService.InputAsync("Text edit", title, "Ok", "Cancel", textValue, placeholder: "Enter text");
-            if (maxTextLength != -1)
-            {
-                while (result.Text.Length > 2)
-                {
-                    result = await _userInteractionService.InputAsync("Text edit", title, "Ok", "Cancel", textValue, placeholder: "Enter text");
-                }
-            }
-            var defaultResult = new TextTool.TextProperties
-            {
-                FontSizeIndex = textSizeSelected,
-                LineHeight = 12f,
-                Text = textValue
-            };
 
-            var text = result.Text;
+            var sizeOptions = textSizeOptions?.ToList() ?? new List<string>();
+
+            var result = await _userInteractionService.InputWithOptionsAsync(
+                "Text edit",
+                sizeOptions,
+                title,
+                "Ok",
+                "Cancel",
+                textValue,
+                placeholder: "Enter text",
+                selectedIndex: textSizeSelected);
+
             if (!result.Ok)
             {
-                return defaultResult;
+                return new TextTool.TextProperties
+                {
+                    FontSizeIndex = textSizeSelected,
+                    LineHeight = 12f,
+                    Text = textValue
+                };
             }
 
-            int sizeIndex = textSizeSelected;
-            if (textSizeOptions != null)
-            {
-                var sizeResult = await _userInteractionService.ActionSheetAsync("Font size", textSizeOptions.ToArray());
+            var text = result.Text ?? string.Empty;
+            if (maxTextLength != -1 && text.Length > maxTextLength)
+                text = text.Substring(0, maxTextLength);
 
-                sizeIndex = textSizeOptions.ToList().IndexOf(sizeResult);
-                sizeIndex = sizeIndex >= 0 ? sizeIndex : textSizeSelected;
-            }
+            var sizeIndex = result.SelectedIndex >= 0 ? result.SelectedIndex : textSizeSelected;
 
             return new TextTool.TextProperties
             {

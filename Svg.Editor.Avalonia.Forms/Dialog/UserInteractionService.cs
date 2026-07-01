@@ -1,19 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Labs.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Svg.Editor.Avalon.Forms.Dialog.Views;
+using Svg.Editor.Avalon.Forms.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Svg.Editor.Avalon.Forms.Dialog;
 
 public class UserInteractionService : IUserInteraction
 {
+    private readonly IColorPickerState _colorPickerState;
+
+    public UserInteractionService()
+    {
+        _colorPickerState = SvgEngine.Resolve<IColorPickerState>();
+    }
+
     public async Task<bool> ConfirmAsync(string message, string? title = null, string okButton = "OK", string cancelButton = "Cancel", bool cancellable = false)
     {
         return await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -161,7 +170,10 @@ public class UserInteractionService : IUserInteraction
                 PrimaryButtonText = okButton,
                 CloseButtonText = cancellable ? cancelButton : null,
             };
-            var vm = new ColorPickerDialogViewModel();
+            var vm = new ColorPickerDialogViewModel()
+            {
+                SelectedColor = _colorPickerState.LastPickedColor,
+            };
 
             vm.Initialize(d);
 
@@ -169,9 +181,12 @@ public class UserInteractionService : IUserInteraction
 
             var r = await d.ShowAsync();
 
-            if (r == ContentDialogResult.Primary)
-                return vm.GetResult();
-            return Colors.Black;
+            if (r == ContentDialogResult.Primary){
+                var result = vm.GetResult();
+                _colorPickerState.LastPickedColor = result;
+                return result;
+            }
+            return _colorPickerState.LastPickedColor;
         });
     }
 
@@ -220,6 +235,48 @@ public class UserInteractionService : IUserInteraction
         {
             if (_currentDialog is not null)
                 _currentDialog.Hide();
+        });
+    }
+
+    public Task<InputWithOptionsResponse> InputWithOptionsAsync(string message, IEnumerable<string> options, string? title = null, string okButton = "OK", string cancelButton = "Cancel", string? initialText = null, string? placeholder = null, int selectedIndex = 0, bool cancellable = true)
+    {
+        return Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            var optionsList = options?.ToList() ?? new List<string>();
+
+            var d = new ContentDialog()
+            {
+                Title = title,
+                Content = message,
+                IsSecondaryButtonEnabled = false,
+                PrimaryButtonText = okButton,
+                CloseButtonText = cancellable ? cancelButton : null,
+            };
+
+            var vm = new TextOptionsDialogResultViewModel
+            {
+                UserInput = initialText,
+                WatermarkText = placeholder,
+                Options = optionsList,
+                SelectedIndex = optionsList.Count > 0
+                    ? Math.Clamp(selectedIndex, 0, optionsList.Count - 1)
+                    : -1,
+                CanCancel = cancellable
+            };
+            vm.Initialize(d);
+
+            d.Content = new TextOptionsDialogContent { DataContext = vm };
+            d.AttachKeyboardControl(cancellable);
+
+            var r = await d.ShowAsync();
+
+            if (r == ContentDialogResult.Primary)
+            {
+                var result = vm.GetResult();
+                return new InputWithOptionsResponse(true, result?.Text, result?.SelectedOption, result?.SelectedIndex ?? -1);
+            }
+
+            return new InputWithOptionsResponse(false, null, null, -1);
         });
     }
 
