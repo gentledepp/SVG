@@ -6,6 +6,8 @@ using Avalonia.Media;
 
 namespace Svg.Editor.Avalon.Forms.Dialog;
 
+public record InputWithOptionsResponse(bool Ok, string? Text, string? SelectedOption, int SelectedIndex);
+
 public interface IUserInteraction
 {
     Task<bool> ConfirmAsync(string message, string? title = null, string okButton = "OK", string cancelButton = "Cancel", bool cancellable = false);
@@ -41,6 +43,17 @@ public interface IUserInteraction
 
     Task<TimeSpan?> PromptTimeAsync(TimeSpan? selectedTime);
     */
+   
+    Task<InputWithOptionsResponse> InputWithOptionsAsync(
+    string message,
+    IEnumerable<string> options,
+    string? title = null,
+    string okButton = "OK",
+    string cancelButton = "Cancel",
+    string? initialText = null,
+    string? placeholder = null,
+    int selectedIndex = 0,
+    bool cancellable = true);
 
     void Dismiss();
 }

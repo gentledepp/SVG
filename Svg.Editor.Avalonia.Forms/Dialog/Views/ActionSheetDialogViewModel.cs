@@ -39,7 +39,7 @@ public class ActionSheetDialogResultViewModel : ContentDialogResultViewModelBase
         return base.CanClose(result);
     }
 
-    internal override object? GetResult()
+    public override object? GetResult()
     {
         return SelectedItem?.Value;
     }
