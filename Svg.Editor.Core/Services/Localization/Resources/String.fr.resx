@@ -195,4 +195,7 @@
   <data name="Svg.Editor.Global.Cancel" xml:space="preserve">
     <value>Annuler</value>
   </data>
+  <data name="Svg.Editor.Global.Pin.Size.Selection" xml:space="preserve">
+    <value>Sélectionner la taille de la broche</value>
+  </data>
 </root>

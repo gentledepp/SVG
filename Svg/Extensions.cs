@@ -31,38 +31,32 @@ namespace Svg
         }
         private static IEnumerable<SvgElement> GetDescendants<T>(IEnumerable<T> source, bool self) where T : SvgElement
         {
-            var positons = new Stack<int>();
-            int currPos;
-            SvgElement currParent;
             foreach (var start in source)
             {
-                if (start != null)
+                if (start == null) continue;
+
+                if (self) yield return start;
+
+                var stack = new Stack<(SvgElement node, int index)>();
+                stack.Push((start, 0));
+
+                while (stack.Count > 0)
                 {
-                    if (self) yield return start;
+                    var (node, index) = stack.Pop();
 
-                    positons.Push(0);
-                    currParent = start;
-
-                    while (positons.Count > 0)
+                    if (index < node.Children.Count)
                     {
-                        currPos = positons.Pop();
-                        if (currPos < currParent.Children.Count)
-                        {
-                            yield return currParent.Children[currPos];
-                            currParent = currParent.Children[currPos];
-                            positons.Push(currPos + 1);
-                            positons.Push(0);
-                        }
-                        else
-                        {
-                            currParent = currParent.Parent;
-                        }
+                        var child = node.Children[index];
+                        yield return child;
+
+                        stack.Push((node, index + 1));
+                        stack.Push((child, 0));
                     }
+                    // else: just drop this frame, no need to touch .Parent at all
                 }
             }
-            yield break;
         }
-        
+
         private static ICharConverter _converter = null;
 
         public static string ConvertFromUtf32(this int value)

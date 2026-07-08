@@ -24,7 +24,7 @@ namespace Svg.Editor.Avalon.Forms.Services
         {
 
             var mso = markerStartOptions.ToList();
-            var start = await _userInteractionService.ActionSheetAsync(_localizationService.GetString("Svg.Editor.Marker.Options.Start"), mso.ToArray(), cancelButton: _localizationService.GetString("Svg.Editor.Global.Cancel"), cancellable: true);
+            var start = await _userInteractionService.ActionSheetAsync(_localizationService.GetString("Svg.Editor.Marker.Options.Start"), mso.ToArray(), cancelButton: _localizationService.GetString("Svg.Editor.Global.Cancel"), cancellable: true, selectedIndex: markerStartSelected);
 
 
             var startIndex = mso.IndexOf(start);
@@ -32,7 +32,7 @@ namespace Svg.Editor.Avalon.Forms.Services
                 return new[] { markerStartSelected, markerEndSelected };
 
             var meo = markerEndOptions.ToList();
-            var end = await _userInteractionService.ActionSheetAsync(_localizationService.GetString("Svg.Editor.Marker.Options.End"), meo.ToArray(), cancelButton: _localizationService.GetString("Svg.Editor.Global.Cancel"), cancellable: true);
+            var end = await _userInteractionService.ActionSheetAsync(_localizationService.GetString("Svg.Editor.Marker.Options.End"), meo.ToArray(), cancelButton: _localizationService.GetString("Svg.Editor.Global.Cancel"), cancellable: true, selectedIndex: markerEndSelected);
 
             var endIndex = meo.IndexOf(end);
             if (end == null || endIndex < 0)
