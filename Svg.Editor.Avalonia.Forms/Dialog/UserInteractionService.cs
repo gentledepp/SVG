@@ -190,7 +190,7 @@ public class UserInteractionService : IUserInteraction
         });
     }
 
-    public Task<string> ActionSheetAsync(string message, IEnumerable<string> options, string? title = null, string cancelButton = "Cancel", CancellationToken? cancelToken = null, bool cancellable = false)
+    public Task<string> ActionSheetAsync(string message, IEnumerable<string> options, string? title = null, string cancelButton = "Cancel", CancellationToken? cancelToken = null, bool cancellable = false, int selectedIndex = -1)
     {
         return Dispatcher.UIThread.InvokeAsync(async () =>
         {
@@ -204,7 +204,7 @@ public class UserInteractionService : IUserInteraction
                 PrimaryButtonText = "",
                 CloseButtonText = cancellable ? cancelButton : null,
             };
-            var vm = new ActionSheetDialogResultViewModel(options);
+            var vm = new ActionSheetDialogResultViewModel(options, selectedIndex);
             vm.Initialize(d);
             vm.CanCancel = cancellable;
             d.Content = new ActionSheetDialogContent() { DataContext = vm };

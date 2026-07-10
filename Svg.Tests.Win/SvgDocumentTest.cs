@@ -1,5 +1,7 @@
 ﻿using NUnit.Framework;
 using Shouldly;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -14,6 +16,8 @@ namespace Svg.Tests.Win
         {
             SvgPlatform.Init();
         }
+
+       
 
         [Test]
         public void WhenSvgDocumentDrawsAllContent_ThenBitmapHasBoundsSize()
@@ -366,6 +370,137 @@ namespace Svg.Tests.Win
 
             bounds.Height.ShouldBe(170);
             bounds.Width.ShouldBe(180);
+        }
+
+        [Test]
+        public void WhenCallingDescendants_ThenAllElementsAreReturnedInDocumentOrder()
+        {
+            // Arrange
+            var rawSvg = $@"
+<svg height=""500"" width=""500"">
+  <g id=""group1"">
+    <rect id=""rect1"" width=""10"" height=""10""/>
+    <rect id=""rect2"" width=""10"" height=""10""/>
+  </g>
+  <g id=""group2"">
+    <circle id=""circle1"" r=""5""/>
+  </g>
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+
+            // Act
+            var descendants = new[] { (SvgElement)svg }.Descendants().ToList();
+
+            // Assert
+            var expectedIds = new[] { "group1", "rect1", "rect2", "group2", "circle1" };
+            descendants.Select(e => e.ID).ShouldBe(expectedIds);
+        }
+
+        [Test]
+        public void WhenCallingDescendants_ThenTheRootDocumentItselfIsNotIncluded()
+        {
+            // Arrange
+            var rawSvg = $@"
+<svg height=""500"" width=""500"">
+  <rect id=""rect1"" width=""10"" height=""10""/>
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+
+            // Act
+            var descendants = new[] { (SvgElement)svg }.Descendants().ToList();
+
+            // Assert
+            descendants.ShouldNotContain(svg);
+            descendants.Select(e => e.ID).ShouldBe(new[] { "rect1" });
+        }
+
+        [Test]
+        public void WhenCallingDescendants_OnElementWithNoChildren_ThenResultIsEmpty()
+        {
+            // Arrange
+            var rawSvg = $@"
+<svg height=""500"" width=""500"">
+  <rect id=""rect1"" width=""10"" height=""10""/>
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            var rect = svg.Children.OfType<SvgRectangle>().Single();
+
+            // Act
+            var descendants = new[] { (SvgElement)rect }.Descendants().ToList();
+
+            // Assert
+            descendants.ShouldBeEmpty();
+        }
+
+        [Test]
+        public void WhenCallingDescendants_WithNestedGroups_ThenDeepDescendantsAreIncluded()
+        {
+            // Arrange
+            var rawSvg = $@"
+<svg height=""500"" width=""500"">
+  <g id=""outer"">
+    <g id=""inner"">
+      <rect id=""deepRect"" width=""10"" height=""10""/>
+    </g>
+  </g>
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+
+            // Act
+            var descendants = new[] { (SvgElement)svg }.Descendants().ToList();
+
+            // Assert
+            descendants.Select(e => e.ID).ShouldBe(new[] { "outer", "inner", "deepRect" });
+        }
+
+        [Test]
+        public void WhenCallingDescendants_OnCssStyledDocument_ThenAllTextElementsAreFound()
+        {
+            // Reuses the same document as WhenDocumentOpenWithCss_ElementsAdaptStyle,
+            // but goes through the public extension method instead of GetDescendants()
+            // Arrange
+            var rawSvg = $@"
+<svg height=""500"" width=""500"">
+<style>
+    .class1{{font:16px; font-family: sans-serif}}
+    .class2{{font:11px; fill: #00f}}
+</style>
+  <text x=""100"" y=""250"" class=""class1"">01</text>
+  <text x=""360"" y=""179"" class=""class2"">02</text>
+  <text x=""400"" y=""20"" class=""class3"">03</text>
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+
+            // Act
+            var texts = new[] { (SvgElement)svg }.Descendants().OfType<SvgTextBase>().ToArray();
+
+            // Assert
+            texts.Length.ShouldBe(3);
+            texts.Select(t => t.Text.Trim()).ShouldBe(new[] { "01", "02", "03" });
+        }
+
+        [Test]
+        public void WhenCallingDescendants_WithMultipleRootDocuments_ThenEachIsTraversedIndependently()
+        {
+            // Arrange
+            var svg1 = SvgDocument.FromSvg<SvgDocument>(@"<svg><rect id=""a1""/></svg>");
+            var svg2 = SvgDocument.FromSvg<SvgDocument>(@"<svg><rect id=""b1""/><rect id=""b2""/></svg>");
+
+            // Act
+            var descendants = new[] { (SvgElement)svg1, svg2 }.Descendants().ToList();
+
+            // Assert
+            descendants.Select(e => e.ID).ShouldBe(new[] { "a1", "b1", "b2" });
+        }
+
+        [Test]
+        public void WhenCallingDescendants_WithNullSource_ThenArgumentNullExceptionIsThrown()
+        {
+            // Arrange
+            IEnumerable<SvgElement> source = null;
+
+            // Act / Assert
+            Should.Throw<ArgumentNullException>(() => source.Descendants().ToList());
         }
     }
 }

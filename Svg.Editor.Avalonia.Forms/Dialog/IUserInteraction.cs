@@ -36,7 +36,7 @@ public interface IUserInteraction
         string neutral = "Cancel",
         bool cancellable = true);
 
-    Task<string> ActionSheetAsync(string message, IEnumerable<string> options, string? title = null, string cancelButton = "Cancel", CancellationToken? cancelToken = null, bool cancellable = false);
+    Task<string> ActionSheetAsync(string message, IEnumerable<string> options, string? title = null, string cancelButton = "Cancel", CancellationToken? cancelToken = null, bool cancellable = false, int selectedIndex = -1);
 
     /* Ignored deliberately by Alex: Do we really need these "input dialogs" anymore now that Avalonia Date/Time picker _work_?
     Task<DateTime?> PromptDateAsync(DateTime? selectedDate);

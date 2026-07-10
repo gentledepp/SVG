@@ -51,7 +51,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync("Arrow")    // Index 1
                 .ReturnsAsync("Square");  // Index 2
 
@@ -81,7 +82,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync((string)null); // User cancels
 
             // Act
@@ -93,7 +95,7 @@ namespace Svg.Editor.Core.Tests
             result[0].ShouldBe(startSelected);
             result[1].ShouldBe(endSelected);
             _userInteractionMock.Verify(
-                x => x.ActionSheetAsync(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<System.Threading.CancellationToken?>(), It.IsAny<bool>()),
+                x => x.ActionSheetAsync(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<System.Threading.CancellationToken?>(), It.IsAny<bool>(), 2),
                 Times.Once, "Should only call ActionSheetAsync once");
         }
 
@@ -113,7 +115,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync("Arrow")     // User selects start
                 .ReturnsAsync((string)null); // User cancels end
 
@@ -126,8 +129,11 @@ namespace Svg.Editor.Core.Tests
             result[0].ShouldBe(startSelected);
             result[1].ShouldBe(endSelected);
             _userInteractionMock.Verify(
-                x => x.ActionSheetAsync(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<System.Threading.CancellationToken?>(), It.IsAny<bool>()),
-                Times.Exactly(2), "Should call ActionSheetAsync twice");
+                x => x.ActionSheetAsync(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<System.Threading.CancellationToken?>(), It.IsAny<bool>(), 1),
+                Times.Exactly(1), "Should call ActionSheetAsync twice");
+            _userInteractionMock.Verify(
+                x => x.ActionSheetAsync(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<System.Threading.CancellationToken?>(), It.IsAny<bool>(), 2),
+                Times.Exactly(1), "Should call ActionSheetAsync twice");
         }
 
         [Test]
@@ -144,7 +150,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync("None")  // First option
                 .ReturnsAsync("None"); // First option
 
@@ -173,7 +180,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync("InvalidOption"); // Option not in list
 
             // Act
@@ -199,7 +207,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync("Arrow")
                 .ReturnsAsync("Diamond");
 
@@ -214,7 +223,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     "Svg.Editor.Global.Cancel",
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    true),
+                    true,
+                    0),
                 Times.Once);
         }
 
@@ -232,7 +242,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync("Arrow")
                 .ReturnsAsync("Diamond");
 
@@ -247,7 +258,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     "Svg.Editor.Global.Cancel",
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    true),
+                    true,
+                    0),
                 Times.Once);
         }
 
@@ -265,7 +277,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync("Triangle")  // Index 3
                 .ReturnsAsync("Hexagon");   // Index 4
 
@@ -294,7 +307,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync((string)null)  // Cancel first time
                 .ReturnsAsync("Arrow")       // Select second time
                 .ReturnsAsync("Square");     // Select third time

@@ -15,16 +15,24 @@ public class ActionSheetDialogResultViewModel : ContentDialogResultViewModelBase
         set => SetField(ref _selectedItem, value);
     }
 
-    public ActionSheetDialogResultViewModel(IEnumerable<string> items)
+    public ActionSheetDialogResultViewModel(IEnumerable<string> items, int selectedIndex = -1)
     {
         Items = new ObservableCollection<ActionSheetItem>(items.Select(i => new ActionSheetItem(i, i)));
-        SelectedItem = Items.FirstOrDefault();
+        SelectedItem = GetInitialSelection(selectedIndex);
     }
 
     public ActionSheetDialogResultViewModel(IEnumerable<KeyValuePair<string, object?>> items)
     {
         Items = new ObservableCollection<ActionSheetItem>(items.Select(i => new ActionSheetItem(i.Key, i.Value)));
         SelectedItem = Items.FirstOrDefault();
+    }
+
+    private ActionSheetItem? GetInitialSelection(int selectedIndex)
+    {
+        if (selectedIndex >= 0 && selectedIndex < Items.Count)
+            return Items[selectedIndex];
+
+        return Items.FirstOrDefault();
     }
 
     public ObservableCollection<ActionSheetItem> Items { get; }

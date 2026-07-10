@@ -52,7 +52,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync("dashed")  // User selects "dashed" (index 1)
                 .ReturnsAsync("thick");   // User selects "thick" (index 2)
 
@@ -79,7 +80,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync((string)null); // User cancels
 
             // Act
@@ -88,7 +90,7 @@ namespace Svg.Editor.Core.Tests
             // Assert
             result.ShouldBeNull();
             _userInteractionMock.Verify(
-                x => x.ActionSheetAsync(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<System.Threading.CancellationToken?>(), It.IsAny<bool>()),
+                x => x.ActionSheetAsync(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<System.Threading.CancellationToken?>(), It.IsAny<bool>(), It.IsAny<int>()),
                 Times.Once, "Should only call ActionSheetAsync once for dash options");
         }
 
@@ -106,7 +108,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync("dashed")  // User selects dash
                 .ReturnsAsync((string)null); // User cancels width
 
@@ -116,7 +119,7 @@ namespace Svg.Editor.Core.Tests
             // Assert
             result.ShouldBeNull();
             _userInteractionMock.Verify(
-                x => x.ActionSheetAsync(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<System.Threading.CancellationToken?>(), It.IsAny<bool>()),
+                x => x.ActionSheetAsync(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<System.Threading.CancellationToken?>(), It.IsAny<bool>(), It.IsAny<int>()),
                 Times.Exactly(2), "Should call ActionSheetAsync twice");
         }
 
@@ -134,7 +137,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync("solid")  // First option
                 .ReturnsAsync("thin");   // First option
 
@@ -162,7 +166,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync("dashed")
                 .ReturnsAsync("thick");
 
@@ -177,7 +182,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     "Svg.Editor.Global.Cancel",
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    true),
+                    true,
+                    0),
                 Times.Once);
 
             _userInteractionMock.Verify(
@@ -187,7 +193,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     "Svg.Editor.Global.Cancel",
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    true),
+                    true,
+                    0),
                 Times.Once);
         }
 
@@ -205,7 +212,8 @@ namespace Svg.Editor.Core.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<System.Threading.CancellationToken?>(),
-                    It.IsAny<bool>()))
+                    It.IsAny<bool>(),
+                    It.IsAny<int>()))
                 .ReturnsAsync("dashdot")  // Index 3
                 .ReturnsAsync("5px");      // Index 4
 

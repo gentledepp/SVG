@@ -195,4 +195,7 @@
   <data name="Svg.Editor.Global.Cancel" xml:space="preserve">
     <value>Abbrechen</value>
   </data>
+  <data name="Svg.Editor.Global.Pin.Size.Selection" xml:space="preserve">
+    <value>Pin-Größe auswählen</value>
+  </data>
 </root>
