@@ -260,10 +260,13 @@ namespace Svg.Editor.Tools
             SelectElementsUnder(selectionRectangle, ws, selectionType, maxItems, 1);
         }
 
-        private void SelectElementsUnderPoint(RectangleF selectionRectangle, ISvgDrawingCanvas ws, SelectionType selectionType, int maxItems = int.MaxValue)
+        private void SelectElementsUnderPoint(RectangleF selectionRectangle, ISvgDrawingCanvas ws, SelectionType selectionType, int maxItems = 1)
         {
             // when selecting by tapping a point, we do want an element to be selected, if the point intersects with ANY child element of it
             // therefore we need "recursionLevel=max"!
+            // a tap is a single point, so it should only ever select the top-most (highest z-order) element under
+            // it, not every overlapping element - that's what dragging out a selection area is for (see SelectElementsUnderArea).
+            // HitTest already returns matches in top-to-bottom z-order, so taking just the first one is correct.
             SelectElementsUnder(selectionRectangle, ws, selectionType, maxItems, int.MaxValue);
         }
 
