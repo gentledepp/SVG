@@ -295,18 +295,34 @@ namespace Svg
             return element.HasStroke() ? element.StrokeWidth.ToDeviceValue(null, UnitRenderingType.Other, element) / 2 : 0;
         }
 
+        /// <summary>
+        /// True when the element has a visible background, i.e. a fill colour is set AND it is not fully
+        /// transparent (fill-opacity &gt; 0). A shape with fill-opacity:0 renders with no visible interior, so
+        /// for hit testing it must be treated as unfilled (outline-only) - matching what the user actually sees.
+        /// </summary>
+        internal static bool HasVisibleFill(this SvgVisualElement element)
+        {
+            return element.HasFill() && element.FillOpacity > 0;
+        }
+
         private const int EllipticalOutlineSegmentCount = 36;
 
         /// <summary>
-        /// Shared "is a tap near the outline" check for SvgCircle and SvgEllipse (a circle is just an ellipse
-        /// with rx == ry == r). Approximates the outline as a polygon, since there is no closed-form
-        /// line-intersection test for a curve like there is for straight-edged shapes (rectangle/polygon/path).
+        /// Shared hit test for SvgCircle and SvgEllipse (a circle is just an ellipse with rx == ry == r).
+        /// Approximates the outline as a polygon, since there is no closed-form line-intersection test for a
+        /// curve like there is for straight-edged shapes (rectangle/polygon/path). The same polygon is reused
+        /// as the filled-interior region, so a filled ellipse is only hit inside its actual outline, not
+        /// anywhere in its bounding box.
+        ///
+        /// KNOWN LIMITATION (applies to both the outline AND the interior test): the fixed 36-segment count
+        /// means the chord/sagitta gap between the approximating polygon and the true curve grows with radius
+        /// and zoom (roughly r * 0.0038 in screen units at this segment count). This was previously only
+        /// documented as an outline-hit-test caveat; since the interior test now reuses these same polygon
+        /// vertices, a tap just inside the true curve but just outside the polygon (or vice versa) near the
+        /// border can misclassify a fill hit too, not only a border hit.
         /// </summary>
         internal static bool IntersectsWithEllipticalOutline(this SvgVisualElement element, RectangleF rectangle, Matrix transform, float cx, float cy, float rx, float ry)
         {
-            if (element.HasFill())
-                return true;
-
             var lineSegments = new List<(PointF from, PointF to)>();
             PointF previous = null;
             for (var i = 0; i <= EllipticalOutlineSegmentCount; i++)
@@ -322,7 +338,118 @@ namespace Svg
                 previous = current;
             }
 
-            return lineSegments.IsIntersectingWithLine(transform, rectangle, element.GetStrokeHitTestTolerance());
+            return lineSegments.IsIntersectingOrContainedWithinShape(transform, rectangle,
+                element.HasVisibleFill(), element.FillRule, element.GetStrokeHitTestTolerance());
+        }
+
+        /// <summary>
+        /// Border-or-interior hit test for a closed shape whose outline is described by <paramref name="lineSegments"/>.
+        /// A tap counts as a hit when it is either
+        /// <list type="bullet">
+        /// <item>within the stroke band of any edge (the "fat finger" outline test - always applies, filled or not), or</item>
+        /// <item>inside the filled area, but only when <paramref name="hasVisibleFill"/> is true.</item>
+        /// </list>
+        /// The interior test is a real point-in-polygon test honouring <paramref name="fillRule"/>, so a filled
+        /// shape is only hit inside its actual outline - not anywhere in its (larger) bounding box, and not in
+        /// the empty regions of a self-intersecting or concave outline.
+        /// </summary>
+        /// <param name="lineSegments">the shape's outline, in local (untransformed) units</param>
+        /// <param name="transform">the total transformation matrix for the current shape</param>
+        /// <param name="hitTestArea">the area we want to intersect with the shape</param>
+        /// <param name="hasVisibleFill">whether the shape has a visible background (see <see cref="HasVisibleFill"/>)</param>
+        /// <param name="fillRule">the shape's fill-rule, used to resolve the interior of self-intersecting outlines</param>
+        /// <param name="extraToleranceInLocalUnits">extra outline tolerance in local units (e.g. half the stroke width)</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        internal static bool IsIntersectingOrContainedWithinShape(this IList<(PointF from, PointF to)> lineSegments,
+            Matrix transform, RectangleF hitTestArea, bool hasVisibleFill, SvgFillRule fillRule, double extraToleranceInLocalUnits = 0)
+        {
+            if (lineSegments == null) throw new ArgumentNullException(nameof(lineSegments));
+            if (transform == null) throw new ArgumentNullException(nameof(transform));
+            if (hitTestArea == null) throw new ArgumentNullException(nameof(hitTestArea));
+
+            PointF tap = hitTestArea.GetCenterPoint();
+            double selectionWidthHeight = hitTestArea.Width / 2 + transform.ScaleTolerance(extraToleranceInLocalUnits);
+
+            // Transform a copy of every endpoint into screen space once, keeping the ordered vertex ring for the
+            // interior test. (We clone rather than transform in place so the ring survives for point-in-polygon.)
+            var vertices = new List<PointF>(lineSegments.Count + 1);
+            for (var i = 0; i < lineSegments.Count; i++)
+            {
+                var from = lineSegments[i].from.Clone();
+                var to = lineSegments[i].to.Clone();
+                transform.TransformPoints(new[] { from, to });
+
+                // outline ("fat finger" stroke band) hit - always applies, filled or not
+                if (IsLineHit(from, to, tap, selectionWidthHeight))
+                    return true;
+
+                vertices.Add(from);
+                if (i == lineSegments.Count - 1)
+                    vertices.Add(to);
+            }
+
+            // interior hit - only when the shape actually has a visible background
+            return hasVisibleFill && IsPointInPolygon(vertices, tap, fillRule);
+        }
+
+        /// <summary>
+        /// Point-in-polygon test honouring the SVG fill-rule: even-odd uses the crossing-number (ray-cast
+        /// parity) rule, everything else (non-zero, inherit) uses the winding-number rule. The two agree for a
+        /// simple (non-self-intersecting) ring and only differ for self-intersecting/overlapping outlines,
+        /// which is exactly where fill-rule becomes observable.
+        /// </summary>
+        private static bool IsPointInPolygon(IList<PointF> polygon, PointF point, SvgFillRule fillRule)
+        {
+            if (polygon == null || polygon.Count < 3)
+                return false;
+
+            return fillRule == SvgFillRule.EvenOdd
+                ? IsInsideEvenOdd(polygon, point)
+                : IsInsideNonZero(polygon, point);
+        }
+
+        // crossing number / ray casting - "inside" toggles on each edge the horizontal ray crosses
+        private static bool IsInsideEvenOdd(IList<PointF> poly, PointF p)
+        {
+            bool inside = false;
+            for (int i = 0, j = poly.Count - 1; i < poly.Count; j = i++)
+            {
+                var pi = poly[i];
+                var pj = poly[j];
+                if (((pi.Y > p.Y) != (pj.Y > p.Y)) &&
+                    (p.X < (pj.X - pi.X) * (p.Y - pi.Y) / (pj.Y - pi.Y) + pi.X))
+                    inside = !inside;
+            }
+            return inside;
+        }
+
+        // winding number - counts signed crossings; non-zero total means inside
+        private static bool IsInsideNonZero(IList<PointF> poly, PointF p)
+        {
+            int wn = 0;
+            for (int i = 0, j = poly.Count - 1; i < poly.Count; j = i++)
+            {
+                // edge from poly[j] to poly[i]
+                var a = poly[j];
+                var b = poly[i];
+                if (a.Y <= p.Y)
+                {
+                    if (b.Y > p.Y && IsLeft(a, b, p) > 0)
+                        wn++;
+                }
+                else
+                {
+                    if (b.Y <= p.Y && IsLeft(a, b, p) < 0)
+                        wn--;
+                }
+            }
+            return wn != 0;
+        }
+
+        // >0 if p is left of the directed line a->b, <0 if right, 0 if collinear
+        private static double IsLeft(PointF a, PointF b, PointF p)
+        {
+            return (b.X - a.X) * (p.Y - a.Y) - (p.X - a.X) * (b.Y - a.Y);
         }
 
         /// <summary>

@@ -81,9 +81,6 @@ namespace Svg
 
         protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
         {
-            if (this.HasFill())
-                return true;
-
             var units = Points.ToList();
 
             var lineSegments = new List<(PointF from, PointF to)>();
@@ -96,8 +93,12 @@ namespace Svg
             }
             // does not add last line which connects last point to first point as this would be a polygon
             // see: https://www.w3schools.com/graphics/svg_polyline.asp
+            // NOTE: the closing edge is intentionally not stroked, but SVG fills a polyline as if it were
+            // implicitly closed - IsIntersectingOrContainedWithinShape closes the vertex ring for the
+            // interior test, so a filled polyline is hit inside that implied closed area.
 
-            return lineSegments.IsIntersectingWithLine(transform, rectangle, this.GetStrokeHitTestTolerance());
+            return lineSegments.IsIntersectingOrContainedWithinShape(transform, rectangle,
+                this.HasVisibleFill(), this.FillRule, this.GetStrokeHitTestTolerance());
         }
     }
 }

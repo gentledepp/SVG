@@ -603,6 +603,151 @@ namespace Svg.Tests.Win
                 result.Count().ShouldBe(1);
         }
 
+        // ---- precise fill-aware interior hit testing (PR #76 review) ---------------------------------
+
+        [TestCase("center tap w fill hits interior", 145f, 145f, 10, true)]
+        [TestCase("bounding box corner tap w fill (inside bbox, outside circle) is a miss", 105f, 105f, 10, false)]
+        public void Intersect_Circle_WithFill_HitsInteriorNotBoundingBoxCorner(string ___, float x, float y, float wh, bool expectsHitSuccessful)
+        {
+            // Arrange - filled circle: interior selectable, but only inside the actual outline (not the bbox corners)
+            var rawSvg = @"<svg>
+    <circle cx=""150"" cy=""150"" r=""50"" style=""fill:lime;stroke:rgb(0,0,0);stroke-width:1"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            var rect = RectangleF.Create(x, y, wh, wh);
+
+            // Act
+            var result = svg.HitTest<SvgCircle>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            if (!expectsHitSuccessful)
+                result.ShouldBeEmpty();
+            else
+                result.Count().ShouldBe(1);
+        }
+
+        [TestCase("center tap w fill hits interior", 145f, 145f, 10, true)]
+        [TestCase("bounding box corner tap w fill (inside bbox, outside ellipse) is a miss", 102f, 122f, 10, false)]
+        public void Intersect_Ellipse_WithFill_HitsInteriorNotBoundingBoxCorner(string ___, float x, float y, float wh, bool expectsHitSuccessful)
+        {
+            // Arrange - filled ellipse: interior selectable, but only inside the actual outline
+            var rawSvg = @"<svg>
+    <ellipse cx=""150"" cy=""150"" rx=""50"" ry=""30"" style=""fill:lime;stroke:rgb(0,0,0);stroke-width:1"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            var rect = RectangleF.Create(x, y, wh, wh);
+
+            // Act
+            var result = svg.HitTest<SvgEllipse>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            if (!expectsHitSuccessful)
+                result.ShouldBeEmpty();
+            else
+                result.Count().ShouldBe(1);
+        }
+
+        [TestCase("tap inside the filled body hits", 110f, 145f, 10, true)]
+        [TestCase("tap in the concave notch (inside bbox, outside the shape) is a miss", 175f, 115f, 10, false)]
+        public void Intersect_ConcavePolygon_WithFill_HitsBodyNotNotch(string ___, float x, float y, float wh, bool expectsHitSuccessful)
+        {
+            // Arrange - an "L" shaped (concave) polygon. Its bounding box is 100,100-200,200 but the top-right
+            // quadrant is a notch that is NOT part of the shape. A filled shape must only be hit inside its
+            // real outline, not anywhere in the bounding box.
+            var rawSvg = @"<svg>
+    <polygon points=""100,100 100,200 200,200 200,170 130,170 130,100"" style=""fill:lime;stroke:purple;stroke-width:1"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            var rect = RectangleF.Create(x, y, wh, wh);
+
+            // Act
+            var result = svg.HitTest<SvgPolygon>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            if (!expectsHitSuccessful)
+                result.ShouldBeEmpty();
+            else
+                result.Count().ShouldBe(1);
+        }
+
+        [TestCase("opaque fill - interior is a hit", "1", true)]
+        [TestCase("fully transparent fill (no visible background) - interior is a miss", "0", false)]
+        public void Intersect_Rectangle_FillOpacityDeterminesInteriorHit(string ___, string fillOpacity, bool expectsHitSuccessful)
+        {
+            // Arrange - no stroke, so the only way to hit the interior is via a *visible* fill. fill-opacity:0
+            // renders with no background and must therefore behave like an unfilled shape.
+            var rawSvg = $@"<svg>
+    <rect x=""100"" y=""100"" width=""100"" height=""100"" style=""fill:red;fill-opacity:{fillOpacity};stroke:none"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            // tap dead center of the rectangle
+            var rect = RectangleF.Create(145f, 145f, 10, 10);
+
+            // Act
+            var result = svg.HitTest<SvgRectangle>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            if (!expectsHitSuccessful)
+                result.ShouldBeEmpty();
+            else
+                result.Count().ShouldBe(1);
+        }
+
+        [TestCase("non-zero fill rule - the star center is filled", "nonzero", true)]
+        [TestCase("even-odd fill rule - the star center is a hole", "evenodd", false)]
+        public void Intersect_SelfIntersectingPolygon_FillRuleDeterminesInterior(string ___, string fillRule, bool expectsHitSuccessful)
+        {
+            // Arrange - a pentagram (self-intersecting). Its central pentagon is filled under the non-zero rule
+            // but is a hole under the even-odd rule, so the fill-rule alone decides whether a tap in the center
+            // is a hit. Vertices are the 5 points of a star, centered on (150,150).
+            var rawSvg = $@"<svg width=""300"" height=""300"">
+    <polygon points=""150,50 209,231 55,119 245,119 91,231"" style=""fill:lime;fill-rule:{fillRule};stroke:purple;stroke-width:1"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            // tap the center of the star (well away from any edge, so only the fill decides the outcome)
+            var rect = RectangleF.Create(145f, 145f, 10, 10);
+
+            // Act
+            var result = svg.HitTest<SvgPolygon>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            if (!expectsHitSuccessful)
+                result.ShouldBeEmpty();
+            else
+                result.Count().ShouldBe(1);
+        }
+
+        [TestCase("tap in the hole (inner square) - happens to be excluded, but for the wrong reason", 145f, 145f, false)]
+        [TestCase("tap in the donut body (between outer and inner squares) - WRONGLY excluded - this is the real bug", 110f, 145f, false)]
+        public void Intersect_MultiContourDonutPath_ObservesActualGetLinesBehavior(string ___, float x, float y, bool expectsHitSuccessful)
+        {
+            // Arrange - a "donut": an outer square with an inner square subpath cut out via fill-rule evenodd.
+            // Correct SVG semantics: the hole (130,130-170,170) is unfilled, the ring between the two squares
+            // IS filled - so a tap in the donut body (110,145) should be a HIT.
+            // IntersectsWith's own NOTE flags the known limitation: PathData.GetLines() flattens both subpaths
+            // into one vertex ring (no subpath break), so this does not evaluate the two contours independently
+            // - the merged ring ends up self-intersecting instead of forming a real donut.
+            // Measured directly (do not assume): the hole tap happens to still read as a miss, but the donut-body
+            // tap - which should be a hit - is ALSO wrongly read as a miss. So the current implementation doesn't
+            // just fail to carve out the hole; for this shape it fails to detect the filled body at all. This
+            // test pins that actual (broken) behavior so it's a visible, tracked limitation rather than a
+            // rediscovered surprise - fixing GetLines() to preserve subpath breaks is the real fix, out of scope here.
+            var rawSvg = @"<svg>
+    <path d=""M100,100 L200,100 L200,200 L100,200 Z M130,130 L170,130 L170,170 L130,170 Z"" style=""fill:lime;fill-rule:evenodd;stroke:none"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            var rect = RectangleF.Create(x, y, 10, 10);
+
+            // Act
+            var result = svg.HitTest<SvgPath>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            if (!expectsHitSuccessful)
+                result.ShouldBeEmpty();
+            else
+                result.Count().ShouldBe(1);
+        }
+
         [Test]
         public void Intersect_TwoLayeredRectangles_OnlySelectsTopLayerRectangle()
         {

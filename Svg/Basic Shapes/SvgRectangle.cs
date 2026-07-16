@@ -279,9 +279,6 @@ namespace Svg
 
         protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
         {
-            if (this.HasFill())
-                return true;
-            
             var leftTop = PointF.Create(this.X, this.Y);
             var rightTop = PointF.Create(this.X + this.Width, this.Y);
             var rightBottom = PointF.Create(this.X + this.Width, this.Y + this.Height);
@@ -293,7 +290,8 @@ namespace Svg
             lineSegments.Add((rightBottom.Clone(),leftBottom.Clone()));
             lineSegments.Add((leftBottom.Clone(), leftTop.Clone()));
 
-            return lineSegments.IsIntersectingWithLine(transform, rectangle, this.GetStrokeHitTestTolerance());
+            return lineSegments.IsIntersectingOrContainedWithinShape(transform, rectangle,
+                this.HasVisibleFill(), this.FillRule, this.GetStrokeHitTestTolerance());
         }
 
         public override SvgElement DeepCopy()

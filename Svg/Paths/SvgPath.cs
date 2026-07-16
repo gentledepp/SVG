@@ -162,12 +162,21 @@ namespace Svg
         
         protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
         {
-            if (this.HasFill())
-                return true;
-
             var lineSegments = PathData.GetLines();
 
-            return lineSegments.IsIntersectingWithLine(transform, rectangle, this.GetStrokeHitTestTolerance());
+            // NOTE: GetLines() flattens all subpaths into one segment list with no subpath breaks, so a
+            // multi-contour path (e.g. a "donut": an outer contour with an inner one cut out via fill-rule)
+            // is evaluated as a single self-intersecting ring instead of as independent contours. Measured
+            // directly (Svg.Tests.Win/SvgHitTests.cs, Intersect_MultiContourDonutPath_ObservesActualGetLinesBehavior):
+            // this is not merely "the hole isn't carved out" - for a simple two-square donut, the actual filled
+            // body between the two contours can also be wrongly read as unfilled. So this can under-select a
+            // compound path's real fill area, not just over-select its holes. Still strictly more accurate than
+            // the previous "any fill => whole bounding box counts" behaviour for single-contour paths (the
+            // overwhelming majority of real paths), but multi-contour paths need GetLines() to preserve subpath
+            // breaks (and the interior test to evaluate each contour independently) for a real fix - out of
+            // scope for this change.
+            return lineSegments.IsIntersectingOrContainedWithinShape(transform, rectangle,
+                this.HasVisibleFill(), this.FillRule, this.GetStrokeHitTestTolerance());
         }
 
 
