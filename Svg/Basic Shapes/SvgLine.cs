@@ -176,8 +176,8 @@ namespace Svg
         {
             var start = PointF.Create(this.StartX, this.StartY);
             var end = PointF.Create(this.EndX, this.EndY);
-            
-            return (start,end).IsIntersectingWithLine(transform, rectangle);
+
+            return (start,end).IsIntersectingWithLine(transform, rectangle, this.GetStrokeHitTestTolerance());
         }
         
 		public override SvgElement DeepCopy()

@@ -166,8 +166,8 @@ namespace Svg
                 return true;
 
             var lineSegments = PathData.GetLines();
-            
-            return lineSegments.IsIntersectingWithLine(transform, rectangle);
+
+            return lineSegments.IsIntersectingWithLine(transform, rectangle, this.GetStrokeHitTestTolerance());
         }
 
 

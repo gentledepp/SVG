@@ -181,7 +181,7 @@ namespace Svg
                 PointF.Create(units[0].Value, units[1].Value))
                 );
 
-            return lineSegments.IsIntersectingWithLine(transform, rectangle);
+            return lineSegments.IsIntersectingWithLine(transform, rectangle, this.GetStrokeHitTestTolerance());
         }
     }
 }

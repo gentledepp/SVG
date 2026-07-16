@@ -391,6 +391,218 @@ namespace Svg.Tests.Win
             }
         }
 
+        [TestCase("outside tap", 75f, 75f, 10, false)]
+        [TestCase("bounding box corner tap (outside circle outline) w/o fill", 100f, 100f, 10, false)]
+        [TestCase("top border tap w/o fill", 150f, 100f, 10, true)]
+        [TestCase("right border tap w/o fill", 200f, 150f, 10, true)]
+        [TestCase("bottom border tap w/o fill", 150f, 200f, 10, true)]
+        [TestCase("left border tap w/o fill", 100f, 150f, 10, true)]
+        [TestCase("center tap w/o fill", 150f, 150f, 10, false)]
+        public void Intersect_Circle_WithoutFill_DoesNotHitCenter(string ___, float x, float y, float wh, bool expectsHitSuccessful)
+        {
+            // Arrange
+            var rawSvg = @"<svg>
+    <circle cx=""150"" cy=""150"" r=""50"" style=""fill:none;stroke:rgb(0,0,0);stroke-width:1"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            var rect = RectangleF.Create(x, y, wh, wh);
+
+            // Act
+            var result = svg.HitTest<SvgCircle>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            if (!expectsHitSuccessful)
+                result.ShouldBeEmpty();
+            else
+                result.Count().ShouldBe(1);
+        }
+
+        [TestCase("outside tap", 75f, 75f, 10, false)]
+        [TestCase("bounding box corner tap (outside ellipse outline) w/o fill", 100f, 120f, 10, false)]
+        [TestCase("top border tap w/o fill", 150f, 120f, 10, true)]
+        [TestCase("right border tap w/o fill", 200f, 150f, 10, true)]
+        [TestCase("bottom border tap w/o fill", 150f, 180f, 10, true)]
+        [TestCase("left border tap w/o fill", 100f, 150f, 10, true)]
+        [TestCase("center tap w/o fill", 150f, 150f, 10, false)]
+        public void Intersect_Ellipse_WithoutFill_DoesNotHitCenter(string ___, float x, float y, float wh, bool expectsHitSuccessful)
+        {
+            // Arrange
+            // this is the shape actually produced by EllipseTool.CreateShape (Fill = SvgPaintServer.None)
+            var rawSvg = @"<svg>
+    <ellipse cx=""150"" cy=""150"" rx=""50"" ry=""30"" style=""fill:none;stroke:rgb(0,0,0);stroke-width:1"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            var rect = RectangleF.Create(x, y, wh, wh);
+
+            // Act
+            var result = svg.HitTest<SvgEllipse>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            if (!expectsHitSuccessful)
+                result.ShouldBeEmpty();
+            else
+                result.Count().ShouldBe(1);
+        }
+
+        [TestCase("thin stroke - tap is too far from the exact border to count", 1f, false)]
+        [TestCase("thick stroke - fat finger tolerance grows with the visible border", 30f, true)]
+        public void Intersect_Rectangle_WithoutFill_WiderStrokeWidensBorderHitTolerance(string ___, float strokeWidth, bool expectsHitSuccessful)
+        {
+            // Arrange
+            var rawSvg = $@"<svg>
+    <rect x=""100"" y=""100"" width=""100"" height=""100"" style=""fill:none;stroke:rgb(0,0,0);stroke-width:{strokeWidth}"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            // tap 10 units left of the rectangle's left edge (x=100): too far for a 1px stroke, within
+            // tolerance for a 30px stroke's rendered band
+            var rect = RectangleF.Create(85f, 145f, 10, 10);
+
+            // Act
+            var result = svg.HitTest<SvgRectangle>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            if (!expectsHitSuccessful)
+                result.ShouldBeEmpty();
+            else
+                result.Count().ShouldBe(1);
+        }
+
+        [Test]
+        public void Intersect_Rectangle_WithoutFill_PercentageStrokeWidthUsesDocumentRelativeTolerance()
+        {
+            // Arrange
+            // svg is 400x300, so per the SVG spec's diagonal formula, a 6% stroke-width resolves to
+            // sqrt(400^2+300^2)/sqrt(2) * 6/100 =~ 21.2 device units of tolerance (~10.6 half-width).
+            // treating "6" as if it were already pixels (ignoring the % unit) would instead give a
+            // bogus ~3 unit half-width tolerance, and this tap would then incorrectly be a miss.
+            var rawSvg = @"<svg width=""400"" height=""300"">
+    <rect x=""100"" y=""100"" width=""100"" height=""100"" style=""fill:none;stroke:rgb(0,0,0);stroke-width:6%"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            // tap 10 units left of the rectangle's left edge (x=100)
+            var rect = RectangleF.Create(85f, 145f, 10, 10);
+
+            // Act
+            var result = svg.HitTest<SvgRectangle>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            result.Count().ShouldBe(1);
+        }
+
+        [Test]
+        public void Intersect_Rectangle_WithoutFillAndWithoutStroke_DoesNotGetExtraTolerance()
+        {
+            // Arrange
+            // no stroke color set at all - HasStroke() must be false, so the (irrelevant) default
+            // StrokeWidth must not silently widen the hit area
+            var rawSvg = @"<svg>
+    <rect x=""100"" y=""100"" width=""100"" height=""100"" style=""fill:none;stroke:none"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            var rect = RectangleF.Create(85f, 145f, 10, 10);
+
+            // Act
+            var result = svg.HitTest<SvgRectangle>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            result.ShouldBeEmpty();
+        }
+
+        [TestCase("thin stroke - tap is too far from the exact border to count", 1f, false)]
+        [TestCase("thick stroke - fat finger tolerance grows with the visible border", 30f, true)]
+        public void Intersect_Line_WiderStrokeWidensBorderHitTolerance(string ___, float strokeWidth, bool expectsHitSuccessful)
+        {
+            // Arrange
+            var rawSvg = $@"<svg>
+    <line x1=""100"" y1=""100"" x2=""200"" y2=""100"" style=""stroke:rgb(0,0,0);stroke-width:{strokeWidth}"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            // tap 10 units above the horizontal line (y=100): too far for a 1px stroke, within
+            // tolerance for a 30px stroke's rendered band
+            var rect = RectangleF.Create(145f, 85f, 10, 10);
+
+            // Act
+            var result = svg.HitTest<SvgLine>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            if (!expectsHitSuccessful)
+                result.ShouldBeEmpty();
+            else
+                result.Count().ShouldBe(1);
+        }
+
+        [TestCase("thin stroke - tap is too far from the exact border to count", 1f, false)]
+        [TestCase("thick stroke - fat finger tolerance grows with the visible border", 30f, true)]
+        public void Intersect_Polygon_WithoutFill_WiderStrokeWidensBorderHitTolerance(string ___, float strokeWidth, bool expectsHitSuccessful)
+        {
+            // Arrange
+            // a square drawn as a polygon, same bounds as the rectangle test above
+            var rawSvg = $@"<svg>
+    <polygon points=""100,100 200,100 200,200 100,200"" style=""fill:none;stroke:rgb(0,0,0);stroke-width:{strokeWidth}"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            // tap 10 units left of the left edge (x=100): too far for a 1px stroke, within
+            // tolerance for a 30px stroke's rendered band
+            var rect = RectangleF.Create(85f, 145f, 10, 10);
+
+            // Act
+            var result = svg.HitTest<SvgPolygon>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            if (!expectsHitSuccessful)
+                result.ShouldBeEmpty();
+            else
+                result.Count().ShouldBe(1);
+        }
+
+        [TestCase("thin stroke - tap is too far from the exact border to count", 1f, false)]
+        [TestCase("thick stroke - fat finger tolerance grows with the visible border", 30f, true)]
+        public void Intersect_Polyline_WithoutFill_WiderStrokeWidensBorderHitTolerance(string ___, float strokeWidth, bool expectsHitSuccessful)
+        {
+            // Arrange
+            // an "L" shape: top edge (100,100)-(200,100), then down to (200,200)
+            var rawSvg = $@"<svg>
+    <polyline points=""100,100 200,100 200,200"" style=""fill:none;stroke:rgb(0,0,0);stroke-width:{strokeWidth}"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            // tap 10 units above the top edge (y=100): too far for a 1px stroke, within
+            // tolerance for a 30px stroke's rendered band
+            var rect = RectangleF.Create(145f, 85f, 10, 10);
+
+            // Act
+            var result = svg.HitTest<SvgPolyline>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            if (!expectsHitSuccessful)
+                result.ShouldBeEmpty();
+            else
+                result.Count().ShouldBe(1);
+        }
+
+        [TestCase("thin stroke - tap is too far from the exact border to count", 1f, false)]
+        [TestCase("thick stroke - fat finger tolerance grows with the visible border", 30f, true)]
+        public void Intersect_Path_WithoutFill_WiderStrokeWidensBorderHitTolerance(string ___, float strokeWidth, bool expectsHitSuccessful)
+        {
+            // Arrange
+            // same "L" shape as the polyline test above, drawn as a path
+            var rawSvg = $@"<svg>
+    <path d=""M100,100 L200,100 L200,200"" style=""fill:none;stroke:rgb(0,0,0);stroke-width:{strokeWidth}"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            // tap 10 units above the top edge (y=100): too far for a 1px stroke, within
+            // tolerance for a 30px stroke's rendered band
+            var rect = RectangleF.Create(145f, 85f, 10, 10);
+
+            // Act
+            var result = svg.HitTest<SvgPath>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            if (!expectsHitSuccessful)
+                result.ShouldBeEmpty();
+            else
+                result.Count().ShouldBe(1);
+        }
+
         [Test]
         public void Intersect_TwoLayeredRectangles_OnlySelectsTopLayerRectangle()
         {

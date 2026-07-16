@@ -293,7 +293,7 @@ namespace Svg
             lineSegments.Add((rightBottom.Clone(),leftBottom.Clone()));
             lineSegments.Add((leftBottom.Clone(), leftTop.Clone()));
 
-            return lineSegments.IsIntersectingWithLine(transform, rectangle);
+            return lineSegments.IsIntersectingWithLine(transform, rectangle, this.GetStrokeHitTestTolerance());
         }
 
         public override SvgElement DeepCopy()

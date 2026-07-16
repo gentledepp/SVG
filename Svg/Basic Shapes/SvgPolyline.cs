@@ -97,7 +97,7 @@ namespace Svg
             // does not add last line which connects last point to first point as this would be a polygon
             // see: https://www.w3schools.com/graphics/svg_polyline.asp
 
-            return lineSegments.IsIntersectingWithLine(transform, rectangle);
+            return lineSegments.IsIntersectingWithLine(transform, rectangle, this.GetStrokeHitTestTolerance());
         }
     }
 }
