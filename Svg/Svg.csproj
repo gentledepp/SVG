@@ -3,10 +3,12 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net48;net10.0</TargetFrameworks>
 		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-		<Version>3.2.0-optiq07</Version>
+		<Version>3.2.0-optiq08</Version>
 		<Authors>gentledpp,zepr</Authors>
 		<Company>Opti-Q GmbH</Company>
 		<PackageReleaseNotes>
+			#3.2.0-optiq08
+			circle/ellipse should only select on their outline, not their bounding box			
 			#3.2.0-optiq07
 			Tapping a point now only selects the top-most
 			#3.2.0-optiq06

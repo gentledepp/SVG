@@ -291,7 +291,7 @@ namespace Svg
             lineSegments.Add((leftBottom.Clone(), leftTop.Clone()));
 
             return lineSegments.IsIntersectingOrContainedWithinShape(transform, rectangle,
-                this.HasVisibleFill(), this.FillRule, this.GetStrokeHitTestTolerance());
+                this.HasFill(), this.FillRule, this.GetStrokeHitTestTolerance());
         }
 
         public override SvgElement DeepCopy()

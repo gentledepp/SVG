@@ -98,7 +98,7 @@ namespace Svg
             // interior test, so a filled polyline is hit inside that implied closed area.
 
             return lineSegments.IsIntersectingOrContainedWithinShape(transform, rectangle,
-                this.HasVisibleFill(), this.FillRule, this.GetStrokeHitTestTolerance());
+                this.HasFill(), this.FillRule, this.GetStrokeHitTestTolerance());
         }
     }
 }

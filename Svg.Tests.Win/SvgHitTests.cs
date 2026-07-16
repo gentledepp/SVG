@@ -671,11 +671,12 @@ namespace Svg.Tests.Win
         }
 
         [TestCase("opaque fill - interior is a hit", "1", true)]
-        [TestCase("fully transparent fill (no visible background) - interior is a miss", "0", false)]
-        public void Intersect_Rectangle_FillOpacityDeterminesInteriorHit(string ___, string fillOpacity, bool expectsHitSuccessful)
+        [TestCase("fully transparent fill", "0", true)]
+        public void Intersect_Rectangle_FillOpacityDoesNotAffectInteriorHit(string ___, string fillOpacity, bool expectsHitSuccessful)
         {
-            // Arrange - no stroke, so the only way to hit the interior is via a *visible* fill. fill-opacity:0
-            // renders with no background and must therefore behave like an unfilled shape.
+            // Arrange - no stroke, so the only way to hit the interior is via the fill. fill-opacity only
+            // affects how the fill renders (visibly transparent or not) - it says nothing about whether the
+            // shape HAS a fill at all, which is what determines whether the interior is a hit target.
             var rawSvg = $@"<svg>
     <rect x=""100"" y=""100"" width=""100"" height=""100"" style=""fill:red;fill-opacity:{fillOpacity};stroke:none"" />
 </svg>";
@@ -691,6 +692,25 @@ namespace Svg.Tests.Win
                 result.ShouldBeEmpty();
             else
                 result.Count().ShouldBe(1);
+        }
+
+        [Test]
+        public void Intersect_Rectangle_WithNoFillAtAll_InteriorIsNotAHitTarget()
+        {
+            // Arrange - the OTHER half of the fill-opacity rule above: only a shape with genuinely no fill
+            // colour (fill:none) has no interior hit target - not a transparent one, an absent one.
+            var rawSvg = @"<svg>
+    <rect x=""100"" y=""100"" width=""100"" height=""100"" style=""fill:none;stroke:none"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            // tap dead center of the rectangle
+            var rect = RectangleF.Create(145f, 145f, 10, 10);
+
+            // Act
+            var result = svg.HitTest<SvgRectangle>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants);
+
+            // Assert
+            result.ShouldBeEmpty();
         }
 
         [TestCase("non-zero fill rule - the star center is filled", "nonzero", true)]

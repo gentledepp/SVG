@@ -176,7 +176,7 @@ namespace Svg
             // breaks (and the interior test to evaluate each contour independently) for a real fix - out of
             // scope for this change.
             return lineSegments.IsIntersectingOrContainedWithinShape(transform, rectangle,
-                this.HasVisibleFill(), this.FillRule, this.GetStrokeHitTestTolerance());
+                this.HasFill(), this.FillRule, this.GetStrokeHitTestTolerance());
         }
 
 

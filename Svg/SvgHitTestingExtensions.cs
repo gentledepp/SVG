@@ -295,16 +295,6 @@ namespace Svg
             return element.HasStroke() ? element.StrokeWidth.ToDeviceValue(null, UnitRenderingType.Other, element) / 2 : 0;
         }
 
-        /// <summary>
-        /// True when the element has a visible background, i.e. a fill colour is set AND it is not fully
-        /// transparent (fill-opacity &gt; 0). A shape with fill-opacity:0 renders with no visible interior, so
-        /// for hit testing it must be treated as unfilled (outline-only) - matching what the user actually sees.
-        /// </summary>
-        internal static bool HasVisibleFill(this SvgVisualElement element)
-        {
-            return element.HasFill() && element.FillOpacity > 0;
-        }
-
         private const int EllipticalOutlineSegmentCount = 36;
 
         /// <summary>
@@ -339,7 +329,7 @@ namespace Svg
             }
 
             return lineSegments.IsIntersectingOrContainedWithinShape(transform, rectangle,
-                element.HasVisibleFill(), element.FillRule, element.GetStrokeHitTestTolerance());
+                element.HasFill(), element.FillRule, element.GetStrokeHitTestTolerance());
         }
 
         /// <summary>
@@ -347,21 +337,26 @@ namespace Svg
         /// A tap counts as a hit when it is either
         /// <list type="bullet">
         /// <item>within the stroke band of any edge (the "fat finger" outline test - always applies, filled or not), or</item>
-        /// <item>inside the filled area, but only when <paramref name="hasVisibleFill"/> is true.</item>
+        /// <item>inside the filled area, but only when <paramref name="hasFill"/> is true.</item>
         /// </list>
         /// The interior test is a real point-in-polygon test honouring <paramref name="fillRule"/>, so a filled
         /// shape is only hit inside its actual outline - not anywhere in its (larger) bounding box, and not in
         /// the empty regions of a self-intersecting or concave outline.
+        ///
+        /// Note: a fill's opacity (fill-opacity) does NOT affect <paramref name="hasFill"/> - a fully transparent
+        /// but explicitly-set fill is still a real hit target (matching e.g. WPF's Background="Transparent" vs
+        /// Background="{x:Null}" distinction). Only a shape with no fill color at all (fill:none / unset) should
+        /// pass <c>false</c> here.
         /// </summary>
         /// <param name="lineSegments">the shape's outline, in local (untransformed) units</param>
         /// <param name="transform">the total transformation matrix for the current shape</param>
         /// <param name="hitTestArea">the area we want to intersect with the shape</param>
-        /// <param name="hasVisibleFill">whether the shape has a visible background (see <see cref="HasVisibleFill"/>)</param>
+        /// <param name="hasFill">whether the shape has a fill colour set at all (see <see cref="SvgExtentions.HasFill"/>) - independent of fill-opacity</param>
         /// <param name="fillRule">the shape's fill-rule, used to resolve the interior of self-intersecting outlines</param>
         /// <param name="extraToleranceInLocalUnits">extra outline tolerance in local units (e.g. half the stroke width)</param>
         /// <exception cref="ArgumentNullException"></exception>
         internal static bool IsIntersectingOrContainedWithinShape(this IList<(PointF from, PointF to)> lineSegments,
-            Matrix transform, RectangleF hitTestArea, bool hasVisibleFill, SvgFillRule fillRule, double extraToleranceInLocalUnits = 0)
+            Matrix transform, RectangleF hitTestArea, bool hasFill, SvgFillRule fillRule, double extraToleranceInLocalUnits = 0)
         {
             if (lineSegments == null) throw new ArgumentNullException(nameof(lineSegments));
             if (transform == null) throw new ArgumentNullException(nameof(transform));
@@ -388,8 +383,8 @@ namespace Svg
                     vertices.Add(to);
             }
 
-            // interior hit - only when the shape actually has a visible background
-            return hasVisibleFill && IsPointInPolygon(vertices, tap, fillRule);
+            // interior hit - only when the shape actually has a fill color set (opacity is irrelevant here)
+            return hasFill && IsPointInPolygon(vertices, tap, fillRule);
         }
 
         /// <summary>

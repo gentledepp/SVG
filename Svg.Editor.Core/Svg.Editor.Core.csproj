@@ -4,9 +4,11 @@
     <AssemblyName>Svg.Editor</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFramework>net10.0</TargetFramework>
-	  <Version>3.2.0-optiq07</Version>
+	  <Version>3.2.0-optiq08</Version>
 	  <LangVersion>latest</LangVersion>
 	  <PackageReleaseNotes>
+		  #3.2.0-optiq08
+		  circle/ellipse should only select on their outline, not their bounding box
 		  #3.2.0-optiq07
 		  Tapping a point now only selects the top-most
 		  #3.2.0-optiq06
