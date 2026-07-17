@@ -75,6 +75,95 @@ namespace Svg.Editor.Core.Test
         }
 
         [Test]
+        public async Task IfUserTapsOverlappingElements_OnlySelectsTopMostElement()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var txtTool = Canvas.Tools.OfType<SelectionTool>().Single();
+            Canvas.ActiveTool = txtTool;
+            Canvas.ScreenWidth = 800;
+            Canvas.ScreenHeight = 500;
+
+            // "bottom" is declared first, so "top" (declared after, hence higher z-order) fully occludes it
+            var bottom = new SvgRectangle
+            {
+                X = new SvgUnit(SvgUnitType.Pixel, 200),
+                Y = new SvgUnit(SvgUnitType.Pixel, 200),
+                Width = new SvgUnit(SvgUnitType.Pixel, 100),
+                Height = new SvgUnit(SvgUnitType.Pixel, 100),
+                Fill = new SvgColourServer(Color.Create(255, 0, 0))
+            };
+            var top = new SvgRectangle
+            {
+                X = new SvgUnit(SvgUnitType.Pixel, 200),
+                Y = new SvgUnit(SvgUnitType.Pixel, 200),
+                Width = new SvgUnit(SvgUnitType.Pixel, 100),
+                Height = new SvgUnit(SvgUnitType.Pixel, 100),
+                Fill = new SvgColourServer(Color.Create(0, 0, 255))
+            };
+            Canvas.Document.Children.Add(bottom);
+            Canvas.Document.Children.Add(top);
+
+            // Preassert
+            Assert.AreEqual(0, Canvas.SelectedElements.Count);
+
+            // Act - tap somewhere in the middle of both fully-overlapping rectangles
+            var pt1 = PointF.Create(250, 250);
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, pt1, pt1, pt1, 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, pt1, pt1, pt1, 1));
+            ((TestScheduler)SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert - only the top-most element is selected, even though both are hit
+            Assert.AreEqual(1, Canvas.SelectedElements.Count);
+            Assert.AreSame(top, Canvas.SelectedElements.Single());
+        }
+
+        [Test]
+        public async Task IfUserDrawsSelectionRectangle_AndOverlappingElementsAreContained_AllOverlappingElementsAreSelected()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var txtTool = Canvas.Tools.OfType<SelectionTool>().Single();
+            Canvas.ActiveTool = txtTool;
+            Canvas.ScreenWidth = 800;
+            Canvas.ScreenHeight = 500;
+
+            var bottom = new SvgRectangle
+            {
+                X = new SvgUnit(SvgUnitType.Pixel, 200),
+                Y = new SvgUnit(SvgUnitType.Pixel, 200),
+                Width = new SvgUnit(SvgUnitType.Pixel, 100),
+                Height = new SvgUnit(SvgUnitType.Pixel, 100),
+                Fill = new SvgColourServer(Color.Create(255, 0, 0))
+            };
+            var top = new SvgRectangle
+            {
+                X = new SvgUnit(SvgUnitType.Pixel, 200),
+                Y = new SvgUnit(SvgUnitType.Pixel, 200),
+                Width = new SvgUnit(SvgUnitType.Pixel, 100),
+                Height = new SvgUnit(SvgUnitType.Pixel, 100),
+                Fill = new SvgColourServer(Color.Create(0, 0, 255))
+            };
+            Canvas.Document.Children.Add(bottom);
+            Canvas.Document.Children.Add(top);
+
+            // Preassert
+            Assert.AreEqual(0, Canvas.SelectedElements.Count);
+
+            // Act - drag a selection area that encloses both fully-overlapping rectangles
+            var start = PointF.Create(190, 190);
+            var end = PointF.Create(310, 310);
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, start, start, start, 1));
+            await Canvas.OnEvent(new MoveEvent(start, start, end, end - start, 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, start, end, end, 1));
+
+            // Assert - unlike a tap, an area selection selects every element it contains
+            Assert.AreEqual(2, Canvas.SelectedElements.Count);
+            CollectionAssert.Contains(Canvas.SelectedElements, bottom);
+            CollectionAssert.Contains(Canvas.SelectedElements, top);
+        }
+
+        [Test]
         public async Task IfUserDrawsSelectionRectangle_AndElementsAreContained_ElementsAreSelected()
         {
             // Arrange

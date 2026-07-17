@@ -390,5 +390,28 @@ namespace Svg.Tests.Win
                 }
             }
         }
+
+        [Test]
+        public void Intersect_TwoLayeredRectangles_OnlySelectsTopLayerRectangle()
+        {
+            // Arrange
+            // "top" is declared last, so it is rendered on top of (and occludes) "bottom"
+            var rawSvg = @"<svg>
+    <rect id=""bottom"" x=""100"" y=""100"" width=""100"" height=""100"" style=""fill:rgb(255,0,0);stroke:none"" />
+    <rect id=""top"" x=""100"" y=""100"" width=""100"" height=""100"" style=""fill:rgb(0,0,255);stroke:none"" />
+</svg>";
+            var svg = SvgDocument.FromSvg<SvgDocument>(rawSvg);
+            var rect = RectangleF.Create(150f, 150f, 10, 10);
+
+            // Act
+            var result = svg.HitTest<SvgRectangle>(rect, SelectionType.Intersect, HitTestResultMode.ReturnAllMatchingDescendants)
+                .ToArray();
+
+            // Assert
+            // both rectangles are hit, but the top-most (highest z-order) one must be reported first,
+            // so that a caller who only cares about a single selection (e.g. result.First()) selects "top"
+            result.Count().ShouldBe(2);
+            result[0].ID.ShouldBe("top");
+        }
     }
 }
