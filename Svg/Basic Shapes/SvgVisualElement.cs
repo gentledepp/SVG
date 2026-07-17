@@ -454,11 +454,13 @@ namespace Svg
 
             public virtual void SetAttributeChangeToken(Guid newToken)
             {
-                // do nothing initially
-                if (_attributeChangeToken == Guid.Empty)
-                    _attributeChangeToken = newToken;
-                // dispose if token changed
-                else if (newToken != _attributeChangeToken)
+                // Rebuild the cached pens/brushes whenever the token changed. A freshly created
+                // entry has no pens/brushes yet, so disposing it is a no-op - we must NOT
+                // special-case Guid.Empty: an element whose attributes only changed before its
+                // first render still carries the Empty token, so treating Empty as "initial,
+                // don't dispose" would swallow its first tracked change and the cached brush
+                // would keep the old color (the "color only changes on the second attempt" bug).
+                if (newToken != _attributeChangeToken)
                 {
                     Dispose();
                     _attributeChangeToken = newToken;
