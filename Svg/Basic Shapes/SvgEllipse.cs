@@ -138,7 +138,10 @@ namespace Svg
         {
         }
 
-
+        protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
+        {
+            return this.IntersectsWithEllipticalOutline(rectangle, transform, this.CenterX.Value, this.CenterY.Value, this.RadiusX.Value, this.RadiusY.Value);
+        }
 
 		public override SvgElement DeepCopy()
 		{

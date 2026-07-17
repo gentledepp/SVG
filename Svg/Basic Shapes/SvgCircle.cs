@@ -130,6 +130,11 @@ namespace Svg
             CenterY = new SvgUnit(0.0f);
         }
 
+        protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
+        {
+            var r = this.Radius.Value;
+            return this.IntersectsWithEllipticalOutline(rectangle, transform, this.CenterX.Value, this.CenterY.Value, r, r);
+        }
 
 		public override SvgElement DeepCopy()
 		{

@@ -284,6 +284,79 @@ namespace Svg.Editor.Core.Test
         }
 
         [Test]
+        public async Task EllipseWithoutFillIsTappedInCenter_ShouldNotSelect()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var tool = Canvas.Tools.OfType<SelectionTool>().Single();
+            Canvas.ActiveTool = tool;
+            Canvas.ScreenWidth = 800;
+            Canvas.ScreenHeight = 500;
+
+            // this mirrors EllipseTool.CreateShape exactly
+            var ellipse = new SvgEllipse
+            {
+                Stroke = new SvgColourServer(Color.Create(0, 0, 0)),
+                Fill = SvgPaintServer.None,
+                StrokeWidth = new SvgUnit(SvgUnitType.Pixel, 5),
+                CenterX = new SvgUnit(SvgUnitType.Pixel, 400),
+                CenterY = new SvgUnit(SvgUnitType.Pixel, 250),
+                RadiusX = new SvgUnit(SvgUnitType.Pixel, 100),
+                RadiusY = new SvgUnit(SvgUnitType.Pixel, 60)
+            };
+            Canvas.Document.Children.Add(ellipse);
+
+            // Preassert
+            Assert.True(Canvas.Document.Children.Any(x => x == ellipse));
+
+            // Act
+            var pt1 = PointF.Create(400, 250);
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, pt1, pt1, pt1, 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, pt1, pt1, pt1, 1));
+            ((TestScheduler)SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert
+            Assert.AreEqual(0, Canvas.SelectedElements.Count);
+        }
+
+        [Test]
+        public async Task EllipseWithoutFillIsTappedOnBorder_ShouldSelect()
+        {
+            // Arrange
+            await Canvas.EnsureInitialized();
+            var tool = Canvas.Tools.OfType<SelectionTool>().Single();
+            Canvas.ActiveTool = tool;
+            Canvas.ScreenWidth = 800;
+            Canvas.ScreenHeight = 500;
+
+            // this mirrors EllipseTool.CreateShape exactly
+            var ellipse = new SvgEllipse
+            {
+                Stroke = new SvgColourServer(Color.Create(0, 0, 0)),
+                Fill = SvgPaintServer.None,
+                StrokeWidth = new SvgUnit(SvgUnitType.Pixel, 5),
+                CenterX = new SvgUnit(SvgUnitType.Pixel, 400),
+                CenterY = new SvgUnit(SvgUnitType.Pixel, 250),
+                RadiusX = new SvgUnit(SvgUnitType.Pixel, 100),
+                RadiusY = new SvgUnit(SvgUnitType.Pixel, 60)
+            };
+            Canvas.Document.Children.Add(ellipse);
+
+            // Preassert
+            Assert.True(Canvas.Document.Children.Any(x => x == ellipse));
+
+            // Act - tap on the top border of the ellipse (cy - ry)
+            var pt1 = PointF.Create(400, 190);
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerDown, pt1, pt1, pt1, 1));
+            await Canvas.OnEvent(new PointerEvent(EventType.PointerUp, pt1, pt1, pt1, 1));
+            ((TestScheduler)SchedulerProvider.BackgroundScheduler).AdvanceBy(TimeSpan.FromSeconds(1).Ticks);
+
+            // Assert
+            Assert.AreEqual(1, Canvas.SelectedElements.Count);
+            Assert.AreSame(ellipse, Canvas.SelectedElements.Single());
+        }
+
+        [Test]
         public async Task PolygonIsSelectedInside_ShouldNotSelect()
         {
             // Arrange

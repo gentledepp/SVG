@@ -162,9 +162,6 @@ namespace Svg
 
         protected internal override bool IntersectsWith(RectangleF rectangle, Matrix transform, int maxRecursion)
         {
-            if (this.HasFill())
-                return true;
-
             var units = Points.ToList();
 
             var lineSegments = new List<(PointF from, PointF to)>();
@@ -181,7 +178,8 @@ namespace Svg
                 PointF.Create(units[0].Value, units[1].Value))
                 );
 
-            return lineSegments.IsIntersectingWithLine(transform, rectangle);
+            return lineSegments.IsIntersectingOrContainedWithinShape(transform, rectangle,
+                this.HasFill(), this.FillRule, this.GetStrokeHitTestTolerance());
         }
     }
 }

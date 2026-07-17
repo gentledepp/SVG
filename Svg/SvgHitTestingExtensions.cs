@@ -196,16 +196,21 @@ namespace Svg
         /// <param name="lines">the line segments to check</param>
         /// <param name="transform">the total transformation matrix for the current lines</param>
         /// <param name="hitTestArea">the area we want to intersect with the lines</param>
+        /// <param name="extraToleranceInLocalUnits">
+        /// additional tolerance, in the same (untransformed) local units as <paramref name="lines"/>, to widen the hit area by.
+        /// Used to account for a shape's own rendered stroke width ("fat finger" tolerance for thin/curved borders), so callers
+        /// don't need to manually scale it - it is converted to screen space using <paramref name="transform"/>'s scale.
+        /// </param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static bool IsIntersectingWithLine(this IList<(PointF from, PointF to)> lines, Matrix transform, RectangleF hitTestArea)
+        public static bool IsIntersectingWithLine(this IList<(PointF from, PointF to)> lines, Matrix transform, RectangleF hitTestArea, double extraToleranceInLocalUnits = 0)
         {
             if (lines == null) throw new ArgumentNullException(nameof(lines));
             if (transform == null) throw new ArgumentNullException(nameof(transform));
             if (hitTestArea == null) throw new ArgumentNullException(nameof(hitTestArea));
 
             PointF tap = hitTestArea.GetCenterPoint();
-            double selectionWidthHeight = hitTestArea.Width / 2;
+            double selectionWidthHeight = hitTestArea.Width / 2 + transform.ScaleTolerance(extraToleranceInLocalUnits);
 
             foreach (var lineSegment in lines)
             {
@@ -223,23 +228,223 @@ namespace Svg
         /// <param name="lineSegment">the line segments to check</param>
         /// <param name="transform">the total transformation matrix for the current lines</param>
         /// <param name="hitTestArea">the area we want to intersect with the lines</param>
+        /// <param name="extraToleranceInLocalUnits">
+        /// additional tolerance, in the same (untransformed) local units as <paramref name="lineSegment"/>, to widen the hit area by.
+        /// Used to account for a shape's own rendered stroke width ("fat finger" tolerance for thin/curved borders), so callers
+        /// don't need to manually scale it - it is converted to screen space using <paramref name="transform"/>'s scale.
+        /// </param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static bool IsIntersectingWithLine(this (PointF from, PointF to) lineSegment, Matrix transform, RectangleF hitTestArea)
+        public static bool IsIntersectingWithLine(this (PointF from, PointF to) lineSegment, Matrix transform, RectangleF hitTestArea, double extraToleranceInLocalUnits = 0)
         {
             if (transform == null) throw new ArgumentNullException(nameof(transform));
             if (hitTestArea == null) throw new ArgumentNullException(nameof(hitTestArea));
 
             PointF tap = hitTestArea.GetCenterPoint();
-            double selectionWidthHeight = hitTestArea.Width / 2;
+            double selectionWidthHeight = hitTestArea.Width / 2 + transform.ScaleTolerance(extraToleranceInLocalUnits);
 
 
             transform.TransformPoints(new[] { lineSegment.from, lineSegment.to });
 
             if (IsLineHit(lineSegment.from, lineSegment.to, tap, selectionWidthHeight))
                 return true;
-         
+
             return false;
+        }
+
+        /// <summary>
+        /// Converts a tolerance expressed in local (untransformed) units into screen-space units, using the
+        /// average of the matrix's X/Y scale factors. Used to bring a shape's own StrokeWidth (a local-space
+        /// value) into the same space as the (already screen-space) hit test tolerance.
+        ///
+        /// ASSUMPTION - KNOWN INACCURATE UNDER ROTATION: transform.ScaleX/ScaleY are the raw m00/m11 matrix
+        /// components, not a decomposed scale magnitude - they only equal the true axis scale for a
+        /// non-rotated (and, for this average, roughly uniform) transform. Under rotation they mix with
+        /// SkewX/SkewY (e.g. both collapse toward 0 at a 90° rotation), and under strongly non-uniform scale
+        /// the average over/under-estimates one axis, so the resulting tolerance band is wrong in either case.
+        /// This is NOT just a theoretical edge case: the `transform` passed in here is not only the canvas's
+        /// zoom+pan matrix - HitTestInternal clones the incoming transform and mutates it with each element's
+        /// own SvgTransform (and any ancestor group's, accumulated during recursion) before calling
+        /// IntersectsWith. So a shape with its own transform="rotate(...)" attribute (e.g. via RotationTool)
+        /// hits this exact code path today, and its "fat finger" tolerance silently shrinks toward 0 near a
+        /// 90/270-degree rotation. Fix: use a rotation-invariant scale, e.g. sqrt(|ScaleX*ScaleY - SkewX*SkewY|)
+        /// (the determinant-based uniform scale, which reduces to this average for a pure uniform/non-rotated
+        /// scale but stays correct under rotation).
+        /// </summary>
+        private static double ScaleTolerance(this Matrix transform, double toleranceInLocalUnits)
+        {
+            if (toleranceInLocalUnits <= 0)
+                return 0;
+
+            var scale = (Math.Abs(transform.ScaleX) + Math.Abs(transform.ScaleY)) / 2.0;
+            return toleranceInLocalUnits * scale;
+        }
+
+        /// <summary>
+        /// Half of the element's own rendered stroke width, in local (untransformed) units, or 0 if it has no
+        /// stroke. StrokeWidth is resolved via ToDeviceValue (same conversion RenderStroke uses) rather than
+        /// its raw .Value, so non-pixel units (%, em, cm, ...) produce a meaningful tolerance instead of just
+        /// the bare number - no renderer is available during hit testing, so font-relative units (em/ex) fall
+        /// back to ToDeviceValue's built-in default-font-size guess.
+        /// Meant to be passed as extra tolerance to <see cref="IsIntersectingWithLine(IList{(PointF,PointF)}, Matrix, RectangleF, double)"/>
+        /// so that tapping anywhere within a thick border's visible band counts as a hit, not just the exact
+        /// geometric outline ("fat finger" tolerance for border-only hit testing on unfilled shapes).
+        /// </summary>
+        internal static float GetStrokeHitTestTolerance(this SvgVisualElement element)
+        {
+            return element.HasStroke() ? element.StrokeWidth.ToDeviceValue(null, UnitRenderingType.Other, element) / 2 : 0;
+        }
+
+        private const int EllipticalOutlineSegmentCount = 36;
+
+        /// <summary>
+        /// Shared hit test for SvgCircle and SvgEllipse (a circle is just an ellipse with rx == ry == r).
+        /// Approximates the outline as a polygon, since there is no closed-form line-intersection test for a
+        /// curve like there is for straight-edged shapes (rectangle/polygon/path). The same polygon is reused
+        /// as the filled-interior region, so a filled ellipse is only hit inside its actual outline, not
+        /// anywhere in its bounding box.
+        ///
+        /// KNOWN LIMITATION (applies to both the outline AND the interior test): the fixed 36-segment count
+        /// means the chord/sagitta gap between the approximating polygon and the true curve grows with radius
+        /// and zoom (roughly r * 0.0038 in screen units at this segment count). This was previously only
+        /// documented as an outline-hit-test caveat; since the interior test now reuses these same polygon
+        /// vertices, a tap just inside the true curve but just outside the polygon (or vice versa) near the
+        /// border can misclassify a fill hit too, not only a border hit.
+        /// </summary>
+        internal static bool IntersectsWithEllipticalOutline(this SvgVisualElement element, RectangleF rectangle, Matrix transform, float cx, float cy, float rx, float ry)
+        {
+            var lineSegments = new List<(PointF from, PointF to)>();
+            PointF previous = null;
+            for (var i = 0; i <= EllipticalOutlineSegmentCount; i++)
+            {
+                var angle = 2 * Math.PI * i / EllipticalOutlineSegmentCount;
+                var current = PointF.Create(
+                    (float)(cx + rx * Math.Cos(angle)),
+                    (float)(cy + ry * Math.Sin(angle)));
+
+                if (previous != null)
+                    lineSegments.Add((previous.Clone(), current.Clone()));
+
+                previous = current;
+            }
+
+            return lineSegments.IsIntersectingOrContainedWithinShape(transform, rectangle,
+                element.HasFill(), element.FillRule, element.GetStrokeHitTestTolerance());
+        }
+
+        /// <summary>
+        /// Border-or-interior hit test for a closed shape whose outline is described by <paramref name="lineSegments"/>.
+        /// A tap counts as a hit when it is either
+        /// <list type="bullet">
+        /// <item>within the stroke band of any edge (the "fat finger" outline test - always applies, filled or not), or</item>
+        /// <item>inside the filled area, but only when <paramref name="hasFill"/> is true.</item>
+        /// </list>
+        /// The interior test is a real point-in-polygon test honouring <paramref name="fillRule"/>, so a filled
+        /// shape is only hit inside its actual outline - not anywhere in its (larger) bounding box, and not in
+        /// the empty regions of a self-intersecting or concave outline.
+        ///
+        /// Note: a fill's opacity (fill-opacity) does NOT affect <paramref name="hasFill"/> - a fully transparent
+        /// but explicitly-set fill is still a real hit target (matching e.g. WPF's Background="Transparent" vs
+        /// Background="{x:Null}" distinction). Only a shape with no fill color at all (fill:none / unset) should
+        /// pass <c>false</c> here.
+        /// </summary>
+        /// <param name="lineSegments">the shape's outline, in local (untransformed) units</param>
+        /// <param name="transform">the total transformation matrix for the current shape</param>
+        /// <param name="hitTestArea">the area we want to intersect with the shape</param>
+        /// <param name="hasFill">whether the shape has a fill colour set at all (see <see cref="SvgExtentions.HasFill"/>) - independent of fill-opacity</param>
+        /// <param name="fillRule">the shape's fill-rule, used to resolve the interior of self-intersecting outlines</param>
+        /// <param name="extraToleranceInLocalUnits">extra outline tolerance in local units (e.g. half the stroke width)</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        internal static bool IsIntersectingOrContainedWithinShape(this IList<(PointF from, PointF to)> lineSegments,
+            Matrix transform, RectangleF hitTestArea, bool hasFill, SvgFillRule fillRule, double extraToleranceInLocalUnits = 0)
+        {
+            if (lineSegments == null) throw new ArgumentNullException(nameof(lineSegments));
+            if (transform == null) throw new ArgumentNullException(nameof(transform));
+            if (hitTestArea == null) throw new ArgumentNullException(nameof(hitTestArea));
+
+            PointF tap = hitTestArea.GetCenterPoint();
+            double selectionWidthHeight = hitTestArea.Width / 2 + transform.ScaleTolerance(extraToleranceInLocalUnits);
+
+            // Transform a copy of every endpoint into screen space once, keeping the ordered vertex ring for the
+            // interior test. (We clone rather than transform in place so the ring survives for point-in-polygon.)
+            var vertices = new List<PointF>(lineSegments.Count + 1);
+            for (var i = 0; i < lineSegments.Count; i++)
+            {
+                var from = lineSegments[i].from.Clone();
+                var to = lineSegments[i].to.Clone();
+                transform.TransformPoints(new[] { from, to });
+
+                // outline ("fat finger" stroke band) hit - always applies, filled or not
+                if (IsLineHit(from, to, tap, selectionWidthHeight))
+                    return true;
+
+                vertices.Add(from);
+                if (i == lineSegments.Count - 1)
+                    vertices.Add(to);
+            }
+
+            // interior hit - only when the shape actually has a fill color set (opacity is irrelevant here)
+            return hasFill && IsPointInPolygon(vertices, tap, fillRule);
+        }
+
+        /// <summary>
+        /// Point-in-polygon test honouring the SVG fill-rule: even-odd uses the crossing-number (ray-cast
+        /// parity) rule, everything else (non-zero, inherit) uses the winding-number rule. The two agree for a
+        /// simple (non-self-intersecting) ring and only differ for self-intersecting/overlapping outlines,
+        /// which is exactly where fill-rule becomes observable.
+        /// </summary>
+        private static bool IsPointInPolygon(IList<PointF> polygon, PointF point, SvgFillRule fillRule)
+        {
+            if (polygon == null || polygon.Count < 3)
+                return false;
+
+            return fillRule == SvgFillRule.EvenOdd
+                ? IsInsideEvenOdd(polygon, point)
+                : IsInsideNonZero(polygon, point);
+        }
+
+        // crossing number / ray casting - "inside" toggles on each edge the horizontal ray crosses
+        private static bool IsInsideEvenOdd(IList<PointF> poly, PointF p)
+        {
+            bool inside = false;
+            for (int i = 0, j = poly.Count - 1; i < poly.Count; j = i++)
+            {
+                var pi = poly[i];
+                var pj = poly[j];
+                if (((pi.Y > p.Y) != (pj.Y > p.Y)) &&
+                    (p.X < (pj.X - pi.X) * (p.Y - pi.Y) / (pj.Y - pi.Y) + pi.X))
+                    inside = !inside;
+            }
+            return inside;
+        }
+
+        // winding number - counts signed crossings; non-zero total means inside
+        private static bool IsInsideNonZero(IList<PointF> poly, PointF p)
+        {
+            int wn = 0;
+            for (int i = 0, j = poly.Count - 1; i < poly.Count; j = i++)
+            {
+                // edge from poly[j] to poly[i]
+                var a = poly[j];
+                var b = poly[i];
+                if (a.Y <= p.Y)
+                {
+                    if (b.Y > p.Y && IsLeft(a, b, p) > 0)
+                        wn++;
+                }
+                else
+                {
+                    if (b.Y <= p.Y && IsLeft(a, b, p) < 0)
+                        wn--;
+                }
+            }
+            return wn != 0;
+        }
+
+        // >0 if p is left of the directed line a->b, <0 if right, 0 if collinear
+        private static double IsLeft(PointF a, PointF b, PointF p)
+        {
+            return (b.X - a.X) * (p.Y - a.Y) - (p.X - a.X) * (b.Y - a.Y);
         }
 
         /// <summary>
