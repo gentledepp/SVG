@@ -9,6 +9,7 @@
 		<PackageReleaseNotes>
 			#3.2.0-optiq09
 			SvgVisualElement always rebuild the cached pens/brushes when the token differs
+			fix pin color under select tool
 			#3.2.0-optiq08
 			circle/ellipse should only select on their outline, not their bounding box
 			#3.2.0-optiq07
