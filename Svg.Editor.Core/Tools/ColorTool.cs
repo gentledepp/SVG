@@ -20,6 +20,18 @@ namespace Svg.Editor.Tools
 		string GetDefaultTextColorIndex(string color);
 	}
 
+	/// <summary>
+	/// Implemented by a tool that owns a composite element (e.g. a group whose visible shape is a
+	/// child) to tell the <see cref="ColorTool"/> which element(s) actually carry the color.
+	/// This keeps the <see cref="ColorTool"/> closed for modification: it never needs to know about
+	/// any concrete shape - a new shape's tool just implements this and returns its color targets.
+	/// Return <c>null</c> for elements this tool does not own.
+	/// </summary>
+	public interface IColorTargetProvider
+	{
+		IEnumerable<SvgElement> GetColorTargets(SvgElement element);
+	}
+
 	public class ColorTool : UndoableToolBase
 	{
 		#region Private fields and properties
@@ -104,6 +116,21 @@ namespace Svg.Editor.Tools
 		private static string StringifyColor(Color color)
 		{
 			return $"{color.R}_{color.G}_{color.B}";
+		}
+
+		/// <summary>
+		/// Resolves which element(s) should actually receive the color for a selected element.
+		/// Tools that own composite shapes can redirect coloring to a child (e.g. a pin's shape)
+		/// by implementing <see cref="IColorTargetProvider"/>; otherwise the element itself is used.
+		/// </summary>
+		private IEnumerable<SvgElement> ResolveColorTargets(SvgElement element)
+		{
+			var targets = Canvas.Tools
+				.OfType<IColorTargetProvider>()
+				.Select(p => p.GetColorTargets(element))
+				.FirstOrDefault(t => t != null);
+
+			return targets ?? new[] { element };
 		}
 
 		private void ColorizeElement(SvgElement element, string hxColor)
@@ -217,19 +244,14 @@ namespace Svg.Editor.Tools
 				if (_canvas.SelectedElements.Any())
 				{
 					t.UndoRedoService.ExecuteCommand(new UndoableActionCommand("Colorize selected elements", o => { }));
-					// change the color of all selected items
+					// change the color of all selected items. Which element actually carries the
+					// color (the element itself, or a child for composite shapes) is resolved via
+					// IColorTargetProvider, so the ColorTool needs no knowledge of concrete shapes.
 					foreach (var selectedElement in _canvas.SelectedElements)
 					{
-						if (t.Canvas.ActiveTool is ISupportTextColor)
+						foreach (var target in t.ResolveColorTargets(selectedElement))
 						{
-							// in this case the selected element is a group
-							// the first child of the group is the shape itself
-							// and the second child is the text contained by the shape
-							t.ColorizeElement(selectedElement.Children[0], hxColor);
-						}
-						else
-						{
-							t.ColorizeElement(selectedElement, hxColor);
+							t.ColorizeElement(target, hxColor);
 						}
 					}
 					// don't change the global color when items are selected

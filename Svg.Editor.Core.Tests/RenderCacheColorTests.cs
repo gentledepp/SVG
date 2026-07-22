@@ -1,8 +1,10 @@
 using NUnit.Framework;
 using SkiaSharp;
+using Svg;
 using Svg.Editor.Core.Test;
 using Svg.Editor.Services;
 using Svg.Interfaces;
+using System;
 using System.Threading.Tasks;
 
 namespace Svg.Editor.Core.Tests
@@ -19,11 +21,10 @@ namespace Svg.Editor.Core.Tests
         [Test]
         public async Task WhenElementFillChangesForTheFirstTime_ItIsRenderedInTheNewColor()
         {
-            // Arrange - a shape that is initially black, sized to fill the view
+            // Arrange - a shape that is initially black, sized to fill the view.
+            // (OnDraw sets ScreenWidth/Height from the renderer, so we don't set them here.)
             const int w = 200, h = 200;
             await Canvas.EnsureInitialized();
-            Canvas.ScreenWidth = w;
-            Canvas.ScreenHeight = h;
 
             var doc = new SvgDocument { ViewBox = new SvgViewBox(0, 0, w, h) };
             var rect = new SvgRectangle
@@ -58,11 +59,10 @@ namespace Svg.Editor.Core.Tests
         [Test]
         public async Task WhenElementStrokeChangesForTheFirstTime_ItIsRenderedInTheNewColor()
         {
-            // Arrange - an unfilled shape with a thick black stroke, sized to fill the view
+            // Arrange - an unfilled shape with a thick black stroke, sized to fill the view.
+            // (OnDraw sets ScreenWidth/Height from the renderer, so we don't set them here.)
             const int w = 200, h = 200;
             await Canvas.EnsureInitialized();
-            Canvas.ScreenWidth = w;
-            Canvas.ScreenHeight = h;
 
             var doc = new SvgDocument { ViewBox = new SvgViewBox(0, 0, w, h) };
             var rect = new SvgRectangle
@@ -93,6 +93,60 @@ namespace Svg.Editor.Core.Tests
             Assert.That(redBefore, Is.EqualTo(0), "sanity: nothing should be red before the color change");
             Assert.That(redAfter, Is.GreaterThan(100),
                 "The first stroke color change was not rendered - the stale cached brush was reused");
+        }
+
+        // --- Cache-invalidation contract --------------------------------------
+        // These exercise RenderCacheEntryBase.SetAttributeChangeToken directly. That single method
+        // is inherited (not overridden) by RenderCacheEntry, TextRenderCacheEntry and the image
+        // cache entry, so locking its behavior here covers the fix's whole blast radius.
+
+        [Test]
+        public void SetAttributeChangeToken_FirstChangeFromUntrackedInitialState_InvalidatesCache()
+        {
+            // Reproduces the bug at unit level: the element carries the initial Empty token into
+            // its first render (attribute tracking only starts afterwards), the brush gets cached,
+            // then the first *tracked* change flips the token Empty -> real. The old code treated
+            // Empty as "initial, don't dispose" and kept the stale brush.
+            var entry = new SvgVisualElement.RenderCacheEntry();
+
+            entry.SetAttributeChangeToken(Guid.Empty);         // first render with untracked (Empty) token
+            var brush = SvgEngine.Factory.CreateSolidBrush(SvgEngine.Factory.Colors.Black);
+            entry.FillBrush = brush;                           // brush cached during that render
+
+            entry.SetAttributeChangeToken(Guid.NewGuid());     // first tracked attribute change
+
+            Assert.IsNull(entry.FillBrush, "the first attribute change must invalidate the cached brush");
+        }
+
+        [Test]
+        public void SetAttributeChangeToken_UnchangedToken_KeepsCachedBrush()
+        {
+            // Performance contract: when nothing changed the cached brush must be reused, not rebuilt.
+            var entry = new SvgVisualElement.RenderCacheEntry();
+            var token = Guid.NewGuid();
+
+            entry.SetAttributeChangeToken(token);
+            var brush = SvgEngine.Factory.CreateSolidBrush(SvgEngine.Factory.Colors.Black);
+            entry.FillBrush = brush;
+
+            entry.SetAttributeChangeToken(token);              // same token, e.g. a plain repaint
+            entry.SetAttributeChangeToken(token);
+
+            Assert.AreSame(brush, entry.FillBrush, "an unchanged token must reuse the cached brush");
+        }
+
+        [Test]
+        public void SetAttributeChangeToken_SubsequentChange_InvalidatesCache()
+        {
+            // 2nd/3rd change: once tracking a real token, each further change rebuilds the cache.
+            var entry = new SvgVisualElement.RenderCacheEntry();
+
+            entry.SetAttributeChangeToken(Guid.NewGuid());
+            entry.FillBrush = SvgEngine.Factory.CreateSolidBrush(SvgEngine.Factory.Colors.Black);
+
+            entry.SetAttributeChangeToken(Guid.NewGuid());     // another change
+
+            Assert.IsNull(entry.FillBrush, "a subsequent attribute change must invalidate the cached brush");
         }
 
         private static int CountPixels(SKSurface surface, bool isBlack)

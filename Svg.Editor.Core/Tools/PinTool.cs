@@ -16,7 +16,7 @@ namespace Svg.Editor.Tools
             IEnumerable<string> pinSizeOptions, int oldSizeIndex = 1);
     }
 
-    public class PinTool : UndoableToolBase, ISupportTextColor, ISupportMoving
+    public class PinTool : UndoableToolBase, ISupportTextColor, ISupportMoving, IColorTargetProvider
     {
         #region Private fields
 
@@ -67,6 +67,19 @@ namespace Svg.Editor.Tools
         public string GetDefaultTextColorIndex(string color)
         {
             return color;
+        }
+
+        /// <summary>
+        /// A pin is a group whose first child is the visible shape (carrying its own fill/stroke)
+        /// and whose second child is the text. Coloring the group would have no visible effect, so
+        /// the ColorTool is told to color the shape child instead. Returns null for non-pin elements.
+        /// </summary>
+        public IEnumerable<SvgElement> GetColorTargets(SvgElement element)
+        {
+            if (element.CustomAttributes.ContainsKey(PinSizeAttributeKey) && element.Children.Count >= 2)
+                return new[] { element.Children[0] };
+
+            return null;
         }
 
         #endregion
