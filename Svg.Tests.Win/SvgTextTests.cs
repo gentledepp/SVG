@@ -1,7 +1,10 @@
 ﻿using Shouldly;
 using NUnit.Framework;
+using SkiaSharp;
 using Svg.Editor.Tests;
 using Svg.Interfaces;
+using Svg.Platform;
+using System.IO;
 using System.Linq;
 
 namespace Svg.Tests.Win
@@ -13,6 +16,53 @@ namespace Svg.Tests.Win
         {
             SvgPlatform.Init();
             Svg.SvgEngine.Register<IFileLoader>(() => new FileLoader());
+        }
+
+        // When the embedded font has no glyph for a character,
+        // that character must be measured/drawn via a fallback font, not
+        // as the primary font's blank .notdef glyph
+        [Test]
+        public void EmbeddedSubsetFont_MissingGlyph_IsMeasuredViaFallback_NotNotdef()
+        {
+            // Top3_1.svg embeds a PdfToSvg.NET subset font (family "f37kpsI") that only contains the
+            // handful of glyphs the source PDF used, so most characters are absent from it.
+            var svgPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "Assets", "Top3_1.svg");
+            using var src = File.OpenRead(svgPath);
+            using var doc = SvgDocument.Open<SvgDocument>(src);
+
+            var fontFamily = (SkiaFontFamily)SvgEngine.Factory.LoadCustomFontFamily(
+                "f37kpsI", SvgFontWeight.Normal, SvgFontStyle.Normal, doc);
+            var primary = fontFamily.Typeface;
+
+            using var paint = new SKPaint { Typeface = primary, TextSize = 20f };
+
+            // Find a character absent from the subset font but present in a system fallback, whose
+            // fallback advance differs from the primary's blank .notdef advance (so the test is
+            // meaningful). BuildTextRuns resolves fallbacks with SKFontManager.Default.MatchCharacter,
+            // so we mirror that here to compute the expected width.
+            char missing = default;
+            float expectedFallbackWidth = 0f, notdefWidth = 0f;
+            var found = false;
+            foreach (var c in "QWXYZqwxyz@#€§µ")
+            {
+                if (primary.GetGlyph(c) != 0) continue;                 // primary HAS it -> not missing
+                var fb = SKFontManager.Default.MatchCharacter(c);
+                if (fb == null || fb.GetGlyph(c) == 0) continue;        // no usable fallback
+                using var fbFont = new SKFont(fb, paint.TextSize);
+                var fw = fbFont.MeasureText(c.ToString(), paint);
+                var nd = paint.MeasureText(c.ToString());               // primary .notdef advance
+                if (System.Math.Abs(fw - nd) < 0.5f) continue;          // not discriminating
+                missing = c; expectedFallbackWidth = fw; notdefWidth = nd; found = true;
+                break;
+            }
+
+            found.ShouldBeTrue("expected a character absent from the subset font but present in a fallback");
+
+            var (fixedWidth, _) = paint.MeasureTextWithWhiteSpace(missing.ToString());
+            
+            fixedWidth.ShouldBe(expectedFallbackWidth, 0.6f);
+            // Red before the fix: it would equal the primary .notdef advance instead.
+            System.Math.Abs(fixedWidth - notdefWidth).ShouldBeGreaterThan(0.5f);
         }
 
         [Test]
