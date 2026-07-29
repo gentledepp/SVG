@@ -112,7 +112,20 @@ namespace Svg.Platform
             if (text == null)
                 return;
             var paint = (SkiaPen)pen;
-            _canvas.DrawText(text, x, y, paint.Paint);
+            var skPaint = paint.Paint;
+
+            // Divide text into runs first and then draw each run
+            // This fixed an issue where if the primary font did not include all glyphs (e.g. for whitespace), 
+            // we can use a different font (fallback) for those parts of the text
+            var runs = SKPaintExtensions.BuildTextRuns(skPaint, text, out _);
+            
+            var drawX = x;
+            foreach (var run in runs)
+            {
+                _canvas.DrawText(run.Text, drawX, y, run.Font, skPaint);
+                drawX += run.Width;
+                run.Font.Dispose();
+            }
         }
 
         private void SetSmoothingMode(SKPaint paint)

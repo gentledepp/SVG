@@ -2,6 +2,7 @@ using ExCSS;
 using SkiaSharp;
 using Svg.Interfaces;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -262,26 +263,82 @@ namespace Svg.Platform
 
     public static class SKPaintExtensions
     {
+        // Fallback typefaces for characters missing from a primary font, keyed by codepoint
+        private static readonly ConcurrentDictionary<int, SKTypeface> _fallbackCache = new();
+
+        internal readonly struct TextRun
+        {
+            public readonly string Text;
+            public readonly SKFont Font;
+            public readonly float Width;
+
+            public TextRun(string text, SKFont font, float width)
+            {
+                Text = text;
+                Font = font;
+                Width = width;
+            }
+        }
+
+        private static SKTypeface ResolveFallback(char c)
+        {
+            return _fallbackCache.GetOrAdd(c,
+                cp => SKFontManager.Default.MatchCharacter(cp) ?? SKTypeface.Default);
+        }
+
         /// <summary>
-        /// Skia ignores spaces when measuring text
-        /// So we need to solve it manually.
-        /// See here: https://github.com/mono/SkiaSharp/issues/605
+        /// Splits <paramref name="text"/> into runs, using a fallback typeface
+        /// for any characters the paint's typeface has no glyph for.
+        /// The returned <see cref="TextRun.Font"/> instances are owned by the caller and must be disposed.
         /// </summary>
-        /// <param name="paint"></param>
-        /// <param name="text"></param>
-        /// <returns></returns>
+        internal static List<TextRun> BuildTextRuns(SKPaint paint, string text, out float totalWidth)
+        {
+            var runs = new List<TextRun>();
+            totalWidth = 0f;
+            if (string.IsNullOrEmpty(text))
+                return runs;
+
+            var primary = paint.Typeface ?? SKTypeface.Default;
+            var size = paint.TextSize;
+
+            var i = 0;
+            while (i < text.Length)
+            {
+                var primaryHasGlyph = primary.GetGlyph(text[i]) != 0;
+                var start = i;
+                while (i < text.Length && (primary.GetGlyph(text[i]) != 0) == primaryHasGlyph)
+                    i++;
+
+                var runText = text.Substring(start, i - start);
+                var typeface = primaryHasGlyph ? primary : ResolveFallback(text[start]);
+                var font = new SKFont(typeface, size);
+                // SKFont.MeasureText returns the advance width (includes whitespace), which is the
+                // exact amount SKCanvas.DrawText advances the pen for this run.
+                var width = font.MeasureText(runText, paint);
+
+                runs.Add(new TextRun(runText, font, width));
+                totalWidth += width;
+            }
+
+            return runs;
+        }
+
         public static (float width, float height) MeasureTextWithWhiteSpace(this SKPaint paint, string text)
         {
-            SKRect rect = new SKRect();
-            
-            var wrapper = ".";
-            var wrapperWidth = paint.MeasureText(wrapper);
-            var textWidth = paint.MeasureText(wrapper + text + wrapper, ref rect);
-            textWidth = textWidth - (wrapperWidth + wrapperWidth);
+            var runs = BuildTextRuns(paint, text, out var width);
 
-            var width = textWidth;
-            var height = rect.Bottom - rect.Top;
-            
+            // Height is the ink extent measured with the primary font. Missing (blank) glyphs
+            // contribute no ink, so measuring the whole string with the primary font is enough.
+            float height;
+            using (var primaryFont = new SKFont(paint.Typeface ?? SKTypeface.Default, paint.TextSize))
+            {
+                primaryFont.MeasureText(text, out var rect, paint);
+                height = rect.Bottom - rect.Top;
+            }
+
+            foreach (var run in runs)
+                run.Font.Dispose();
+
             return (width, height);
         }
     }
