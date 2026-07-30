@@ -36,7 +36,7 @@ namespace Svg.Editor.Avalon.Forms.Services
                 return new TextTool.TextProperties
                 {
                     FontSizeIndex = textSizeSelected,
-                    LineHeight = 12f,
+                    LineHeight = 1.25f,
                     Text = textValue
                 };
             }
@@ -50,7 +50,7 @@ namespace Svg.Editor.Avalon.Forms.Services
             return new TextTool.TextProperties
             {
                 FontSizeIndex = sizeIndex,
-                LineHeight = 12f,
+                LineHeight = 1.25f,
                 Text = text
             };
         }
