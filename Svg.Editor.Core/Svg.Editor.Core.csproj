@@ -4,9 +4,11 @@
     <AssemblyName>Svg.Editor</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFramework>net10.0</TargetFramework>
-	  <Version>3.2.0-optiq09</Version>
+	  <Version>3.2.0-optiq11</Version>
 	  <LangVersion>latest</LangVersion>
 	  <PackageReleaseNotes>
+		  #3.2.0-optiq11
+		  Fixed huge paragraph spacing in multi-line text (LineHeight 12f -> 1.25f)
 		  #3.2.0-optiq09
 		  SvgVisualElement always rebuild the cached pens/brushes when the token differs
 		  fix pin color under select tool

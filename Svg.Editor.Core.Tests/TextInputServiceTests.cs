@@ -53,7 +53,7 @@ namespace Svg.Editor.Core.Tests
             result.ShouldNotBeNull();
             result.Text.ShouldBe("Hello world");
             result.FontSizeIndex.ShouldBe(2);
-            result.LineHeight.ShouldBe(12f);
+            result.LineHeight.ShouldBe(1.25f);
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace Svg.Editor.Core.Tests
             result.ShouldNotBeNull();
             result.Text.ShouldBe(originalText);
             result.FontSizeIndex.ShouldBe(originalIndex);
-            result.LineHeight.ShouldBe(12f);
+            result.LineHeight.ShouldBe(1.25f);
         }
 
         [Test]
