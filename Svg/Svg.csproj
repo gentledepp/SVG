@@ -3,10 +3,12 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net48;net10.0</TargetFrameworks>
 		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-		<Version>3.2.0-optiq11</Version>
+		<Version>3.2.0-optiq12</Version>
 		<Authors>gentledpp,zepr</Authors>
 		<Company>Opti-Q GmbH</Company>
 		<PackageReleaseNotes>
+			#3.2.0-optiq12
+			Fixed action sheet returning the wrong item on touch and selecting while scrolling
 			#3.2.0-optiq11
 			Fixed huge paragraph spacing in multi-line text (LineHeight 12f -> 1.25f)
 			#3.2.0-optiq10
